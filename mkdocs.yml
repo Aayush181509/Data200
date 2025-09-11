@@ -3,7 +3,8 @@ site_description: Applied Statistical Analysis Course
 
 nav:
   - Welcome: index.md
-  # - Installation Guide: 
+  - Installation Guide: lectures/InstallationGuide.md
+  - Introduction: lectures/Introduction.md
 theme:
   name: material
   features:
