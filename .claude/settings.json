@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 /tmp/gen_linreg_notebook.py)",
+      "Bash(python3 -c \"import json; nb=json.load\\(open\\('/Users/aayush/Documents/Kings/deployed/Data200/notebooks/LinearRegression.ipynb'\\)\\); print\\('cells:', len\\(nb['cells']\\)\\); print\\('md:', sum\\(1 for c in nb['cells'] if c['cell_type']=='markdown'\\)\\); print\\('code:', sum\\(1 for c in nb['cells'] if c['cell_type']=='code'\\)\\)\")",
+      "Bash(jupyter nbconvert:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(grep -n '\\\\$' /Users/aayush/Documents/Kings/deployed/Data200/docs/lectures/LinearRegression.md)",
+      "Bash(python3 -c \"import pymdownx; print\\('pymdownx ok'\\)\")",
+      "Bash(mkdocs build:*)",
+      "Bash(python3)",
+      "Bash(python3 /tmp/expand_remedies.py)",
+      "Bash(python3 /tmp/gen_param_est.py)"
+    ],
+    "additionalDirectories": [
+      "/tmp",
+      "/private/tmp"
+    ]
+  }
+}

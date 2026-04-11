@@ -46,26 +46,26 @@ print(f"Seaborn version: {sns.__version__}")
     Seaborn version: 0.13.2
 
 
-# 1. Statistics Concepts - A Quick Recap
+## 1. Statistics Concepts - A Quick Recap
 
 Statistics is the science of collecting, analyzing, interpreting, and presenting data. It forms the backbone of data science and machine learning.
 
-## 1.1 Descriptive Statistics
+### 1.1 Descriptive Statistics
 
 Descriptive statistics summarize and describe the main features of a dataset.
 
-### Measures of Central Tendency:
+#### Measures of Central Tendency:
 - **Mean (μ)**: The average value
 - **Median**: The middle value when data is ordered
 - **Mode**: The most frequently occurring value
 
-### Measures of Variability:
+#### Measures of Variability:
 - **Range**: Difference between maximum and minimum values
 - **Variance (σ²)**: Average of squared deviations from the mean
 - **Standard Deviation (σ)**: Square root of variance
 - **Interquartile Range (IQR)**: Range between 25th and 75th percentiles
 
-### Measures of Shape:
+#### Measures of Shape:
 - **Skewness**: Measure of asymmetry
 - **Kurtosis**: Measure of tail heaviness
 
@@ -120,41 +120,41 @@ plt.show()
     
 
 
-## 1.2 Inferential Statistics
+### 1.2 Inferential Statistics
 
 Inferential statistics allows us to make conclusions about populations based on sample data.
 
-### Key Concepts:
+#### Key Concepts:
 - **Population**: The entire group we want to study
 - **Sample**: A subset of the population used for analysis
 - **Parameter**: A numerical characteristic of a population (μ, σ)
 - **Statistic**: A numerical characteristic of a sample (x̄, s)
 
-### Probability Distributions:
+#### Probability Distributions:
 - **Normal Distribution**: Bell-shaped, symmetric distribution
 - **t-Distribution**: Similar to normal but with heavier tails (used for small samples)
 - **Chi-square Distribution**: Used for testing independence and goodness of fit
 - **F-Distribution**: Used in ANOVA and regression analysis
 
-### Central Limit Theorem:
+#### Central Limit Theorem:
 As sample size increases, the sampling distribution of the sample mean approaches a normal distribution, regardless of the population's distribution.
 
-# 2. Machine Learning Fundamentals
+## 2. Machine Learning Fundamentals
 
 Machine Learning (ML) is a subset of artificial intelligence that enables computers to learn and make decisions from data without being explicitly programmed.
 
-## 2.1 What is Machine Learning?
+### 2.1 What is Machine Learning?
 
 Machine learning algorithms build mathematical models based on training data to make predictions or decisions without being explicitly programmed to perform the task.
 
-### Key Components:
+#### Key Components:
 - **Data**: The fuel of machine learning
 - **Algorithm**: The method used to find patterns
 - **Model**: The output of an algorithm trained on data
 - **Features**: Individual measurable properties of observed phenomena
 - **Target/Label**: The outcome we want to predict
 
-## 2.2 The Machine Learning Pipeline
+### 2.2 The Machine Learning Pipeline
 
 1. **Data Collection**: Gathering relevant data
 2. **Data Preprocessing**: Cleaning and preparing data
@@ -164,18 +164,18 @@ Machine learning algorithms build mathematical models based on training data to 
 6. **Validation**: Testing the model's performance
 7. **Deployment**: Using the model in production
 
-# 3. Types of Machine Learning
+## 3. Types of Machine Learning
 
-## 3.1 Supervised Learning
+### 3.1 Supervised Learning
 
 In supervised learning, the algorithm learns from labeled training data to make predictions on new, unseen data.
 
-### Characteristics:
+#### Characteristics:
 - Uses labeled data (input-output pairs)
 - Goal is to learn a mapping function from inputs to outputs
 - Performance can be measured against known correct answers
 
-### Types:
+#### Types:
 1. **Classification**: Predicting discrete categories or classes
    - Binary Classification: Two classes (e.g., spam/not spam)
    - Multi-class Classification: More than two classes (e.g., animal species)
@@ -183,23 +183,23 @@ In supervised learning, the algorithm learns from labeled training data to make 
 2. **Regression**: Predicting continuous numerical values
    - Linear Regression, Polynomial Regression, etc.
 
-### Common Algorithms:
+#### Common Algorithms:
 - Linear/Logistic Regression
 - Decision Trees
 - Random Forest
 - Support Vector Machines (SVM)
 - Neural Networks
 
-## 3.2 Unsupervised Learning
+### 3.2 Unsupervised Learning
 
 In unsupervised learning, the algorithm finds hidden patterns in data without labeled examples.
 
-### Characteristics:
+#### Characteristics:
 - Uses unlabeled data
 - Goal is to discover hidden structure in data
 - No correct answers to learn from
 
-### Types:
+#### Types:
 1. **Clustering**: Grouping similar data points
    - K-Means, Hierarchical Clustering
    
@@ -209,11 +209,11 @@ In unsupervised learning, the algorithm finds hidden patterns in data without la
 3. **Dimensionality Reduction**: Simplifying data while preserving information
    - Principal Component Analysis (PCA)
 
-## 3.3 Reinforcement Learning
+### 3.3 Reinforcement Learning
 
 An agent learns to make decisions by receiving rewards or penalties for actions taken in an environment.
 
-### Characteristics:
+#### Characteristics:
 - Learns through trial and error
 - Uses reward/punishment feedback
 - Goal is to maximize cumulative reward
@@ -276,28 +276,28 @@ plt.show()
     
 
 
-# 4. Hypothesis Testing
+## 4. Hypothesis Testing
 
 Hypothesis testing is a statistical method used to make inferences about population parameters based on sample data.
 
-## 4.1 Key Concepts
+### 4.1 Key Concepts
 
-### Hypotheses:
+#### Hypotheses:
 - **Null Hypothesis (H₀)**: The default assumption (no effect, no difference)
 - **Alternative Hypothesis (H₁ or Hₐ)**: What we want to prove (there is an effect)
 
-### Types of Errors:
+#### Types of Errors:
 - **Type I Error (α)**: Rejecting H₀ when it's actually true (False Positive)
 - **Type II Error (β)**: Failing to reject H₀ when it's actually false (False Negative)
 - **Power (1-β)**: Probability of correctly rejecting a false H₀
 
-### p-value:
+#### p-value:
 The probability of obtaining test results at least as extreme as the observed results, assuming H₀ is true.
 
-### Significance Level (α):
+#### Significance Level (α):
 The threshold for rejecting H₀ (commonly α = 0.05)
 
-## 4.2 Steps in Hypothesis Testing
+### 4.2 Steps in Hypothesis Testing
 
 1. **State the hypotheses** (H₀ and H₁)
 2. **Choose significance level** (α)
@@ -307,7 +307,7 @@ The threshold for rejecting H₀ (commonly α = 0.05)
 6. **Make a decision** (reject or fail to reject H₀)
 7. **State the conclusion**
 
-## 4.3 Common Statistical Tests
+### 4.3 Common Statistical Tests
 
 - **One-sample t-test**: Compare sample mean to known population mean
 - **Two-sample t-test**: Compare means of two groups
@@ -431,11 +431,11 @@ plt.show()
     
 
 
-# 5. Regression Analysis
+## 5. Regression Analysis
 
 Regression analysis is a statistical method used to model and analyze the relationship between a dependent variable (target) and one or more independent variables (predictors).
 
-## 5.1 Simple Linear Regression
+### 5.1 Simple Linear Regression
 
 Models the relationship between two variables using a straight line.
 
@@ -448,25 +448,25 @@ Where:
 - β₁ = slope (regression coefficient)
 - ε = error term
 
-### Assumptions:
+#### Assumptions:
 1. **Linearity**: The relationship is linear
 2. **Independence**: Observations are independent
 3. **Homoscedasticity**: Constant variance of errors
 4. **Normality**: Errors are normally distributed
 
-## 5.2 Multiple Linear Regression
+### 5.2 Multiple Linear Regression
 
 Extends simple regression to multiple predictors.
 
 **Equation**: y = β₀ + β₁x₁ + β₂x₂ + ... + βₚxₚ + ε
 
-### Key Metrics:
+#### Key Metrics:
 - **R²**: Coefficient of determination (proportion of variance explained)
 - **Adjusted R²**: R² adjusted for the number of predictors
 - **F-statistic**: Overall model significance
 - **p-values**: Individual coefficient significance
 
-## 5.3 Model Evaluation
+### 5.3 Model Evaluation
 
 - **Mean Squared Error (MSE)**: Average of squared residuals
 - **Root Mean Squared Error (RMSE)**: Square root of MSE
@@ -595,31 +595,31 @@ print(f"A house of {sample_size} sq ft is predicted to cost ${predicted_price:,.
     A house of 1500 sq ft is predicted to cost $95,311.87
 
 
-# 6. Analysis of Variance (ANOVA)
+## 6. Analysis of Variance (ANOVA)
 
 ANOVA is a statistical technique used to compare means among three or more groups to determine if there are statistically significant differences.
 
-## 6.1 Types of ANOVA
+### 6.1 Types of ANOVA
 
-### One-Way ANOVA
+#### One-Way ANOVA
 - Compares means of **one factor** with multiple levels
 - **Null Hypothesis**: All group means are equal (μ₁ = μ₂ = μ₃ = ...)
 - **Alternative Hypothesis**: At least one group mean is different
 
-### Two-Way ANOVA
+#### Two-Way ANOVA
 - Examines the effect of **two factors** simultaneously
 - Can detect **main effects** and **interaction effects**
 
-### Repeated Measures ANOVA
+#### Repeated Measures ANOVA
 - Used when the same subjects are measured multiple times
 
-## 6.2 ANOVA Assumptions
+### 6.2 ANOVA Assumptions
 
 1. **Independence**: Observations are independent
 2. **Normality**: Data in each group is normally distributed
 3. **Homogeneity of Variance**: Equal variances across groups (homoscedasticity)
 
-## 6.3 ANOVA Table Components
+### 6.3 ANOVA Table Components
 
 - **Sum of Squares (SS)**:
   - SST (Total): Total variation in data
@@ -634,7 +634,7 @@ ANOVA is a statistical technique used to compare means among three or more group
 - **F-statistic**: MSB / MSW
 - **p-value**: Probability of observing F-statistic under H₀
 
-## 6.4 Post-Hoc Tests
+### 6.4 Post-Hoc Tests
 
 When ANOVA is significant, post-hoc tests identify which specific groups differ:
 - **Tukey's HSD**: Controls family-wise error rate
@@ -798,49 +798,49 @@ print(f"Effect Size Interpretation: {effect_size}")
     Effect Size Interpretation: large
 
 
-# 7. Classification
+## 7. Classification
 
 Classification is a supervised learning task where the goal is to predict discrete categorical labels or classes.
 
-## 7.1 Types of Classification
+### 7.1 Types of Classification
 
-### Binary Classification
+#### Binary Classification
 - **Two classes** (e.g., spam/not spam, pass/fail)
 - Common algorithms: Logistic Regression, SVM, Decision Trees
 
-### Multi-class Classification  
+#### Multi-class Classification  
 - **More than two classes** (e.g., image recognition, species classification)
 - Strategies: One-vs-Rest, One-vs-One
 
-### Multi-label Classification
+#### Multi-label Classification
 - **Multiple labels** can be assigned to each instance
 - Example: Text categorization (politics + economics)
 
-## 7.2 Classification Algorithms
+### 7.2 Classification Algorithms
 
-### Decision Trees
+#### Decision Trees
 - Easy to interpret and visualize
 - Handle both numerical and categorical features
 - Prone to overfitting
 
-### Random Forest
+#### Random Forest
 - Ensemble of decision trees
 - Reduces overfitting
 - Provides feature importance
 
-### Support Vector Machines (SVM)
+#### Support Vector Machines (SVM)
 - Effective for high-dimensional data
 - Works well with limited data
 - Can use different kernels
 
-### k-Nearest Neighbors (k-NN)
+#### k-Nearest Neighbors (k-NN)
 - Instance-based learning
 - No assumptions about data distribution
 - Computationally expensive for large datasets
 
-## 7.3 Performance Metrics
+### 7.3 Performance Metrics
 
-### Confusion Matrix
+#### Confusion Matrix
 ```
                 Predicted
               |  0  |  1  |
@@ -848,14 +848,14 @@ Classification is a supervised learning task where the goal is to predict discre
             1 | FN  | TP  |
 ```
 
-### Key Metrics:
+#### Key Metrics:
 - **Accuracy**: (TP + TN) / (TP + TN + FP + FN)
 - **Precision**: TP / (TP + FP) - "Of predicted positives, how many are correct?"
 - **Recall (Sensitivity)**: TP / (TP + FN) - "Of actual positives, how many were found?"
 - **Specificity**: TN / (TN + FP) - "Of actual negatives, how many were correctly identified?"
 - **F1-Score**: 2 × (Precision × Recall) / (Precision + Recall)
 
-### ROC Curve and AUC
+#### ROC Curve and AUC
 - **ROC Curve**: Plot of True Positive Rate vs False Positive Rate
 - **AUC**: Area Under the ROC Curve (0.5 = random, 1.0 = perfect)
 
@@ -1057,58 +1057,58 @@ for name, importance in zip(feature_names, importances):
       Income: 0.4183
 
 
-# 8. Logistic Regression
+## 8. Logistic Regression
 
 Logistic regression is a statistical method used for binary and multi-class classification problems. Unlike linear regression, it predicts probabilities using the logistic function.
 
-## 8.1 The Logistic Function (Sigmoid)
+### 8.1 The Logistic Function (Sigmoid)
 
 **Equation**: p = 1 / (1 + e^(-z))
 
 Where z = β₀ + β₁x₁ + β₂x₂ + ... + βₚxₚ
 
-### Key Properties:
+#### Key Properties:
 - Output ranges from 0 to 1 (probability)
 - S-shaped curve
 - Monotonic (always increasing)
 - Symmetric around p = 0.5
 
-## 8.2 Odds and Log-Odds
+### 8.2 Odds and Log-Odds
 
-### Odds
+#### Odds
 **Odds = p / (1 - p)**
 - Ratio of probability of success to probability of failure
 - Range: 0 to ∞
 
-### Log-Odds (Logit)
+#### Log-Odds (Logit)
 **Logit(p) = ln(p / (1 - p)) = β₀ + β₁x₁ + β₂x₂ + ... + βₚxₚ**
 - Natural logarithm of odds
 - Range: -∞ to ∞
 - Linear relationship with predictors
 
-## 8.3 Interpretation of Coefficients
+### 8.3 Interpretation of Coefficients
 
 - **β₀**: Log-odds when all predictors = 0
 - **βᵢ**: Change in log-odds for one unit increase in xᵢ
 - **e^βᵢ**: Odds ratio - multiplicative effect on odds
 
-### Example:
+#### Example:
 If β₁ = 0.693, then e^0.693 ≈ 2
 - One unit increase in x₁ doubles the odds
 
-## 8.4 Model Fitting and Assessment
+### 8.4 Model Fitting and Assessment
 
-### Maximum Likelihood Estimation
+#### Maximum Likelihood Estimation
 - Uses iterative algorithms (Newton-Raphson, IRLS)
 - Maximizes likelihood of observed data
 
-### Model Assessment:
+#### Model Assessment:
 - **Deviance**: Measure of model fit (-2 × log-likelihood)
 - **AIC/BIC**: Information criteria for model comparison
 - **Pseudo R²**: Various measures (McFadden's, Nagelkerke's)
 - **Hosmer-Lemeshow Test**: Goodness-of-fit test
 
-## 8.5 Assumptions
+### 8.5 Assumptions
 
 1. **Linearity**: Linear relationship between logit and predictors
 2. **Independence**: Observations are independent
@@ -1429,30 +1429,30 @@ print(f"  Odds multiply by: {np.exp(0.1 * coef_gpa):.2f}")
       Odds multiply by: 1.26
 
 
-# 9. Summary and Next Steps
+## 9. Summary and Next Steps
 
-## 9.1 What We've Covered
+### 9.1 What We've Covered
 
 In this introduction notebook, we've explored fundamental concepts that form the backbone of applied statistical analysis:
 
-### Statistics Foundations
+#### Statistics Foundations
 - **Descriptive Statistics**: Measures of central tendency, variability, and shape
 - **Inferential Statistics**: Making conclusions about populations from samples
 - **Probability Distributions**: Normal, t-, chi-square, and F-distributions
 
-### Machine Learning Concepts
+#### Machine Learning Concepts
 - **Supervised Learning**: Classification and regression with labeled data
 - **Unsupervised Learning**: Finding patterns without labels
 - **Model Evaluation**: Accuracy, precision, recall, F1-score, ROC/AUC
 
-### Statistical Methods
+#### Statistical Methods
 - **Hypothesis Testing**: Systematic approach to testing claims
 - **Regression Analysis**: Modeling relationships between variables
 - **ANOVA**: Comparing means across multiple groups
 - **Classification**: Predicting categorical outcomes
 - **Logistic Regression**: Probabilistic classification method
 
-## 9.2 Key Takeaways
+### 9.2 Key Takeaways
 
 1. **Statistics and ML are complementary**: Statistical methods provide the foundation for understanding data, while ML focuses on prediction and pattern recognition.
 
@@ -1464,7 +1464,7 @@ In this introduction notebook, we've explored fundamental concepts that form the
 
 5. **Interpretation over complexity**: Understanding and communicating results is often more important than using the most sophisticated method.
 
-## 9.3 Course Roadmap
+### 9.3 Course Roadmap
 
 Throughout this course, we will:
 
@@ -1474,7 +1474,7 @@ Throughout this course, we will:
 - **Explore modern tools** and best practices in statistical computing
 - **Apply methods** to domain-specific problems
 
-## 9.4 Best Practices for Applied Statistics
+### 9.4 Best Practices for Applied Statistics
 
 1. **Start with exploration**: Always begin with descriptive statistics and visualizations
 2. **Check assumptions**: Validate model assumptions before interpreting results
@@ -1482,7 +1482,7 @@ Throughout this course, we will:
 4. **Document your process**: Keep clear records of your analytical decisions
 5. **Communicate effectively**: Present results in a way your audience can understand
 
-## 9.5 Resources for Further Learning
+### 9.5 Resources for Further Learning
 
 - **Textbooks**: 
   - "An Introduction to Statistical Learning" by James, Witten, Hastie, and Tibshirani
