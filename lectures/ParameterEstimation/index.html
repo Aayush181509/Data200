@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Parameter Estimation & Regularization - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Parameter Estimation \u0026 Regularization";
+        var mkdocs_page_input_path = "lectures/ParameterEstimation.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Parameter Estimation & Regularization</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#1-the-optimization-view-of-regression">1. The Optimization View of Regression</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-setup-imports">2. Setup — Imports</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-limitations-of-the-closed-form-ols-solution">3. Limitations of the Closed-Form OLS Solution</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#31-cost-matrix-inversion-is-op3">3.1 Cost — matrix inversion is \(O(p^3)\)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#32-memory-and-streaming-it-all-has-to-fit">3.2 Memory and streaming — it all has to fit</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#33-fragility-xtop-x-can-be-singular">3.3 Fragility — \(X^\top X\) can be singular</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-gradient-descent-the-workhorse-of-modern-ml">4. Gradient Descent — The Workhorse of Modern ML</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#41-the-core-idea">4.1 The core idea</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#42-a-one-minute-warm-up">4.2 A one-minute warm-up</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#43-gradient-descent-for-linear-regression">4.3 Gradient descent for linear regression</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#44-visualizing-the-loss-surface-and-the-descent-path">4.4 Visualizing the loss surface and the descent path</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#45-the-learning-rate-matters-a-lot">4.5 The learning rate matters — a lot</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#46-batch-stochastic-and-mini-batch-gd">4.6 Batch, Stochastic, and Mini-batch GD</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-how-gradient-descent-solves-olss-limitations">5. How Gradient Descent Solves OLS's Limitations</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-maximum-likelihood-estimation-the-probabilistic-view">6. Maximum Likelihood Estimation — The Probabilistic View</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#61-a-one-parameter-warm-up">6.1 A one-parameter warm-up</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#62-linear-regression-as-mle">6.2 Linear regression as MLE</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-regression-metrics-how-good-is-good">7. Regression Metrics — How Good is "Good"?</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#71-computing-all-of-them-on-the-advertising-data">7.1 Computing all of them on the Advertising data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#72-which-metric-should-i-use">7.2 Which metric should I use?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#8-regularization-taming-overfitting-and-multicollinearity">8. Regularization — Taming Overfitting and Multicollinearity</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#81-why-regularize-an-overfitting-demonstration">8.1 Why regularize — an overfitting demonstration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#82-ridge-regression-l2-penalty">8.2 Ridge regression — L2 penalty</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#83-lasso-regression-l1-penalty">8.3 Lasso regression — L1 penalty</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#84-the-geometric-intuition-why-l1-zeros-things-out">8.4 The geometric intuition — why L1 zeros things out</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#85-elastic-net-the-best-of-both">8.5 Elastic Net — the best of both</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#86-choosing-alpha-cross-validation">8.6 Choosing \(\alpha\) — cross-validation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-key-takeaways">9. Key Takeaways</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#10-practice-exercises">10. Practice Exercises</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Parameter Estimation & Regularization</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="parameter-estimation-metrics-regularization">Parameter Estimation, Metrics &amp; Regularization<a class="headerlink" href="#parameter-estimation-metrics-regularization" title="Permanent link">&para;</a></h1>
+<p><em>Data 200 · Applied Statistical Analysis · Instructor: Aayush Regmi</em></p>
+<hr />
+<p>In the <a href="../LinearRegression/">Linear Regression notebook</a> we used the
+<strong>closed-form OLS solution</strong>
+<span class="arithmatex">\(\hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top y\)</span> to fit models. That
+formula is elegant, but it's not the only game in town — and it has real
+limitations when datasets get large or predictors get nasty.</p>
+<p>This notebook rounds out the linear-regression toolkit with <strong>four more
+topics</strong> every applied statistician needs:</p>
+<ol>
+<li><strong>Gradient Descent</strong> — an iterative alternative to OLS that scales to
+   huge datasets and works with almost any loss function.</li>
+<li><strong>Maximum Likelihood Estimation (MLE)</strong> — the <em>probabilistic</em> view of
+   parameter estimation that unifies linear regression with logistic
+   regression, Poisson regression, and the rest of the GLM family.</li>
+<li><strong>Regression Metrics</strong> — how we actually measure whether a fitted
+   model is any good: MAE, MSE, RMSE, <span class="arithmatex">\(R^2\)</span>, Adjusted <span class="arithmatex">\(R^2\)</span>, MAPE.</li>
+<li><strong>Regularization</strong> — Ridge, Lasso, and Elastic Net — with
+   visualizations that show <em>why</em> and <em>how</em> they tame overfitting.</li>
+</ol>
+<blockquote>
+<p>Re-run each cell yourself. The plots are designed to be poked at —
+change a learning rate, a regularization strength, or a polynomial
+degree and watch the whole story shift.</p>
+</blockquote>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this notebook you should be able to:</p>
+<ol>
+<li>Explain <strong>three concrete limitations</strong> of the closed-form OLS solution
+   and describe how Gradient Descent addresses each one.</li>
+<li>Implement <strong>vanilla batch Gradient Descent</strong> for linear regression
+   from scratch, and describe how Stochastic and Mini-batch variants
+   differ.</li>
+<li>Diagnose a failing optimizer from its <strong>loss curve</strong> — distinguish
+   "learning rate too small", "learning rate too large", and "converged".</li>
+<li>Write down the <strong>log-likelihood</strong> of a linear regression model under
+   Gaussian noise and show that <strong>MLE ≡ OLS</strong> in that setting.</li>
+<li>Compute <strong>MAE, MSE, RMSE, <span class="arithmatex">\(R^2\)</span>, Adj-<span class="arithmatex">\(R^2\)</span>, MAPE</strong> on a real dataset
+   and pick the right metric for a given business question.</li>
+<li>Explain what <strong>Ridge</strong> and <strong>Lasso</strong> do to the OLS objective,
+   visualize the <strong>regularization path</strong>, and describe the geometric
+   reason Lasso can zero coefficients out while Ridge cannot.</li>
+</ol>
+<h2 id="1-the-optimization-view-of-regression">1. The Optimization View of Regression<a class="headerlink" href="#1-the-optimization-view-of-regression" title="Permanent link">&para;</a></h2>
+<p>Everything we do in this notebook sits inside one sentence:</p>
+<blockquote>
+<p><strong>Fitting a model = solving an optimization problem.</strong></p>
+</blockquote>
+<p>For linear regression that problem is</p>
+<div class="arithmatex">\[\hat{\boldsymbol\beta} \;=\; \arg\min_{\boldsymbol\beta}\; L(\boldsymbol\beta)
+\quad\text{with}\quad L(\boldsymbol\beta) \;=\; \sum_{i=1}^n \bigl(y_i - \mathbf{x}_i^\top \boldsymbol\beta\bigr)^2.\]</div>
+<p>There are <strong>three</strong> standard ways to solve it:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>How it works</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Closed-form (OLS)</strong></td>
+<td>Set the gradient to zero and solve algebraically: <span class="arithmatex">\(\hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top y\)</span></td>
+<td>Small to medium datasets, well-conditioned <span class="arithmatex">\(X\)</span></td>
+</tr>
+<tr>
+<td><strong>Iterative (Gradient Descent)</strong></td>
+<td>Walk downhill on <span class="arithmatex">\(L\)</span> one small step at a time</td>
+<td>Huge or streaming data, custom losses, non-invertible <span class="arithmatex">\(X^\top X\)</span></td>
+</tr>
+<tr>
+<td><strong>Probabilistic (MLE)</strong></td>
+<td>Write <span class="arithmatex">\(y\)</span> as coming from a distribution and maximize its likelihood</td>
+<td>GLMs, logistic regression, anything non-Gaussian</td>
+</tr>
+</tbody>
+</table>
+<p>All three give the <strong>same answer</strong> for vanilla linear regression with
+Gaussian noise — but they open very different doors.</p>
+<h2 id="2-setup-imports">2. Setup — Imports<a class="headerlink" href="#2-setup-imports" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LinearRegression</span><span class="p">,</span> <span class="n">Ridge</span><span class="p">,</span> <span class="n">Lasso</span><span class="p">,</span> <span class="n">ElasticNet</span><span class="p">,</span>
+    <span class="n">RidgeCV</span><span class="p">,</span> <span class="n">LassoCV</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span><span class="p">,</span>
+    <span class="n">mean_absolute_percentage_error</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialFeatures</span><span class="p">,</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">optimize</span><span class="p">,</span> <span class="n">stats</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="3-limitations-of-the-closed-form-ols-solution">3. Limitations of the Closed-Form OLS Solution<a class="headerlink" href="#3-limitations-of-the-closed-form-ols-solution" title="Permanent link">&para;</a></h2>
+<p>The formula <span class="arithmatex">\(\hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top y\)</span> is beautiful
+but hides three practical problems:</p>
+<h3 id="31-cost-matrix-inversion-is-op3">3.1 Cost — matrix inversion is <span class="arithmatex">\(O(p^3)\)</span><a class="headerlink" href="#31-cost-matrix-inversion-is-op3" title="Permanent link">&para;</a></h3>
+<p>Computing <span class="arithmatex">\((X^\top X)^{-1}\)</span> costs on the order of <span class="arithmatex">\(p^3\)</span> floating-point
+operations, where <span class="arithmatex">\(p\)</span> is the number of predictors. For <span class="arithmatex">\(p = 10\)</span> that's
+nothing; for <span class="arithmatex">\(p = 10{,}000\)</span> it's ten <strong>trillion</strong> operations — and you
+need <span class="arithmatex">\(p^2 \approx 10^8\)</span> floats just to store the matrix.</p>
+<h3 id="32-memory-and-streaming-it-all-has-to-fit">3.2 Memory and streaming — it all has to fit<a class="headerlink" href="#32-memory-and-streaming-it-all-has-to-fit" title="Permanent link">&para;</a></h3>
+<p>OLS wants <em>all the data at once</em> so it can build <span class="arithmatex">\(X^\top X\)</span> and
+<span class="arithmatex">\(X^\top y\)</span>. If your data arrives one row at a time (clickstreams, sensor
+feeds, recommender logs) you can't use it directly.</p>
+<h3 id="33-fragility-xtop-x-can-be-singular">3.3 Fragility — <span class="arithmatex">\(X^\top X\)</span> can be singular<a class="headerlink" href="#33-fragility-xtop-x-can-be-singular" title="Permanent link">&para;</a></h3>
+<p>If two predictors are (nearly) linear combinations of each other,
+<span class="arithmatex">\(X^\top X\)</span> becomes singular or nearly so, and the inverse either doesn't
+exist or explodes numerically. Let's reproduce this.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build two nearly-identical columns</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>          <span class="c1"># nearly a copy</span>
+<span class="n">y</span>  <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x2</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">X_bad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">])</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">beta_ols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">X_bad</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X_bad</span><span class="p">)</span> <span class="o">@</span> <span class="n">X_bad</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">y</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OLS succeeded — coefficients:&quot;</span><span class="p">,</span> <span class="n">beta_ols</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OLS failed:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+<span class="n">cond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">X_bad</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X_bad</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Condition number of X</span><span class="se">\u1d40</span><span class="s2">X : </span><span class="si">{</span><span class="n">cond</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;(anything above ~1e8 means the inverse is numerically unreliable)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>OLS succeeded — coefficients: [-4.000000e-02 -1.540712e+04  1.540809e+04]
+
+Condition number of XᵀX : 3.02e+12
+(anything above ~1e8 means the inverse is numerically unreliable)
+</code></pre></div>
+<p>The condition number is astronomical — the "solution" OLS returns for
+the two almost-identical columns is essentially random noise. Gradient
+Descent, as we'll see in Section 4, <em>never computes this inverse</em> so it
+is much more robust here.</p>
+<h2 id="4-gradient-descent-the-workhorse-of-modern-ml">4. Gradient Descent — The Workhorse of Modern ML<a class="headerlink" href="#4-gradient-descent-the-workhorse-of-modern-ml" title="Permanent link">&para;</a></h2>
+<h3 id="41-the-core-idea">4.1 The core idea<a class="headerlink" href="#41-the-core-idea" title="Permanent link">&para;</a></h3>
+<p>Imagine you're standing on a hilly landscape <span class="arithmatex">\(L(\boldsymbol\beta)\)</span> in the
+fog. You can't see the valley, but you can feel the <strong>slope</strong> under your
+feet. A sensible strategy is:</p>
+<ol>
+<li>Feel which way is <strong>downhill</strong> (compute the gradient).</li>
+<li>Take a small step in that direction.</li>
+<li>Repeat until the ground feels flat.</li>
+</ol>
+<p>Formally, the <strong>update rule</strong> is</p>
+<div class="arithmatex">\[\boldsymbol\beta^{(t+1)} \;=\; \boldsymbol\beta^{(t)} \;-\; \eta\,\nabla L\!\left(\boldsymbol\beta^{(t)}\right)\]</div>
+<p>where <span class="arithmatex">\(\eta &gt; 0\)</span> is the <strong>learning rate</strong>. For the MSE loss</p>
+<div class="arithmatex">\[L(\boldsymbol\beta) \;=\; \frac{1}{n}\sum_{i=1}^n (y_i - \mathbf{x}_i^\top \boldsymbol\beta)^2\]</div>
+<p>the gradient has a clean closed form:</p>
+<div class="arithmatex">\[\nabla L(\boldsymbol\beta) \;=\; \frac{2}{n}\, X^\top (X\boldsymbol\beta - y).\]</div>
+<h3 id="42-a-one-minute-warm-up">4.2 A one-minute warm-up<a class="headerlink" href="#42-a-one-minute-warm-up" title="Permanent link">&para;</a></h3>
+<p>Before tackling regression, let's minimize <span class="arithmatex">\(f(x) = (x - 3)^2\)</span>, which
+obviously has a minimum at <span class="arithmatex">\(x = 3\)</span>. The derivative is <span class="arithmatex">\(f'(x) = 2(x - 3)\)</span>
+so the update rule is <span class="arithmatex">\(x \leftarrow x - \eta \cdot 2(x - 3)\)</span>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">minimize_1d</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x0</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x0</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_iter</span><span class="p">):</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">grad</span>
+        <span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+
+<span class="n">traj</span> <span class="o">=</span> <span class="n">minimize_1d</span><span class="p">(</span><span class="n">x0</span><span class="o">=-</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Started at x = </span><span class="si">{</span><span class="n">traj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ended   at x = </span><span class="si">{</span><span class="n">traj</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  (target: 3.0000)&quot;</span><span class="p">)</span>
+
+<span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="p">(</span><span class="n">xs</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$f(x) = (x-3)^2$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="p">(</span><span class="n">traj</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;GD iterates&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="p">(</span><span class="n">traj</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;f(x)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Gradient descent walks downhill one step at a time&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Started at x = -2.000
+Ended   at x = 3.0000  (target: 3.0000)
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_9_1.png" /></p>
+<h3 id="43-gradient-descent-for-linear-regression">4.3 Gradient descent for linear regression<a class="headerlink" href="#43-gradient-descent-for-linear-regression" title="Permanent link">&para;</a></h3>
+<p>Now let's use GD to fit a linear regression. We'll generate data from the
+model <span class="arithmatex">\(y = 2 + 3x + \varepsilon\)</span>, then see if GD can recover the true
+slope and intercept.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Synthetic linear data</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">x</span><span class="p">])</span>          <span class="c1"># [1, x] with intercept</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gradient_descent</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="p">[</span><span class="n">beta</span><span class="o">.</span><span class="n">copy</span><span class="p">()]</span>
+    <span class="n">losses</span>  <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">X</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_iter</span><span class="p">):</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">X</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">grad</span>
+        <span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">beta</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">X</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">beta</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">history</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+
+<span class="n">beta_gd</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">losses</span> <span class="o">=</span> <span class="n">gradient_descent</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">beta_ols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X</span><span class="p">)</span> <span class="o">@</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">y</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;True parameters        : [2.00, 3.00]&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OLS (closed form)      : </span><span class="si">{</span><span class="n">beta_ols</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gradient Descent       : </span><span class="si">{</span><span class="n">beta_gd</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>True parameters        : [2.00, 3.00]
+OLS (closed form)      : [1.975, 2.999]
+Gradient Descent       : [1.975, 2.999]
+</code></pre></div>
+<h3 id="44-visualizing-the-loss-surface-and-the-descent-path">4.4 Visualizing the loss surface and the descent path<a class="headerlink" href="#44-visualizing-the-loss-surface-and-the-descent-path" title="Permanent link">&para;</a></h3>
+<p>Because the model has only two parameters <span class="arithmatex">\((\beta_0, \beta_1)\)</span>, we can
+plot the entire loss surface and overlay the sequence of GD iterates.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build a grid over (b0, b1) and evaluate the loss</span>
+<span class="n">b0_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">b1_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">B0</span><span class="p">,</span> <span class="n">B1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">b0_grid</span><span class="p">,</span> <span class="n">b1_grid</span><span class="p">)</span>
+<span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">B0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">B0</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="n">B1</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]])</span>
+        <span class="n">L</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">X</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># Contour plot with GD trajectory</span>
+<span class="n">cs</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">B0</span><span class="p">,</span> <span class="n">B1</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">path</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+           <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;GD path&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">beta_ols</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gold&quot;</span><span class="p">,</span>
+              <span class="n">s</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;OLS solution&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\beta_0$&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;$\beta_1$&quot;</span><span class="p">,</span>
+          <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Loss surface (contours) with GD descent path&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="c1"># Loss curve</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;iteration&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;MSE&quot;</span><span class="p">,</span>
+          <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Loss vs. iteration — monotone convergence&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_13_0.png" /></p>
+<h3 id="45-the-learning-rate-matters-a-lot">4.5 The learning rate matters — a lot<a class="headerlink" href="#45-the-learning-rate-matters-a-lot" title="Permanent link">&para;</a></h3>
+<p>Picking <span class="arithmatex">\(\eta\)</span> is the whole game. Too small and you'll take forever; too
+large and the iterates <strong>diverge</strong> (bounce out of the bowl). Let's plot
+the loss curve for four different learning rates on the same data.</p>
+<div class="highlight"><pre><span></span><code><span class="n">lrs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">lr</span> <span class="ow">in</span> <span class="n">lrs</span><span class="p">:</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">lc</span> <span class="o">=</span> <span class="n">gradient_descent</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;lr = </span><span class="si">{</span><span class="n">lr</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;iteration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;MSE (log scale)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Learning rate controls convergence&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_15_0.png" /></p>
+<p><strong>Reading the plot</strong></p>
+<ul>
+<li><span class="arithmatex">\(\eta = 0.001\)</span> — converges, but painfully slowly.</li>
+<li><span class="arithmatex">\(\eta = 0.05\)</span>  — the sweet spot: smooth, fast descent.</li>
+<li><span class="arithmatex">\(\eta = 0.2\)</span>   — still converges, now oscillating.</li>
+<li><span class="arithmatex">\(\eta = 0.6\)</span>   — <strong>diverges</strong>: the loss shoots up and never recovers.</li>
+</ul>
+<p><strong>Rule of thumb:</strong> start small, and if the loss curve is still smooth
+after a few hundred iterations, try a larger <span class="arithmatex">\(\eta\)</span>. If it spikes,
+back off.</p>
+<h3 id="46-batch-stochastic-and-mini-batch-gd">4.6 Batch, Stochastic, and Mini-batch GD<a class="headerlink" href="#46-batch-stochastic-and-mini-batch-gd" title="Permanent link">&para;</a></h3>
+<p>So far each step used <strong>all <span class="arithmatex">\(n\)</span> samples</strong> to compute the gradient — this
+is <strong>Batch GD</strong>. For huge datasets that single step is expensive. Two
+popular relaxations:</p>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Samples per step</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Batch GD</strong></td>
+<td>all <span class="arithmatex">\(n\)</span></td>
+<td>Exact gradient, expensive per step, smooth convergence</td>
+</tr>
+<tr>
+<td><strong>Stochastic GD (SGD)</strong></td>
+<td><strong>1</strong> random sample</td>
+<td>Noisy but very cheap steps, can escape bad spots, needs smaller <span class="arithmatex">\(\eta\)</span></td>
+</tr>
+<tr>
+<td><strong>Mini-batch GD</strong></td>
+<td>small batch (e.g. 32)</td>
+<td>The modern default — good gradient estimate, cheap, plays nicely with GPUs</td>
+</tr>
+</tbody>
+</table>
+<p>The noise in SGD actually helps in deep learning (it acts as a regularizer
+and helps escape saddle points). For convex problems like linear
+regression it merely complicates convergence a bit.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sgd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rng</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">xi</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">grad</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">*</span> <span class="p">(</span><span class="n">xi</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">grad</span>
+        <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">X</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">beta</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+
+<span class="n">beta_sgd</span><span class="p">,</span> <span class="n">loss_sgd</span> <span class="o">=</span> <span class="n">sgd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SGD final coefficients: </span><span class="si">{</span><span class="n">beta_sgd</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss_sgd</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;epoch&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;MSE&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;SGD convergence — per-epoch MSE&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>SGD final coefficients: [1.801, 2.962]
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_18_1.png" /></p>
+<h2 id="5-how-gradient-descent-solves-olss-limitations">5. How Gradient Descent Solves OLS's Limitations<a class="headerlink" href="#5-how-gradient-descent-solves-olss-limitations" title="Permanent link">&para;</a></h2>
+<p>Let's revisit the three pain points from Section 3:</p>
+<table>
+<thead>
+<tr>
+<th>OLS limitation</th>
+<th>Gradient Descent's answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><span class="arithmatex">\(O(p^3)\)</span> matrix inversion</strong></td>
+<td>Each GD iteration costs only <span class="arithmatex">\(O(np)\)</span> — no inverse. A few hundred iterations beat one OLS solve for <span class="arithmatex">\(p &gt; 10{,}000\)</span>.</td>
+</tr>
+<tr>
+<td><strong>Needs all data at once</strong></td>
+<td>SGD / mini-batch consume <strong>one sample at a time</strong>, perfect for streaming or out-of-memory datasets.</td>
+</tr>
+<tr>
+<td><strong>Blows up on singular <span class="arithmatex">\(X^\top X\)</span></strong></td>
+<td>GD never inverts anything. It will still wander across the flat direction caused by collinearity, but it won't crash — and a small regularizer (Section 8) fixes it completely.</td>
+</tr>
+<tr>
+<td><strong>Only MSE / L2 loss</strong></td>
+<td>Change the gradient, change the loss. GD happily minimizes Huber, quantile, logistic, hinge, or any custom differentiable loss.</td>
+</tr>
+</tbody>
+</table>
+<p>Let's verify point 3 — GD survives the near-singular data that wrecked
+OLS earlier.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Reuse the near-collinear design matrix from Section 3</span>
+<span class="n">X_bad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">])</span>
+
+<span class="c1"># Closed-form OLS produces exploding coefficients</span>
+<span class="n">beta_ols_bad</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">X_bad</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<span class="c1"># GD produces stable (if biased towards the null-space) estimates</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gd_generic</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="p">,</span> <span class="n">n_iter</span><span class="p">):</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_iter</span><span class="p">):</span>
+        <span class="n">beta</span> <span class="o">-=</span> <span class="n">lr</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">*</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">X</span> <span class="o">@</span> <span class="n">beta</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">beta</span>
+
+<span class="n">beta_gd_bad</span> <span class="o">=</span> <span class="n">gd_generic</span><span class="p">(</span><span class="n">X_bad</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OLS (lstsq) coefs : </span><span class="si">{</span><span class="n">beta_ols_bad</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GD coefs          : </span><span class="si">{</span><span class="n">beta_gd_bad</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OLS splits the signal arbitrarily between x1 and x2 (huge swings);&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GD finds a stable, balanced answer without ever inverting XᵀX.&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>OLS (lstsq) coefs : [1.66, 129740.17, -129740.01]
+GD coefs          : [1.65, 0.09, 0.09]
+
+OLS splits the signal arbitrarily between x1 and x2 (huge swings);
+GD finds a stable, balanced answer without ever inverting XᵀX.
+</code></pre></div>
+<h2 id="6-maximum-likelihood-estimation-the-probabilistic-view">6. Maximum Likelihood Estimation — The Probabilistic View<a class="headerlink" href="#6-maximum-likelihood-estimation-the-probabilistic-view" title="Permanent link">&para;</a></h2>
+<p>GD finds the parameter that minimizes a <strong>loss</strong>. <strong>Maximum Likelihood
+Estimation (MLE)</strong> finds the parameter that makes the observed data
+<strong>most probable</strong> under an assumed distribution. These two views turn out
+to be the same answer for linear regression — but the MLE framing is
+what unlocks logistic regression, Poisson regression, and the whole GLM
+family.</p>
+<h3 id="61-a-one-parameter-warm-up">6.1 A one-parameter warm-up<a class="headerlink" href="#61-a-one-parameter-warm-up" title="Permanent link">&para;</a></h3>
+<p>Suppose we observe <span class="arithmatex">\(n\)</span> iid samples from a Normal distribution with
+<strong>unknown mean</strong> <span class="arithmatex">\(\mu\)</span> and known variance <span class="arithmatex">\(\sigma^2 = 1\)</span>. The likelihood
+of the data is the joint density,</p>
+<div class="arithmatex">\[\mathcal{L}(\mu) \;=\; \prod_{i=1}^n \frac{1}{\sqrt{2\pi}}\, \exp\!\left(-\tfrac{1}{2}(y_i - \mu)^2\right).\]</div>
+<p>Taking the log (a monotone transform — doesn't change the argmax),</p>
+<div class="arithmatex">\[\log \mathcal{L}(\mu) \;=\; -\frac{n}{2}\log(2\pi) \;-\; \frac{1}{2}\sum_{i=1}^n (y_i - \mu)^2.\]</div>
+<p>Maximizing <span class="arithmatex">\(\log \mathcal{L}\)</span> is the same as <em>minimizing</em>
+<span class="arithmatex">\(\sum_i (y_i - \mu)^2\)</span> — and the minimum happens at <span class="arithmatex">\(\hat\mu = \bar y\)</span>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Simulate data from N(true_mu, 1)</span>
+<span class="n">true_mu</span> <span class="o">=</span> <span class="mf">4.2</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">true_mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">log_likelihood</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
+
+<span class="n">mus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+<span class="n">log_liks</span> <span class="o">=</span> <span class="p">[</span><span class="n">log_likelihood</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span> <span class="k">for</span> <span class="n">mu</span> <span class="ow">in</span> <span class="n">mus</span><span class="p">]</span>
+<span class="n">mle_mu</span> <span class="o">=</span> <span class="n">mus</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">log_liks</span><span class="p">)]</span>
+<span class="n">sample_mean</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">log_liks</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mle_mu</span><span class="p">,</span>     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>   <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;MLE  </span><span class="se">\u03bc</span><span class="s2"> = </span><span class="si">{</span><span class="n">mle_mu</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">sample_mean</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;sample mean = </span><span class="si">{</span><span class="n">sample_mean</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">true_mu</span><span class="p">,</span>     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;true </span><span class="se">\u03bc</span><span class="s2"> = </span><span class="si">{</span><span class="n">true_mu</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\mu$&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\log\mathcal</span><span class="si">{L}</span><span class="s2">(\mu)$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Log-likelihood for the mean of a Normal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MLE </span><span class="se">\u2248</span><span class="s2"> sample mean: </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">mle_mu</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">sample_mean</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.02</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_22_0.png" /></p>
+<div class="highlight"><pre><span></span><code>MLE ≈ sample mean: True
+</code></pre></div>
+<h3 id="62-linear-regression-as-mle">6.2 Linear regression as MLE<a class="headerlink" href="#62-linear-regression-as-mle" title="Permanent link">&para;</a></h3>
+<p>For linear regression we <em>assume</em></p>
+<div class="arithmatex">\[y_i \;=\; \mathbf{x}_i^\top \boldsymbol\beta \;+\; \varepsilon_i,
+\qquad \varepsilon_i \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2).\]</div>
+<p>This is a <strong>probabilistic statement</strong>: <span class="arithmatex">\(y_i\)</span> is a Normal random variable
+centered at <span class="arithmatex">\(\mathbf{x}_i^\top \boldsymbol\beta\)</span>. The log-likelihood is</p>
+<div class="arithmatex">\[\log \mathcal{L}(\boldsymbol\beta, \sigma^2) \;=\; -\frac{n}{2}\log(2\pi\sigma^2) \;-\; \frac{1}{2\sigma^2}\sum_{i=1}^n (y_i - \mathbf{x}_i^\top \boldsymbol\beta)^2.\]</div>
+<p>Notice what happens when we try to maximize this over <span class="arithmatex">\(\boldsymbol\beta\)</span>:
+the only <span class="arithmatex">\(\boldsymbol\beta\)</span>-dependent piece is <span class="arithmatex">\(-\tfrac{1}{2\sigma^2}\,\text{SSE}\)</span>.
+Maximizing that is the <strong>same</strong> as minimizing SSE — which is exactly OLS.</p>
+<blockquote>
+<p><strong>Conclusion:</strong> for linear regression under Gaussian noise,
+<strong>MLE = OLS = Gradient Descent to convergence</strong>. The three lenses all
+meet at the same point.</p>
+</blockquote>
+<p>Let's verify this numerically by handing a <strong>generic MLE optimizer</strong> the
+log-likelihood and comparing with the closed-form OLS solution.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Re-use the clean synthetic data from Section 4</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
+<span class="n">y2</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x2</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n2</span><span class="p">)</span>
+<span class="n">X2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n2</span><span class="p">),</span> <span class="n">x2</span><span class="p">])</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">neg_log_likelihood</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">beta0</span><span class="p">,</span> <span class="n">beta1</span><span class="p">,</span> <span class="n">log_sigma</span> <span class="o">=</span> <span class="n">params</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_sigma</span><span class="p">)</span>        <span class="c1"># exponentiate to keep sigma &gt; 0</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="n">beta0</span> <span class="o">+</span> <span class="n">beta1</span> <span class="o">*</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">))</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span>
+    <span class="n">neg_log_likelihood</span><span class="p">,</span>
+    <span class="n">x0</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">X2</span><span class="p">,</span> <span class="n">y2</span><span class="p">),</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;BFGS&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">beta0_mle</span><span class="p">,</span> <span class="n">beta1_mle</span><span class="p">,</span> <span class="n">log_sigma_mle</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span>
+<span class="n">sigma_mle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_sigma_mle</span><span class="p">)</span>
+
+<span class="n">beta_ols_clean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">X2</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X2</span><span class="p">)</span> <span class="o">@</span> <span class="n">X2</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">y2</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OLS closed-form  : </span><span class="si">{</span><span class="n">beta_ols_clean</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MLE (numerical)  : [</span><span class="si">{</span><span class="n">beta0_mle</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">beta1_mle</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MLE </span><span class="se">\u03c3\u0302</span><span class="s2">         : </span><span class="si">{</span><span class="n">sigma_mle</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;(true </span><span class="se">\u03c3</span><span class="s2"> = 1.0)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>OLS closed-form  : [2.1009, 3.0099]
+MLE (numerical)  : [2.1009, 3.0099]
+MLE σ̂         : 1.0247  (true σ = 1.0)
+</code></pre></div>
+<p>The MLE estimate agrees with OLS to three decimal places. The extra
+parameter <span class="arithmatex">\(\hat\sigma\)</span> is a bonus — MLE also hands us an estimate of the
+noise scale, which we need for confidence intervals and likelihood-ratio
+tests.</p>
+<p><strong>Why care about MLE if it just gives OLS?</strong> Because when you change the
+noise distribution, the answer changes:</p>
+<ul>
+<li><strong>Gaussian</strong> noise → MLE = minimize SSE = linear regression.</li>
+<li><strong>Laplace</strong> noise (heavy tails) → MLE = minimize sum of absolute
+  errors = robust/quantile regression.</li>
+<li><strong>Bernoulli</strong> outcome → MLE = logistic regression.</li>
+<li><strong>Poisson</strong> outcome → MLE = Poisson regression.</li>
+</ul>
+<p>MLE is the general recipe; OLS is the vanilla flavor.</p>
+<h2 id="7-regression-metrics-how-good-is-good">7. Regression Metrics — How Good is "Good"?<a class="headerlink" href="#7-regression-metrics-how-good-is-good" title="Permanent link">&para;</a></h2>
+<p>Once a model is fitted, we need numbers to answer <em>"how well does it
+predict?"</em>. No single metric is right for every problem — each one
+emphasizes a different kind of error.</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Formula</th>
+<th>What it tells you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MAE</strong> (Mean Absolute Error)</td>
+<td><span class="arithmatex">\(\frac{1}{n}\sum \lvert y_i - \hat y_i\rvert\)</span></td>
+<td>Average size of errors, same units as <span class="arithmatex">\(y\)</span>, <strong>robust to outliers</strong></td>
+</tr>
+<tr>
+<td><strong>MSE</strong> (Mean Squared Error)</td>
+<td><span class="arithmatex">\(\frac{1}{n}\sum (y_i - \hat y_i)^2\)</span></td>
+<td>Penalizes big errors quadratically, units are <span class="arithmatex">\(y^2\)</span></td>
+</tr>
+<tr>
+<td><strong>RMSE</strong> (Root MSE)</td>
+<td><span class="arithmatex">\(\sqrt{\text{MSE}}\)</span></td>
+<td>Same emphasis as MSE but back in original units</td>
+</tr>
+<tr>
+<td><strong><span class="arithmatex">\(R^2\)</span></strong></td>
+<td><span class="arithmatex">\(1 - \dfrac{\text{SSE}}{\text{SST}}\)</span></td>
+<td>Fraction of variance explained, dimensionless, can be negative for bad models</td>
+</tr>
+<tr>
+<td><strong>Adjusted <span class="arithmatex">\(R^2\)</span></strong></td>
+<td><span class="arithmatex">\(1 - (1-R^2)\dfrac{n-1}{n-p-1}\)</span></td>
+<td>Penalizes adding useless predictors, use when comparing models with different <span class="arithmatex">\(p\)</span></td>
+</tr>
+<tr>
+<td><strong>MAPE</strong> (Mean Absolute % Error)</td>
+<td><span class="arithmatex">\(\frac{100}{n}\sum \lvert\tfrac{y_i - \hat y_i}{y_i}\rvert\)</span></td>
+<td>Error as a percentage — great for communicating, breaks when <span class="arithmatex">\(y_i = 0\)</span></td>
+</tr>
+</tbody>
+</table>
+<h3 id="71-computing-all-of-them-on-the-advertising-data">7.1 Computing all of them on the Advertising data<a class="headerlink" href="#71-computing-all-of-them-on-the-advertising-data" title="Permanent link">&para;</a></h3>
+<p>Let's fit three models of increasing complexity and compare.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Load the Advertising dataset (same source as the Linear Regression notebook)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;../datasets/Advertising.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;https://www.statlearning.com/s/Advertising.csv&quot;</span><span class="p">,</span>
+                       <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">X_full</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s2">&quot;TV&quot;</span><span class="p">,</span> <span class="s2">&quot;radio&quot;</span><span class="p">,</span> <span class="s2">&quot;newspaper&quot;</span><span class="p">]]</span>
+<span class="n">y_full</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;sales&quot;</span><span class="p">]</span>
+
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">X_full</span><span class="p">,</span> <span class="n">y_full</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+
+<span class="n">models</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;TV only&quot;</span><span class="p">:</span>         <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">[[</span><span class="s2">&quot;TV&quot;</span><span class="p">]],</span> <span class="n">y_train</span><span class="p">),</span>
+    <span class="s2">&quot;TV + radio&quot;</span><span class="p">:</span>      <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">[[</span><span class="s2">&quot;TV&quot;</span><span class="p">,</span> <span class="s2">&quot;radio&quot;</span><span class="p">]],</span> <span class="n">y_train</span><span class="p">),</span>
+    <span class="s2">&quot;TV+radio+news&quot;</span><span class="p">:</span>   <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">X_te</span><span class="p">,</span> <span class="n">y_te</span><span class="p">):</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_te</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_te</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">X_te</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">r2</span>  <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span>
+        <span class="s2">&quot;MAE&quot;</span><span class="p">:</span>   <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
+        <span class="s2">&quot;MSE&quot;</span><span class="p">:</span>   <span class="n">mse</span><span class="p">,</span>
+        <span class="s2">&quot;RMSE&quot;</span><span class="p">:</span>  <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mse</span><span class="p">),</span>
+        <span class="s2">&quot;R</span><span class="se">\u00b2</span><span class="s2">&quot;</span><span class="p">:</span>    <span class="n">r2</span><span class="p">,</span>
+        <span class="s2">&quot;Adj R</span><span class="se">\u00b2</span><span class="s2">&quot;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s2">&quot;MAPE&quot;</span><span class="p">:</span>  <span class="n">mean_absolute_percentage_error</span><span class="p">(</span><span class="n">y_te</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">),</span>
+    <span class="p">}</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
+    <span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;TV only&quot;</span><span class="p">,</span>       <span class="n">models</span><span class="p">[</span><span class="s2">&quot;TV only&quot;</span><span class="p">],</span>       <span class="n">X_test</span><span class="p">[[</span><span class="s2">&quot;TV&quot;</span><span class="p">]],</span>       <span class="n">y_test</span><span class="p">),</span>
+    <span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;TV + radio&quot;</span><span class="p">,</span>    <span class="n">models</span><span class="p">[</span><span class="s2">&quot;TV + radio&quot;</span><span class="p">],</span>    <span class="n">X_test</span><span class="p">[[</span><span class="s2">&quot;TV&quot;</span><span class="p">,</span> <span class="s2">&quot;radio&quot;</span><span class="p">]],</span> <span class="n">y_test</span><span class="p">),</span>
+    <span class="n">evaluate</span><span class="p">(</span><span class="s2">&quot;TV+radio+news&quot;</span><span class="p">,</span> <span class="n">models</span><span class="p">[</span><span class="s2">&quot;TV+radio+news&quot;</span><span class="p">],</span> <span class="n">X_test</span><span class="p">,</span>               <span class="n">y_test</span><span class="p">),</span>
+<span class="p">])</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">results</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>p</th>
+      <th>MAE</th>
+      <th>MSE</th>
+      <th>RMSE</th>
+      <th>R²</th>
+      <th>Adj R²</th>
+      <th>MAPE</th>
+    </tr>
+    <tr>
+      <th>model</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>TV only</th>
+      <td>1</td>
+      <td>2.0575</td>
+      <td>7.4975</td>
+      <td>2.7382</td>
+      <td>0.7256</td>
+      <td>0.7209</td>
+      <td>0.2152</td>
+    </tr>
+    <tr>
+      <th>TV + radio</th>
+      <td>2</td>
+      <td>1.2255</td>
+      <td>3.6708</td>
+      <td>1.9159</td>
+      <td>0.8657</td>
+      <td>0.8609</td>
+      <td>0.2026</td>
+    </tr>
+    <tr>
+      <th>TV+radio+news</th>
+      <td>3</td>
+      <td>1.2334</td>
+      <td>3.6914</td>
+      <td>1.9213</td>
+      <td>0.8649</td>
+      <td>0.8577</td>
+      <td>0.2033</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Visualize the metrics side by side</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;MAE&quot;</span><span class="p">,</span> <span class="s2">&quot;RMSE&quot;</span><span class="p">,</span> <span class="s2">&quot;R</span><span class="se">\u00b2</span><span class="s2">&quot;</span><span class="p">]):</span>
+    <span class="n">results</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;#e76f51&quot;</span><span class="p">,</span> <span class="s2">&quot;#f4a261&quot;</span><span class="p">,</span> <span class="s2">&quot;#2a9d8f&quot;</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_28_0.png" /></p>
+<h3 id="72-which-metric-should-i-use">7.2 Which metric should I use?<a class="headerlink" href="#72-which-metric-should-i-use" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Preferred metric</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Outliers matter a lot</td>
+<td><strong>MAE</strong></td>
+<td>Quadratic penalties let a single outlier dominate MSE/RMSE</td>
+</tr>
+<tr>
+<td>Big errors are much worse than small ones</td>
+<td><strong>MSE / RMSE</strong></td>
+<td>Squared penalty punishes large deviations</td>
+</tr>
+<tr>
+<td>Reporting to non-technical stakeholders</td>
+<td><strong>MAPE</strong></td>
+<td>"13% error" is immediately interpretable</td>
+</tr>
+<tr>
+<td>Comparing models with different <span class="arithmatex">\(p\)</span></td>
+<td><strong>Adjusted <span class="arithmatex">\(R^2\)</span></strong></td>
+<td>Penalizes useless extra features</td>
+</tr>
+<tr>
+<td>You want units that match <span class="arithmatex">\(y\)</span></td>
+<td><strong>MAE or RMSE</strong></td>
+<td>Both live in the same units as the target</td>
+</tr>
+<tr>
+<td>You care about <em>relative</em> explanatory power</td>
+<td><strong><span class="arithmatex">\(R^2\)</span></strong></td>
+<td>Unitless fraction, 0–1 scale</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Warning about MAPE.</strong> If any true <span class="arithmatex">\(y_i\)</span> is zero or near-zero, MAPE
+explodes. Use it only when <span class="arithmatex">\(y\)</span> is strictly positive and bounded away
+from zero.</p>
+<h2 id="8-regularization-taming-overfitting-and-multicollinearity">8. Regularization — Taming Overfitting and Multicollinearity<a class="headerlink" href="#8-regularization-taming-overfitting-and-multicollinearity" title="Permanent link">&para;</a></h2>
+<p>Linear regression with many features has two chronic illnesses:</p>
+<ol>
+<li><strong>Overfitting</strong> — the model memorizes the training noise and
+   generalizes poorly.</li>
+<li><strong>Coefficient instability</strong> — correlated predictors cause huge,
+   compensating swings in the fitted <span class="arithmatex">\(\hat\beta\)</span> (we saw this already in
+   Section 3).</li>
+</ol>
+<p><strong>Regularization</strong> is a single, elegant cure for both. The idea:
+<strong>add a penalty on the size of the coefficients</strong> to the loss function.
+The optimizer now faces a trade-off — fit the data well <em>and</em> keep
+coefficients small — which produces smoother, more stable models.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Penalty</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ridge</strong> (L2)</td>
+<td><span class="arithmatex">\(\alpha \sum_j \beta_j^2\)</span></td>
+<td>Shrinks all coefficients toward zero smoothly. Never zeros anything out.</td>
+</tr>
+<tr>
+<td><strong>Lasso</strong> (L1)</td>
+<td><span class="arithmatex">\(\alpha \sum_j \lvert\beta_j\rvert\)</span></td>
+<td>Shrinks and sets some coefficients <strong>exactly to zero</strong> — gives automatic feature selection.</td>
+</tr>
+<tr>
+<td><strong>Elastic Net</strong></td>
+<td>mixture of L1 and L2</td>
+<td>Best of both — selection <em>and</em> stability when features are correlated.</td>
+</tr>
+</tbody>
+</table>
+<p><span class="arithmatex">\(\alpha \ge 0\)</span> is the <strong>regularization strength</strong>. <span class="arithmatex">\(\alpha = 0\)</span> recovers
+plain OLS; <span class="arithmatex">\(\alpha \to \infty\)</span> forces every coefficient to zero.</p>
+<h3 id="81-why-regularize-an-overfitting-demonstration">8.1 Why regularize — an overfitting demonstration<a class="headerlink" href="#81-why-regularize-an-overfitting-demonstration" title="Permanent link">&para;</a></h3>
+<p>We'll generate 30 samples from a smooth underlying function
+<span class="arithmatex">\(y = \sin(1.5\pi x)\)</span> with small noise, then try to fit a <strong>degree-15
+polynomial</strong> by plain OLS. A high-degree polynomial has enough capacity
+to memorize every wiggle — and that's exactly the problem.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Underlying truth: y = sin(1.5*pi*x)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">true_f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="n">n_sam</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_sam</span><span class="p">))</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">true_f</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_sam</span><span class="p">)</span>
+<span class="n">x_grid</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+<span class="n">degree</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">pipe_ols</span>   <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">degree</span><span class="p">),</span> <span class="n">StandardScaler</span><span class="p">(),</span>
+                           <span class="n">LinearRegression</span><span class="p">())</span>
+<span class="n">pipe_ridge</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">degree</span><span class="p">),</span> <span class="n">StandardScaler</span><span class="p">(),</span>
+                           <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">))</span>
+<span class="n">pipe_lasso</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">degree</span><span class="p">),</span> <span class="n">StandardScaler</span><span class="p">(),</span>
+                           <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">20000</span><span class="p">))</span>
+
+<span class="n">pipe_ols</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>   <span class="n">y_train</span><span class="p">)</span>
+<span class="n">pipe_ridge</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">pipe_lasso</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;training data&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">true_f</span><span class="p">(</span><span class="n">x_grid</span><span class="p">),</span>                    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;true f(x)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">pipe_ols</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span>   <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>     <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;OLS (deg 15) — overfit&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">pipe_ridge</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Ridge&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">pipe_lasso</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span>   <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Lasso&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.7</span><span class="p">,</span> <span class="mf">1.7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Unregularized OLS overfits; Ridge and Lasso smooth it out&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/utils/extmath.py:203: RuntimeWarning: divide by zero encountered in matmul
+  ret = a @ b
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/utils/extmath.py:203: RuntimeWarning: overflow encountered in matmul
+  ret = a @ b
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/utils/extmath.py:203: RuntimeWarning: invalid value encountered in matmul
+  ret = a @ b
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
+  return X @ coef_ + self.intercept_
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_32_1.png" /></p>
+<p>Plain OLS contorts itself to pass through every noisy point — outside
+the training range it spirals off into nonsense. Ridge and Lasso give
+far smoother curves that actually track the true <span class="arithmatex">\(\sin\)</span> function. Let's
+quantify the difference:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Generate a held-out test set drawn from the same truth</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">true_f</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">x_test</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;OLS   &quot;</span><span class="p">,</span> <span class="n">pipe_ols</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;Ridge &quot;</span><span class="p">,</span> <span class="n">pipe_ridge</span><span class="p">),</span>
+                    <span class="p">(</span><span class="s2">&quot;Lasso &quot;</span><span class="p">,</span> <span class="n">pipe_lasso</span><span class="p">)]:</span>
+    <span class="n">y_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_hat</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> test MSE: </span><span class="si">{</span><span class="n">mse</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>OLS    test MSE: 709.1673
+Ridge  test MSE: 0.1228
+Lasso  test MSE: 0.0409
+
+
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
+  return X @ coef_ + self.intercept_
+</code></pre></div>
+<h3 id="82-ridge-regression-l2-penalty">8.2 Ridge regression — L2 penalty<a class="headerlink" href="#82-ridge-regression-l2-penalty" title="Permanent link">&para;</a></h3>
+<p>Ridge minimizes</p>
+<div class="arithmatex">\[L_{\text{ridge}}(\boldsymbol\beta) \;=\; \underbrace{\sum_{i=1}^n (y_i - \mathbf{x}_i^\top \boldsymbol\beta)^2}_{\text{OLS loss}} \;+\; \alpha \sum_{j=1}^p \beta_j^2.\]</div>
+<p>Closed-form solution:
+<span class="arithmatex">\(\hat{\boldsymbol\beta}_{\text{ridge}} = (X^\top X + \alpha I)^{-1} X^\top y\)</span>.
+The <span class="arithmatex">\(+\alpha I\)</span> term <strong>guarantees invertibility</strong> even when <span class="arithmatex">\(X^\top X\)</span>
+is singular — Ridge literally solves the OLS fragility problem.</p>
+<p>Let's visualize the <strong>regularization path</strong>: how each coefficient
+changes as <span class="arithmatex">\(\alpha\)</span> sweeps from tiny to huge.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build a moderately-correlated design matrix with 6 features</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_regression</span>
+<span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span> <span class="o">=</span> <span class="n">make_regression</span><span class="p">(</span>
+    <span class="n">n_samples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">noise</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># Introduce correlation between two features</span>
+<span class="n">X_reg</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_reg</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.9</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+
+<span class="n">alphas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">ridge_path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alphas</span>
+<span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ridge_path</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alphas</span><span class="p">,</span> <span class="n">ridge_path</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">beta_</span><span class="si">{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;regularization strength $\alpha$  (log scale)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;coefficient value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Ridge regularization path — smooth shrinkage toward 0&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_36_0.png" /></p>
+<p>As <span class="arithmatex">\(\alpha\)</span> grows, every Ridge coefficient smoothly approaches zero
+— but <strong>none of them is ever exactly zero</strong>. Ridge shrinks; it does not
+select.</p>
+<h3 id="83-lasso-regression-l1-penalty">8.3 Lasso regression — L1 penalty<a class="headerlink" href="#83-lasso-regression-l1-penalty" title="Permanent link">&para;</a></h3>
+<p>Lasso replaces the squared penalty with an absolute-value penalty:</p>
+<div class="arithmatex">\[L_{\text{lasso}}(\boldsymbol\beta) \;=\; \sum_{i=1}^n (y_i - \mathbf{x}_i^\top \boldsymbol\beta)^2 \;+\; \alpha \sum_{j=1}^p \lvert\beta_j\rvert.\]</div>
+<p>There is <strong>no closed form</strong> (the penalty is not differentiable at zero),
+but specialized solvers like <strong>coordinate descent</strong> are fast. The
+important behavioral difference: Lasso can set coefficients <strong>exactly to
+zero</strong>, which is why it's used for automatic feature selection.</p>
+<div class="highlight"><pre><span></span><code><span class="n">lasso_path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">20000</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alphas</span>
+<span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lasso_path</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alphas</span><span class="p">,</span> <span class="n">lasso_path</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">beta_</span><span class="si">{</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;regularization strength $\alpha$  (log scale)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;coefficient value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Lasso regularization path — coefficients hit exactly zero&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_38_0.png" /></p>
+<p>Compare the two paths: Lasso coefficients snap to zero one by one as
+<span class="arithmatex">\(\alpha\)</span> grows, while Ridge coefficients stay away from zero but shrink
+together. At a large enough <span class="arithmatex">\(\alpha\)</span> Lasso keeps only the "most
+important" features — that's the feature-selection property.</p>
+<h3 id="84-the-geometric-intuition-why-l1-zeros-things-out">8.4 The geometric intuition — why L1 zeros things out<a class="headerlink" href="#84-the-geometric-intuition-why-l1-zeros-things-out" title="Permanent link">&para;</a></h3>
+<p>Here's the classic visualization (from ISLR). Fix two coefficients
+<span class="arithmatex">\(\beta_1, \beta_2\)</span> and draw:</p>
+<ul>
+<li><strong>Ellipses</strong> — contours of the OLS loss, centered at the OLS solution.</li>
+<li><strong>Blue region</strong> — the <strong>L2 constraint</strong> <span class="arithmatex">\(\beta_1^2 + \beta_2^2 \le t\)</span>
+  (a circle).</li>
+<li><strong>Red region</strong> — the <strong>L1 constraint</strong>
+  <span class="arithmatex">\(\lvert\beta_1\rvert + \lvert\beta_2\rvert \le t\)</span> (a diamond).</li>
+</ul>
+<p>The constrained solution is where the smallest-possible loss ellipse
+<strong>just touches</strong> the constraint region. A <strong>diamond has corners</strong> lying
+on the axes — so the contact point tends to lie on an axis, meaning one
+coordinate is exactly zero. A <strong>circle has no corners</strong>, so the contact
+is almost never exactly on an axis.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># OLS solution for a toy 2-parameter problem</span>
+<span class="n">beta_star</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">])</span>
+
+<span class="c1"># Build an elliptical loss surface centered on beta_star</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+<span class="n">B1</span><span class="p">,</span> <span class="n">B2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]])</span>          <span class="c1"># positive-definite Hessian</span>
+<span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">B1</span> <span class="o">-</span> <span class="n">beta_star</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">B2</span> <span class="o">-</span> <span class="n">beta_star</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+<span class="n">L</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij...,ik...-&gt;jk...&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">delta</span><span class="p">)</span>   <span class="c1"># unused; just for shape</span>
+<span class="c1"># Recompute properly</span>
+<span class="n">L</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">Q</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">B1</span> <span class="o">-</span> <span class="n">beta_star</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+           <span class="mi">2</span> <span class="o">*</span> <span class="n">Q</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">B1</span> <span class="o">-</span> <span class="n">beta_star</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">B2</span> <span class="o">-</span> <span class="n">beta_star</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span>
+           <span class="n">Q</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">B2</span> <span class="o">-</span> <span class="n">beta_star</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Constraint radii (chosen to make a nice picture)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mf">1.2</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">shape</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;ridge&quot;</span><span class="p">,</span> <span class="s2">&quot;lasso&quot;</span><span class="p">]):</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">B1</span><span class="p">,</span> <span class="n">B2</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">beta_star</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+               <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;OLS $\hat\beta$&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;ridge&quot;</span><span class="p">:</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;L2 region&quot;</span><span class="p">)</span>
+        <span class="c1"># Constrained solution: gradient-descent-like projection</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">beta_star</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">beta_star</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Ridge — L2 ball  (no corners → no zeros)&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">diamond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">t</span><span class="p">],</span> <span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">diamond</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">diamond</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;salmon&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;L1 region&quot;</span><span class="p">)</span>
+        <span class="c1"># Constrained solution lands on the top corner because beta_star is</span>
+        <span class="c1"># above the x-axis — illustrative only</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">t</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Lasso — L1 diamond  (corners → exact zeros)&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+               <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;constrained opt.&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\beta_1$&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower left&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\beta_2$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_40_0.png" /></p>
+<h3 id="85-elastic-net-the-best-of-both">8.5 Elastic Net — the best of both<a class="headerlink" href="#85-elastic-net-the-best-of-both" title="Permanent link">&para;</a></h3>
+<p><strong>Elastic Net</strong> combines the two penalties:</p>
+<div class="arithmatex">\[L_{\text{EN}} \;=\; \text{SSE} \;+\; \alpha\!\left(\rho \sum_j \lvert\beta_j\rvert \;+\; \tfrac{1-\rho}{2} \sum_j \beta_j^2\right)\]</div>
+<p>with <span class="arithmatex">\(\rho \in [0,1]\)</span> controlling the mix. Elastic Net is the right
+choice when you have <strong>groups of correlated features</strong> — Lasso alone
+would pick one arbitrarily and drop the rest, while Elastic Net tends to
+keep the whole group with shrunk coefficients.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Quick head-to-head on the same synthetic dataset</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">fit_ols</span>   <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span>
+<span class="n">fit_ridge</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span>
+<span class="n">fit_lasso</span> <span class="o">=</span> <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">20000</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span>
+<span class="n">fit_enet</span>  <span class="o">=</span> <span class="n">ElasticNet</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">l1_ratio</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">20000</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span>
+
+<span class="n">comp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;OLS&quot;</span><span class="p">:</span>         <span class="n">fit_ols</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="s2">&quot;Ridge&quot;</span><span class="p">:</span>       <span class="n">fit_ridge</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="s2">&quot;Lasso&quot;</span><span class="p">:</span>       <span class="n">fit_lasso</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+    <span class="s2">&quot;Elastic Net&quot;</span><span class="p">:</span> <span class="n">fit_enet</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;feat </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X_reg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">comp</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>OLS</th>
+      <th>Ridge</th>
+      <th>Lasso</th>
+      <th>Elastic Net</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>feat 1</th>
+      <td>21.757</td>
+      <td>10.711</td>
+      <td>-0.000</td>
+      <td>-0.566</td>
+    </tr>
+    <tr>
+      <th>feat 2</th>
+      <td>-24.757</td>
+      <td>-12.802</td>
+      <td>-0.068</td>
+      <td>-0.428</td>
+    </tr>
+    <tr>
+      <th>feat 3</th>
+      <td>8.736</td>
+      <td>8.495</td>
+      <td>7.191</td>
+      <td>5.152</td>
+    </tr>
+    <tr>
+      <th>feat 4</th>
+      <td>42.435</td>
+      <td>42.094</td>
+      <td>41.243</td>
+      <td>27.100</td>
+    </tr>
+    <tr>
+      <th>feat 5</th>
+      <td>2.972</td>
+      <td>2.844</td>
+      <td>1.496</td>
+      <td>1.797</td>
+    </tr>
+    <tr>
+      <th>feat 6</th>
+      <td>19.768</td>
+      <td>19.597</td>
+      <td>18.702</td>
+      <td>13.035</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="86-choosing-alpha-cross-validation">8.6 Choosing <span class="arithmatex">\(\alpha\)</span> — cross-validation<a class="headerlink" href="#86-choosing-alpha-cross-validation" title="Permanent link">&para;</a></h3>
+<p><span class="arithmatex">\(\alpha\)</span> is a hyperparameter — not learned from the training data
+directly. The standard recipe is <strong>k-fold cross-validation</strong>: for each
+candidate <span class="arithmatex">\(\alpha\)</span>, train on <span class="arithmatex">\(k-1\)</span> folds and score on the held-out fold;
+pick the <span class="arithmatex">\(\alpha\)</span> with the best average score.</p>
+<p><code>sklearn</code> ships convenience classes <code>RidgeCV</code> / <code>LassoCV</code> that do this
+automatically.</p>
+<div class="highlight"><pre><span></span><code><span class="n">alphas_cv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+
+<span class="n">ridge_cv</span> <span class="o">=</span> <span class="n">RidgeCV</span><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas_cv</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span>
+<span class="n">lasso_cv</span> <span class="o">=</span> <span class="n">LassoCV</span><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">alphas_cv</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">20000</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span> <span class="n">y_reg</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ridge CV  best alpha : </span><span class="si">{</span><span class="n">ridge_cv</span><span class="o">.</span><span class="n">alpha_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lasso CV  best alpha : </span><span class="si">{</span><span class="n">lasso_cv</span><span class="o">.</span><span class="n">alpha_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ridge CV  R</span><span class="se">\u00b2</span><span class="s2">        : </span><span class="si">{</span><span class="n">ridge_cv</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span><span class="w"> </span><span class="n">y_reg</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lasso CV  R</span><span class="se">\u00b2</span><span class="s2">        : </span><span class="si">{</span><span class="n">lasso_cv</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_reg</span><span class="p">,</span><span class="w"> </span><span class="n">y_reg</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Ridge CV  best alpha : 0.7693
+Lasso CV  best alpha : 0.9163
+Ridge CV  R²        : 0.6360
+Lasso CV  R²        : 0.6333
+
+
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
+  return X @ coef_ + self.intercept_
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
+  return X @ coef_ + self.intercept_
+</code></pre></div>
+<h2 id="9-key-takeaways">9. Key Takeaways<a class="headerlink" href="#9-key-takeaways" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Fitting is optimization.</strong> All three paradigms — OLS, Gradient
+   Descent, MLE — are solving the same optimization problem through
+   different doors.</li>
+<li><strong>Gradient Descent trades one expensive exact step for many cheap
+   approximate steps.</strong> This is how you scale to huge datasets, streaming
+   data, and non-OLS losses.</li>
+<li><strong>The learning rate is the single most important GD hyperparameter.</strong>
+   Too small = slow; too large = diverge. Always monitor the loss curve.</li>
+<li><strong>MLE = OLS under Gaussian noise</strong>, but MLE is the general recipe —
+   change the noise distribution and you get logistic regression,
+   Poisson regression, and the rest of the GLM family.</li>
+<li><strong>No single regression metric rules.</strong> Pick MAE for outlier
+   robustness, RMSE to punish big misses, Adjusted <span class="arithmatex">\(R^2\)</span> when comparing
+   models of different sizes, MAPE for stakeholder-friendly reports.</li>
+<li><strong>Regularization is non-negotiable for high-dimensional data.</strong>
+   Ridge smooths and stabilizes; Lasso does feature selection; Elastic
+   Net does both. Always cross-validate <span class="arithmatex">\(\alpha\)</span>.</li>
+</ol>
+<h2 id="10-practice-exercises">10. Practice Exercises<a class="headerlink" href="#10-practice-exercises" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Learning-rate hunt.</strong> For the synthetic linear data in Section 4,
+   sweep <span class="arithmatex">\(\eta \in \{10^{-4}, 10^{-3}, \ldots, 1\}\)</span> and record the
+   iteration at which the loss first drops below <span class="arithmatex">\(0.1\)</span>. Plot
+   "iterations to convergence" vs <span class="arithmatex">\(\eta\)</span> on a log-log axis.</li>
+<li><strong>SGD vs batch.</strong> Run batch GD and SGD from the same starting point
+   on the same data, record the loss after each <em>epoch</em> (full pass),
+   and plot them on the same axes. Which converges faster in wall-clock
+   terms? In number of iterations?</li>
+<li><strong>Huber loss with GD.</strong> Implement gradient descent for <strong>Huber
+   regression</strong> (quadratic for small residuals, linear for large ones).
+   Compare its behavior with OLS when you inject five large outliers
+   into the Advertising data.</li>
+<li><strong>MLE for Poisson regression.</strong> Generate counts
+   <span class="arithmatex">\(y_i \sim \text{Poisson}(\exp(\beta_0 + \beta_1 x_i))\)</span> and use
+   <code>scipy.optimize.minimize</code> to recover <span class="arithmatex">\(\beta_0, \beta_1\)</span> by maximizing
+   the Poisson log-likelihood. Compare with <code>statsmodels.GLM(..., family=sm.families.Poisson())</code>.</li>
+<li><strong>Outlier sensitivity of metrics.</strong> Take the Advertising test set and
+   add a single huge outlier (<span class="arithmatex">\(y = 200\)</span>). Recompute MAE, RMSE, <span class="arithmatex">\(R^2\)</span>,
+   and MAPE. Which metric moves the most? Which is most stable?</li>
+<li><strong>Regularization path on Advertising.</strong> Build polynomial features
+   (degree 3) of the Advertising predictors, then plot Ridge and Lasso
+   regularization paths side by side. Does Lasso drop any features
+   entirely?</li>
+<li><strong>Ridge vs Lasso via CV.</strong> Use <code>RidgeCV</code> and <code>LassoCV</code> on a
+   <strong>standardized</strong> Advertising dataset. Report the best <span class="arithmatex">\(\alpha\)</span> and
+   the test-set RMSE for each, and note which features (if any) Lasso
+   zeros out.</li>
+<li><strong>From-scratch Ridge.</strong> Implement Ridge regression yourself using
+   <span class="arithmatex">\(\hat\beta = (X^\top X + \alpha I)^{-1} X^\top y\)</span> and verify against
+   <code>sklearn.linear_model.Ridge</code> for a handful of <span class="arithmatex">\(\alpha\)</span> values.</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../LinearRegression/" class="btn btn-neutral float-left" title="Linear Regression"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../LinearRegression/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
