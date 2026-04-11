@@ -54,7 +54,85 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Linear Regression</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#applied-statistical-analysis">Applied Statistical Analysis</a>
+    <li class="toctree-l2"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#1-what-is-a-regression-problem">1. What is a Regression Problem?</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#simple-vs-multiple-linear-regression">Simple vs. Multiple Linear Regression</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-setting-up-importing-libraries">2. Setting Up — Importing Libraries</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-building-intuition-the-best-fit-line">3. Building Intuition — "The Best Fit Line"</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#what-is-a-residual">What is a residual?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#measuring-how-bad-a-line-is-sum-of-squared-errors-sse">Measuring how bad a line is — Sum of Squared Errors (SSE)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-deriving-ols-why-the-derivative-equals-zero-at-the-minimum">4. Deriving OLS — Why the Derivative Equals Zero at the Minimum</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-core-calculus-idea">The core calculus idea</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#doing-the-calculus">Doing the calculus</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#multiple-linear-regression-matrix-form">Multiple linear regression (matrix form)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-a-real-dataset-advertising-spend-vs-sales">5. A Real Dataset — Advertising Spend vs. Sales</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-exploratory-data-analysis">6. Exploratory Data Analysis</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-the-assumptions-of-linear-regression">7. The Assumptions of Linear Regression</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#8-fitting-multiple-linear-regression-with-statsmodels">8. Fitting Multiple Linear Regression with statsmodels</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-reading-the-ols-summary-block-by-block">9. Reading the OLS Summary — Block by Block</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#top-block-model-level-statistics">Top block — model-level statistics</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#middle-block-per-coefficient-table">Middle block — per-coefficient table</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bottom-block-diagnostics-baked-into-the-summary">Bottom block — diagnostics baked into the summary</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#what-does-our-model-say">What does our model say?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#10-regression-diagnostics">10. Regression Diagnostics</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#101-residuals-vs-fitted-linearity-and-homoscedasticity">10.1 Residuals vs. Fitted — Linearity and Homoscedasticity</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#102-qq-plot-normality-of-residuals">10.2 Q–Q Plot — Normality of residuals</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#103-histogram-density-of-residuals">10.3 Histogram / density of residuals</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#104-scalelocation-plot-equal-variance-another-angle">10.4 Scale–Location plot — equal variance, another angle</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#105-variance-inflation-factor-vif-multicollinearity">10.5 Variance Inflation Factor (VIF) — multicollinearity</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#106-cooks-distance-influential-observations">10.6 Cook's Distance — influential observations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#107-formal-statistical-tests">10.7 Formal statistical tests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#108-a-diagnostic-summary">10.8 A diagnostic summary</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#11-remedial-measures-what-to-do-when-assumptions-fail">11. Remedial Measures — What to Do When Assumptions Fail</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#111-a-concrete-example-when-a-straight-line-just-isnt-enough">11.1 A concrete example — when a straight line just isn't enough</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#112-dropping-a-non-significant-collinear-predictor">11.2 Dropping a non-significant / collinear predictor</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#12-key-takeaways">12. Key Takeaways</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#13-practice-exercises">13. Practice Exercises</a>
     </li>
     </ul>
                 </li>
@@ -82,10 +160,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="data-200">Data 200</h1>
-<h3 id="applied-statistical-analysis">Applied Statistical Analysis</h3>
-<h1 id="linear-regression-from-intuition-to-diagnostics">Linear Regression — From Intuition to Diagnostics</h1>
-<p><em>Instructor:</em> Aayush Regmi</p>
+                <h1 id="linear-regression-from-intuition-to-diagnostics">Linear Regression — From Intuition to Diagnostics<a class="headerlink" href="#linear-regression-from-intuition-to-diagnostics" title="Permanent link">&para;</a></h1>
+<p><em>Data 200 · Applied Statistical Analysis · Instructor: Aayush Regmi</em></p>
 <hr />
 <p>In this notebook we build <strong>Linear Regression</strong> from first principles, fit
 models with <code>statsmodels</code>, read the OLS summary line by line, run a full
@@ -95,7 +171,7 @@ when assumptions are violated.</p>
 <p>This notebook is meant to be read <em>and</em> run top to bottom. Re-run each code
 cell yourself and try to predict the output before looking at it.</p>
 </blockquote>
-<h2 id="learning-objectives">Learning Objectives</h2>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
 <p>By the end of this notebook you should be able to:</p>
 <ol>
 <li>Explain <strong>what a regression problem is</strong> and when linear regression is an
@@ -111,14 +187,14 @@ cell yourself and try to predict the output before looking at it.</p>
 <li>Apply <strong>remedial measures</strong> (transformations, polynomial features,
    dropping collinear features) when diagnostics reveal problems.</li>
 </ol>
-<h2 id="1-what-is-a-regression-problem">1. What is a Regression Problem?</h2>
-<p>In <strong>supervised learning</strong> we are given pairs $(x_i, y_i)$ and want to learn a
-function $f$ such that $\hat{y} = f(x)$ is a good prediction of $y$.</p>
+<h2 id="1-what-is-a-regression-problem">1. What is a Regression Problem?<a class="headerlink" href="#1-what-is-a-regression-problem" title="Permanent link">&para;</a></h2>
+<p>In <strong>supervised learning</strong> we are given pairs <span class="arithmatex">\((x_i, y_i)\)</span> and want to learn a
+function <span class="arithmatex">\(f\)</span> such that <span class="arithmatex">\(\hat{y} = f(x)\)</span> is a good prediction of <span class="arithmatex">\(y\)</span>.</p>
 <table>
 <thead>
 <tr>
 <th>Task type</th>
-<th>Output $y$</th>
+<th>Output <span class="arithmatex">\(y\)</span></th>
 <th>Example</th>
 </tr>
 </thead>
@@ -136,18 +212,18 @@ function $f$ such that $\hat{y} = f(x)$ is a good prediction of $y$.</p>
 </tbody>
 </table>
 <p><strong>Linear regression</strong> is the simplest, most interpretable regression model:
-we assume $y$ is (approximately) a <strong>straight-line / flat-plane</strong> function of
+we assume <span class="arithmatex">\(y\)</span> is (approximately) a <strong>straight-line / flat-plane</strong> function of
 the inputs plus some random noise.</p>
-<h3 id="simple-vs-multiple-linear-regression">Simple vs. Multiple Linear Regression</h3>
+<h3 id="simple-vs-multiple-linear-regression">Simple vs. Multiple Linear Regression<a class="headerlink" href="#simple-vs-multiple-linear-regression" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Simple linear regression</strong> — one predictor:
-  $$y = \beta_0 + \beta_1 x + \varepsilon$$</li>
+  <span class="arithmatex">\(<span class="arithmatex">\(y = \beta_0 + \beta_1 x + \varepsilon\)</span>\)</span></li>
 <li><strong>Multiple linear regression</strong> — many predictors:
-  $$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p + \varepsilon$$</li>
+  <span class="arithmatex">\(<span class="arithmatex">\(y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_p x_p + \varepsilon\)</span>\)</span></li>
 </ul>
-<p>The symbol $\varepsilon$ ("epsilon") is the <strong>irreducible error</strong> — the part
-of $y$ that we cannot explain with the predictors.</p>
-<h2 id="2-setting-up-importing-libraries">2. Setting Up — Importing Libraries</h2>
+<p>The symbol <span class="arithmatex">\(\varepsilon\)</span> ("epsilon") is the <strong>irreducible error</strong> — the part
+of <span class="arithmatex">\(y\)</span> that we cannot explain with the predictors.</p>
+<h2 id="2-setting-up-importing-libraries">2. Setting Up — Importing Libraries<a class="headerlink" href="#2-setting-up-importing-libraries" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -162,7 +238,7 @@ of $y$ that we cannot explain with the predictors.</p>
 <span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>   <span class="c1"># for reproducibility</span>
 </code></pre></div>
-<h2 id="3-building-intuition-the-best-fit-line">3. Building Intuition — "The Best Fit Line"</h2>
+<h2 id="3-building-intuition-the-best-fit-line">3. Building Intuition — "The Best Fit Line"<a class="headerlink" href="#3-building-intuition-the-best-fit-line" title="Permanent link">&para;</a></h2>
 <p>Before we touch any real data, let's understand the core question that
 linear regression answers:</p>
 <blockquote>
@@ -182,10 +258,10 @@ them at the same time?"</em></p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_6_0.png" /></p>
-<h3 id="what-is-a-residual">What is a residual?</h3>
-<p>Any candidate line $\hat y = \beta_0 + \beta_1 x$ will, in general, <em>not</em> pass
-through the points exactly. For every point $(x_i, y_i)$ the <strong>residual</strong> is</p>
-<p>$$e_i = y_i - \hat{y}_i = y_i - (\beta_0 + \beta_1 x_i)$$</p>
+<h3 id="what-is-a-residual">What is a residual?<a class="headerlink" href="#what-is-a-residual" title="Permanent link">&para;</a></h3>
+<p>Any candidate line <span class="arithmatex">\(\hat y = \beta_0 + \beta_1 x\)</span> will, in general, <em>not</em> pass
+through the points exactly. For every point <span class="arithmatex">\((x_i, y_i)\)</span> the <strong>residual</strong> is</p>
+<div class="arithmatex">\[e_i = y_i - \hat{y}_i = y_i - (\beta_0 + \beta_1 x_i)\]</div>
 <p>That is: <strong>actual minus predicted</strong>. The residual is the <em>vertical distance</em>
 from the point to the line.</p>
 <p>Let's draw a (deliberately bad) line and show the residuals.</p>
@@ -205,13 +281,13 @@ from the point to the line.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_8_0.png" /></p>
-<h3 id="measuring-how-bad-a-line-is-sum-of-squared-errors-sse">Measuring how bad a line is — Sum of Squared Errors (SSE)</h3>
+<h3 id="measuring-how-bad-a-line-is-sum-of-squared-errors-sse">Measuring how bad a line is — Sum of Squared Errors (SSE)<a class="headerlink" href="#measuring-how-bad-a-line-is-sum-of-squared-errors-sse" title="Permanent link">&para;</a></h3>
 <p>We want a single number that says <em>"how bad is this line overall?"</em>. The
 obvious idea is to add up all the residuals — but positive and negative
 residuals would cancel out. Two common fixes:</p>
 <ol>
-<li><strong>Absolute values:</strong> $\sum_i |e_i|$ — leads to <strong>Least Absolute Deviations</strong>.</li>
-<li><strong>Squares:</strong> $\sum_i e_i^2$ — leads to <strong>Ordinary Least Squares (OLS)</strong>.</li>
+<li><strong>Absolute values:</strong> <span class="arithmatex">\(\sum_i |e_i|\)</span> — leads to <strong>Least Absolute Deviations</strong>.</li>
+<li><strong>Squares:</strong> <span class="arithmatex">\(\sum_i e_i^2\)</span> — leads to <strong>Ordinary Least Squares (OLS)</strong>.</li>
 </ol>
 <p>OLS is the classic choice because:</p>
 <ul>
@@ -223,7 +299,7 @@ residuals would cancel out. Two common fixes:</p>
   Estimator (BLUE)</strong> — the most efficient linear estimator.</li>
 </ul>
 <p>The quantity we minimize is</p>
-<p>$$\text{SSE}(\beta_0, \beta_1) \;=\; \sum_{i=1}^n \bigl(y_i - \beta_0 - \beta_1 x_i\bigr)^2$$</p>
+<div class="arithmatex">\[\text{SSE}(\beta_0, \beta_1) \;=\; \sum_{i=1}^n \bigl(y_i - \beta_0 - \beta_1 x_i\bigr)^2\]</div>
 <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sse</span><span class="p">(</span><span class="n">b0</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="p">(</span><span class="n">b0</span> <span class="o">+</span> <span class="n">b1</span> <span class="o">*</span> <span class="n">x</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
 
@@ -235,11 +311,11 @@ residuals would cancel out. Two common fixes:</p>
 SSE of another guess (b0=30, b1=6):  15.00
 SSE of a better guess (b0=27, b1=6.3): 52.65
 </code></pre></div>
-<h2 id="4-deriving-ols-why-the-derivative-equals-zero-at-the-minimum">4. Deriving OLS — Why the Derivative Equals Zero at the Minimum</h2>
-<p>SSE is a function of $\beta_0$ and $\beta_1$. If we fix $\beta_0$ for a moment
-and vary $\beta_1$, the SSE traces out a <strong>parabola</strong> (a bowl shape).</p>
+<h2 id="4-deriving-ols-why-the-derivative-equals-zero-at-the-minimum">4. Deriving OLS — Why the Derivative Equals Zero at the Minimum<a class="headerlink" href="#4-deriving-ols-why-the-derivative-equals-zero-at-the-minimum" title="Permanent link">&para;</a></h2>
+<p>SSE is a function of <span class="arithmatex">\(\beta_0\)</span> and <span class="arithmatex">\(\beta_1\)</span>. If we fix <span class="arithmatex">\(\beta_0\)</span> for a moment
+and vary <span class="arithmatex">\(\beta_1\)</span>, the SSE traces out a <strong>parabola</strong> (a bowl shape).</p>
 <p>We want the <strong>bottom of the bowl</strong>. How do we find it?</p>
-<h3 id="the-core-calculus-idea">The core calculus idea</h3>
+<h3 id="the-core-calculus-idea">The core calculus idea<a class="headerlink" href="#the-core-calculus-idea" title="Permanent link">&para;</a></h3>
 <p>Look at a smooth curve. At every point the curve has a <em>slope</em> (derivative).</p>
 <ul>
 <li>If the slope is <strong>positive</strong>, the curve is still going up — we could move
@@ -250,7 +326,7 @@ and vary $\beta_1$, the SSE traces out a <strong>parabola</strong> (a bowl shape
   function. The curve must be momentarily <strong>flat</strong>, i.e. the slope is <strong>zero</strong>.</li>
 </ul>
 <blockquote>
-<p><strong>Key insight:</strong> at a minimum of a smooth function, the derivative is $0$.</p>
+<p><strong>Key insight:</strong> at a minimum of a smooth function, the derivative is <span class="arithmatex">\(0\)</span>.</p>
 </blockquote>
 <p>That is why we find the minimum of SSE by <strong>setting the derivative equal to
 zero and solving</strong>. Let's see this visually first.</p>
@@ -278,24 +354,24 @@ zero and solving</strong>. Let's see this visually first.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_12_0.png" /></p>
-<h3 id="doing-the-calculus">Doing the calculus</h3>
+<h3 id="doing-the-calculus">Doing the calculus<a class="headerlink" href="#doing-the-calculus" title="Permanent link">&para;</a></h3>
 <p>Start with
-$$\text{SSE}(\beta_0, \beta_1) = \sum_{i=1}^n (y_i - \beta_0 - \beta_1 x_i)^2.$$</p>
+<span class="arithmatex">\(<span class="arithmatex">\(\text{SSE}(\beta_0, \beta_1) = \sum_{i=1}^n (y_i - \beta_0 - \beta_1 x_i)^2.\)</span>\)</span></p>
 <p>Take partial derivatives and set each to zero — these are the <strong>normal
 equations</strong>:</p>
-<p>$$\frac{\partial \text{SSE}}{\partial \beta_0} = -2 \sum_i (y_i - \beta_0 - \beta_1 x_i) = 0$$</p>
-<p>$$\frac{\partial \text{SSE}}{\partial \beta_1} = -2 \sum_i x_i (y_i - \beta_0 - \beta_1 x_i) = 0$$</p>
+<div class="arithmatex">\[\frac{\partial \text{SSE}}{\partial \beta_0} = -2 \sum_i (y_i - \beta_0 - \beta_1 x_i) = 0\]</div>
+<div class="arithmatex">\[\frac{\partial \text{SSE}}{\partial \beta_1} = -2 \sum_i x_i (y_i - \beta_0 - \beta_1 x_i) = 0\]</div>
 <p>The first equation says the residuals <strong>sum to zero</strong>. The second says the
 residuals are <strong>uncorrelated with the predictor</strong>. Solving for
-$\beta_0, \beta_1$:</p>
-<p>$$\boxed{\;\hat\beta_1 = \frac{\sum_i (x_i - \bar x)(y_i - \bar y)}{\sum_i (x_i - \bar x)^2} = \frac{\operatorname{cov}(x, y)}{\operatorname{var}(x)}\;}$$</p>
-<p>$$\boxed{\;\hat\beta_0 = \bar y - \hat\beta_1 \bar x\;}$$</p>
-<h3 id="multiple-linear-regression-matrix-form">Multiple linear regression (matrix form)</h3>
-<p>With $p$ predictors, stack the data into a matrix $X$ (shape $n \times (p+1)$,
-first column all ones for the intercept) and a vector $y$. SSE becomes</p>
-<p>$$\text{SSE}(\boldsymbol\beta) = (y - X\boldsymbol\beta)^\top (y - X\boldsymbol\beta).$$</p>
+<span class="arithmatex">\(\beta_0, \beta_1\)</span>:</p>
+<div class="arithmatex">\[\boxed{\;\hat\beta_1 = \frac{\sum_i (x_i - \bar x)(y_i - \bar y)}{\sum_i (x_i - \bar x)^2} = \frac{\operatorname{cov}(x, y)}{\operatorname{var}(x)}\;}\]</div>
+<div class="arithmatex">\[\boxed{\;\hat\beta_0 = \bar y - \hat\beta_1 \bar x\;}\]</div>
+<h3 id="multiple-linear-regression-matrix-form">Multiple linear regression (matrix form)<a class="headerlink" href="#multiple-linear-regression-matrix-form" title="Permanent link">&para;</a></h3>
+<p>With <span class="arithmatex">\(p\)</span> predictors, stack the data into a matrix <span class="arithmatex">\(X\)</span> (shape <span class="arithmatex">\(n \times (p+1)\)</span>,
+first column all ones for the intercept) and a vector <span class="arithmatex">\(y\)</span>. SSE becomes</p>
+<div class="arithmatex">\[\text{SSE}(\boldsymbol\beta) = (y - X\boldsymbol\beta)^\top (y - X\boldsymbol\beta).\]</div>
 <p>Setting the gradient to zero gives the celebrated <strong>normal equation</strong></p>
-<p>$$\boxed{\;\hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top y\;}$$</p>
+<div class="arithmatex">\[\boxed{\;\hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top y\;}\]</div>
 <p>Let's verify these formulas by computing OLS <strong>from scratch</strong> and comparing
 against <code>statsmodels</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># OLS from scratch — simple linear regression</span>
@@ -325,7 +401,7 @@ statsmodels:   b0 = 29.9333,  b1 = 6.1394
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_15_0.png" /></p>
-<h2 id="5-a-real-dataset-advertising-spend-vs-sales">5. A Real Dataset — Advertising Spend vs. Sales</h2>
+<h2 id="5-a-real-dataset-advertising-spend-vs-sales">5. A Real Dataset — Advertising Spend vs. Sales<a class="headerlink" href="#5-a-real-dataset-advertising-spend-vs-sales" title="Permanent link">&para;</a></h2>
 <p>We'll use the classic <strong>Advertising</strong> dataset from <em>An Introduction to
 Statistical Learning</em> (James, Witten, Hastie, Tibshirani). Each of 200 rows
 is a market, with how many (thousand) dollars were spent on <strong>TV</strong>, <strong>radio</strong>
@@ -495,7 +571,7 @@ and can we predict sales from an advertising budget?</p>
 </table>
 </div>
 
-<h2 id="6-exploratory-data-analysis">6. Exploratory Data Analysis</h2>
+<h2 id="6-exploratory-data-analysis">6. Exploratory Data Analysis<a class="headerlink" href="#6-exploratory-data-analysis" title="Permanent link">&para;</a></h2>
 <p>Before fitting, look at:</p>
 <ul>
 <li><strong>Correlations</strong> — which predictors move with <code>sales</code>? Do any predictors
@@ -527,7 +603,7 @@ and can we predict sales from an advertising budget?</p>
 <li><code>newspaper</code> is only weakly correlated with sales and is also somewhat
   correlated with <code>radio</code> — already a hint of multicollinearity.</li>
 </ul>
-<h2 id="7-the-assumptions-of-linear-regression">7. The Assumptions of Linear Regression</h2>
+<h2 id="7-the-assumptions-of-linear-regression">7. The Assumptions of Linear Regression<a class="headerlink" href="#7-the-assumptions-of-linear-regression" title="Permanent link">&para;</a></h2>
 <p>Linear regression is only <em>statistically</em> trustworthy when a short list of
 assumptions hold. A convenient mnemonic is <strong>LINEM</strong>:</p>
 <table>
@@ -542,7 +618,7 @@ assumptions hold. A convenient mnemonic is <strong>LINEM</strong>:</p>
 <tr>
 <td><strong>L</strong></td>
 <td><strong>Linearity</strong></td>
-<td>The true relationship between $X$ and $y$ is linear.</td>
+<td>The true relationship between <span class="arithmatex">\(X\)</span> and <span class="arithmatex">\(y\)</span> is linear.</td>
 </tr>
 <tr>
 <td><strong>I</strong></td>
@@ -568,7 +644,7 @@ assumptions hold. A convenient mnemonic is <strong>LINEM</strong>:</p>
 </table>
 <p>Each assumption has a <strong>diagnostic</strong> that can detect its violation and a
 <strong>remedy</strong> that often fixes it. We will see all of them in action.</p>
-<h2 id="8-fitting-multiple-linear-regression-with-statsmodels">8. Fitting Multiple Linear Regression with <code>statsmodels</code></h2>
+<h2 id="8-fitting-multiple-linear-regression-with-statsmodels">8. Fitting Multiple Linear Regression with <code>statsmodels</code><a class="headerlink" href="#8-fitting-multiple-linear-regression-with-statsmodels" title="Permanent link">&para;</a></h2>
 <p><code>statsmodels</code> is the go-to library for <em>statistical</em> regression in Python
 (<code>sklearn</code> is optimized for <em>prediction</em> and gives you fewer diagnostics).</p>
 <p>Two important details:</p>
@@ -664,9 +740,9 @@ Kurtosis:                       6.332   Cond. No.                         454.
 Notes:
 [1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
 </code></pre></div>
-<h2 id="9-reading-the-ols-summary-block-by-block">9. Reading the OLS Summary — Block by Block</h2>
+<h2 id="9-reading-the-ols-summary-block-by-block">9. Reading the OLS Summary — Block by Block<a class="headerlink" href="#9-reading-the-ols-summary-block-by-block" title="Permanent link">&para;</a></h2>
 <p>The summary table looks intimidating, but every number has a job.</p>
-<h3 id="top-block-model-level-statistics">Top block — model-level statistics</h3>
+<h3 id="top-block-model-level-statistics">Top block — model-level statistics<a class="headerlink" href="#top-block-model-level-statistics" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -685,19 +761,19 @@ Notes:
 </tr>
 <tr>
 <td><strong>No. Observations</strong></td>
-<td>$n$ — number of rows used.</td>
+<td><span class="arithmatex">\(n\)</span> — number of rows used.</td>
 </tr>
 <tr>
 <td><strong>Df Residuals</strong></td>
-<td>$n - p - 1$ — degrees of freedom for residuals.</td>
+<td><span class="arithmatex">\(n - p - 1\)</span> — degrees of freedom for residuals.</td>
 </tr>
 <tr>
 <td><strong>Df Model</strong></td>
-<td>$p$ — number of predictors (not counting the intercept).</td>
+<td><span class="arithmatex">\(p\)</span> — number of predictors (not counting the intercept).</td>
 </tr>
 <tr>
 <td><strong>R-squared</strong></td>
-<td>Fraction of variance in $y$ explained by the model: $1 - \text{SSE}/\text{SST}$. Ranges $[0, 1]$.</td>
+<td>Fraction of variance in <span class="arithmatex">\(y\)</span> explained by the model: <span class="arithmatex">\(1 - \text{SSE}/\text{SST}\)</span>. Ranges <span class="arithmatex">\([0, 1]\)</span>.</td>
 </tr>
 <tr>
 <td><strong>Adj. R-squared</strong></td>
@@ -705,7 +781,7 @@ Notes:
 </tr>
 <tr>
 <td><strong>F-statistic / Prob (F-stat)</strong></td>
-<td>Tests $H_0$: <em>all slopes are zero</em>. Small p-value ⇒ the model is jointly useful.</td>
+<td>Tests <span class="arithmatex">\(H_0\)</span>: <em>all slopes are zero</em>. Small p-value ⇒ the model is jointly useful.</td>
 </tr>
 <tr>
 <td><strong>Log-Likelihood / AIC / BIC</strong></td>
@@ -713,7 +789,7 @@ Notes:
 </tr>
 </tbody>
 </table>
-<h3 id="middle-block-per-coefficient-table">Middle block — per-coefficient table</h3>
+<h3 id="middle-block-per-coefficient-table">Middle block — per-coefficient table<a class="headerlink" href="#middle-block-per-coefficient-table" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -724,27 +800,27 @@ Notes:
 <tbody>
 <tr>
 <td><strong>coef</strong></td>
-<td>$\hat\beta_j$ — the estimated slope. "Holding everything else fixed, a one-unit increase in $x_j$ changes the prediction by this much."</td>
+<td><span class="arithmatex">\(\hat\beta_j\)</span> — the estimated slope. "Holding everything else fixed, a one-unit increase in <span class="arithmatex">\(x_j\)</span> changes the prediction by this much."</td>
 </tr>
 <tr>
 <td><strong>std err</strong></td>
-<td>Standard error of $\hat\beta_j$ — our uncertainty about the slope.</td>
+<td>Standard error of <span class="arithmatex">\(\hat\beta_j\)</span> — our uncertainty about the slope.</td>
 </tr>
 <tr>
 <td><strong>t</strong></td>
-<td>$\hat\beta_j / \text{std err}$ — the $t$-statistic.</td>
+<td><span class="arithmatex">\(\hat\beta_j / \text{std err}\)</span> — the <span class="arithmatex">\(t\)</span>-statistic.</td>
 </tr>
 <tr>
 <td><strong>P&gt;|t|</strong></td>
-<td>Two-sided p-value for $H_0: \beta_j = 0$. Small ⇒ the predictor is <em>statistically significant</em>.</td>
+<td>Two-sided p-value for <span class="arithmatex">\(H_0: \beta_j = 0\)</span>. Small ⇒ the predictor is <em>statistically significant</em>.</td>
 </tr>
 <tr>
 <td><strong>[0.025, 0.975]</strong></td>
-<td>95% confidence interval for $\beta_j$. If it crosses zero, the coefficient is not significant at the 5% level.</td>
+<td>95% confidence interval for <span class="arithmatex">\(\beta_j\)</span>. If it crosses zero, the coefficient is not significant at the 5% level.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="bottom-block-diagnostics-baked-into-the-summary">Bottom block — diagnostics baked into the summary</h3>
+<h3 id="bottom-block-diagnostics-baked-into-the-summary">Bottom block — diagnostics baked into the summary<a class="headerlink" href="#bottom-block-diagnostics-baked-into-the-summary" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -775,22 +851,22 @@ Notes:
 </tr>
 <tr>
 <td><strong>Cond. No.</strong></td>
-<td>Condition number of $X^\top X$. Very large (&gt; 30) ⇒ possible multicollinearity or ill-scaled features.</td>
+<td>Condition number of <span class="arithmatex">\(X^\top X\)</span>. Very large (&gt; 30) ⇒ possible multicollinearity or ill-scaled features.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="what-does-our-model-say">What does our model say?</h3>
+<h3 id="what-does-our-model-say">What does our model say?<a class="headerlink" href="#what-does-our-model-say" title="Permanent link">&para;</a></h3>
 <ul>
-<li>$R^2 \approx 0.90$: the three ad channels jointly explain about 90% of the
+<li><span class="arithmatex">\(R^2 \approx 0.90\)</span>: the three ad channels jointly explain about 90% of the
   variance in sales. Very good.</li>
-<li><strong>TV</strong> ($p &lt; 0.001$) and <strong>radio</strong> ($p &lt; 0.001$) are strongly significant.</li>
+<li><strong>TV</strong> (<span class="arithmatex">\(p &lt; 0.001\)</span>) and <strong>radio</strong> (<span class="arithmatex">\(p &lt; 0.001\)</span>) are strongly significant.</li>
 <li><strong>newspaper</strong> has a coefficient close to zero and a <em>very</em> large p-value —
   once TV and radio are in the model, newspaper adds essentially nothing.</li>
-<li>Durbin–Watson $\approx 2$: no obvious autocorrelation.</li>
+<li>Durbin–Watson <span class="arithmatex">\(\approx 2\)</span>: no obvious autocorrelation.</li>
 <li>Omnibus / JB p-values are tiny ⇒ residuals may not be perfectly Normal —
   we will check this visually in a moment.</li>
 </ul>
-<h2 id="10-regression-diagnostics">10. Regression Diagnostics</h2>
+<h2 id="10-regression-diagnostics">10. Regression Diagnostics<a class="headerlink" href="#10-regression-diagnostics" title="Permanent link">&para;</a></h2>
 <p>The summary tells us <em>whether</em> the model fits. Diagnostics tell us <em>whether
 we are allowed to trust the summary</em>.</p>
 <p>We'll compute the residuals once and reuse them.</p>
@@ -808,15 +884,15 @@ min     -8.827687e+00
 max      2.829223e+00
 dtype: float64
 </code></pre></div>
-<h3 id="101-residuals-vs-fitted-linearity-and-homoscedasticity">10.1 Residuals vs. Fitted — <em>Linearity</em> and <em>Homoscedasticity</em></h3>
-<p>Plot residuals on the $y$-axis against fitted values on the $x$-axis.</p>
+<h3 id="101-residuals-vs-fitted-linearity-and-homoscedasticity">10.1 Residuals vs. Fitted — <em>Linearity</em> and <em>Homoscedasticity</em><a class="headerlink" href="#101-residuals-vs-fitted-linearity-and-homoscedasticity" title="Permanent link">&para;</a></h3>
+<p>Plot residuals on the <span class="arithmatex">\(y\)</span>-axis against fitted values on the <span class="arithmatex">\(x\)</span>-axis.</p>
 <p><strong>What to look for:</strong></p>
 <ul>
 <li><strong>Linearity:</strong> residuals should scatter <em>randomly around zero</em> with no
   curved trend. A U-shape or inverted-U means the relationship is not
   really linear.</li>
 <li><strong>Equal variance:</strong> the vertical spread should be roughly <strong>the same</strong>
-  across the whole $x$-range. A <em>fanning out</em> pattern signals
+  across the whole <span class="arithmatex">\(x\)</span>-range. A <em>fanning out</em> pattern signals
   <strong>heteroscedasticity</strong>.</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
@@ -833,7 +909,7 @@ dtype: float64
 tail</strong> of large negative residuals on the left — the model underpredicts
 small sales and the relationship has a mild non-linear component
 (interaction between TV and radio is the real culprit).</p>
-<h3 id="102-qq-plot-normality-of-residuals">10.2 Q–Q Plot — <em>Normality of residuals</em></h3>
+<h3 id="102-qq-plot-normality-of-residuals">10.2 Q–Q Plot — <em>Normality of residuals</em><a class="headerlink" href="#102-qq-plot-normality-of-residuals" title="Permanent link">&para;</a></h3>
 <p>A Quantile–Quantile plot compares the quantiles of the residuals to the
 quantiles of a standard Normal. If the residuals are Normally distributed,
 the points lie on the 45° line.</p>
@@ -842,7 +918,7 @@ the points lie on the 45° line.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_35_0.png" /></p>
-<h3 id="103-histogram-density-of-residuals">10.3 Histogram / density of residuals</h3>
+<h3 id="103-histogram-density-of-residuals">10.3 Histogram / density of residuals<a class="headerlink" href="#103-histogram-density-of-residuals" title="Permanent link">&para;</a></h3>
 <p>Another way to eyeball normality. We also overlay a Normal curve with the
 same mean and std for reference.</p>
 <div class="highlight"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
@@ -857,8 +933,8 @@ same mean and std for reference.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_37_0.png" /></p>
-<h3 id="104-scalelocation-plot-equal-variance-another-angle">10.4 Scale–Location plot — equal variance, another angle</h3>
-<p>This plots $\sqrt{|\text{standardized residual}|}$ vs. fitted value. A
+<h3 id="104-scalelocation-plot-equal-variance-another-angle">10.4 Scale–Location plot — equal variance, another angle<a class="headerlink" href="#104-scalelocation-plot-equal-variance-another-angle" title="Permanent link">&para;</a></h3>
+<p>This plots <span class="arithmatex">\(\sqrt{|\text{standardized residual}|}\)</span> vs. fitted value. A
 <strong>flat horizontal</strong> trend means constant variance.</p>
 <div class="highlight"><pre><span></span><code><span class="n">influence</span> <span class="o">=</span> <span class="n">ols_model</span><span class="o">.</span><span class="n">get_influence</span><span class="p">()</span>
 <span class="n">std_resid</span> <span class="o">=</span> <span class="n">influence</span><span class="o">.</span><span class="n">resid_studentized_internal</span>
@@ -874,15 +950,15 @@ same mean and std for reference.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_39_0.png" /></p>
-<h3 id="105-variance-inflation-factor-vif-multicollinearity">10.5 Variance Inflation Factor (VIF) — multicollinearity</h3>
+<h3 id="105-variance-inflation-factor-vif-multicollinearity">10.5 Variance Inflation Factor (VIF) — multicollinearity<a class="headerlink" href="#105-variance-inflation-factor-vif-multicollinearity" title="Permanent link">&para;</a></h3>
 <p><strong>Multicollinearity</strong> happens when one predictor can be (almost) predicted
 from the others. It <strong>inflates the variance</strong> of the coefficient estimates,
-making individual p-values unreliable — the overall $R^2$ can still be high
+making individual p-values unreliable — the overall <span class="arithmatex">\(R^2\)</span> can still be high
 while each individual coefficient looks useless.</p>
-<p>The VIF for predictor $j$ is
-$$\text{VIF}_j = \frac{1}{1 - R_j^2}$$
-where $R_j^2$ is the $R^2$ of regressing $x_j$ on all <em>other</em> predictors.</p>
-<p><strong>Rules of thumb:</strong> VIF $&lt; 5$ fine, $5$–$10$ suspicious, $&gt; 10$ serious.</p>
+<p>The VIF for predictor <span class="arithmatex">\(j\)</span> is
+<span class="arithmatex">\(<span class="arithmatex">\(\text{VIF}_j = \frac{1}{1 - R_j^2}\)</span>\)</span>
+where <span class="arithmatex">\(R_j^2\)</span> is the <span class="arithmatex">\(R^2\)</span> of regressing <span class="arithmatex">\(x_j\)</span> on all <em>other</em> predictors.</p>
+<p><strong>Rules of thumb:</strong> VIF <span class="arithmatex">\(&lt; 5\)</span> fine, <span class="arithmatex">\(5\)</span>–<span class="arithmatex">\(10\)</span> suspicious, <span class="arithmatex">\(&gt; 10\)</span> serious.</p>
 <div class="highlight"><pre><span></span><code><span class="n">vif</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
     <span class="s1">&#39;feature&#39;</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
     <span class="s1">&#39;VIF&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">variance_inflation_factor</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
@@ -934,11 +1010,11 @@ where $R_j^2$ is the $R^2$ of regressing $x_j$ on all <em>other</em> predictors.
 
 <p>All VIFs are comfortably below 5 — multicollinearity is not a serious
 problem for this dataset.</p>
-<h3 id="106-cooks-distance-influential-observations">10.6 Cook's Distance — influential observations</h3>
+<h3 id="106-cooks-distance-influential-observations">10.6 Cook's Distance — influential observations<a class="headerlink" href="#106-cooks-distance-influential-observations" title="Permanent link">&para;</a></h3>
 <p>A point is <strong>influential</strong> if removing it would noticeably change the fitted
-coefficients. Cook's distance combines <em>leverage</em> (how unusual $x_i$ is) and
+coefficients. Cook's distance combines <em>leverage</em> (how unusual <span class="arithmatex">\(x_i\)</span> is) and
 <em>residual size</em>. A common rule of thumb flags observations with</p>
-<p>$$D_i &gt; \frac{4}{n}.$$</p>
+<div class="arithmatex">\[D_i &gt; \frac{4}{n}.\]</div>
 <div class="highlight"><pre><span></span><code><span class="n">c</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">influence</span><span class="o">.</span><span class="n">cooks_distance</span>
 <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 
@@ -958,14 +1034,14 @@ coefficients. Cook's distance combines <em>leverage</em> (how unusual $x_i$ is) 
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_44_0.png" /></p>
 <div class="highlight"><pre><span></span><code>Observations above the 4/n threshold: [2, 5, 25, 35, 75, 78, 126, 128, 130, 131, 132, 135, 158, 165, 169, 178]
 </code></pre></div>
-<h3 id="107-formal-statistical-tests">10.7 Formal statistical tests</h3>
+<h3 id="107-formal-statistical-tests">10.7 Formal statistical tests<a class="headerlink" href="#107-formal-statistical-tests" title="Permanent link">&para;</a></h3>
 <p>Plots are great for building intuition, but sometimes you want a number.
 Three standard tests:</p>
 <table>
 <thead>
 <tr>
 <th>Test</th>
-<th>$H_0$</th>
+<th><span class="arithmatex">\(H_0\)</span></th>
 <th>Decision rule</th>
 </tr>
 </thead>
@@ -973,17 +1049,17 @@ Three standard tests:</p>
 <tr>
 <td><strong>Breusch–Pagan</strong></td>
 <td>errors are homoscedastic</td>
-<td>reject if $p &lt; 0.05$ ⇒ heteroscedastic</td>
+<td>reject if <span class="arithmatex">\(p &lt; 0.05\)</span> ⇒ heteroscedastic</td>
 </tr>
 <tr>
 <td><strong>Shapiro–Wilk</strong></td>
 <td>residuals are Normal</td>
-<td>reject if $p &lt; 0.05$ ⇒ non-Normal</td>
+<td>reject if <span class="arithmatex">\(p &lt; 0.05\)</span> ⇒ non-Normal</td>
 </tr>
 <tr>
 <td><strong>Durbin–Watson</strong></td>
 <td>no autocorrelation</td>
-<td>statistic $\approx 2$ = OK; near 0 = positive autocorrelation; near 4 = negative</td>
+<td>statistic <span class="arithmatex">\(\approx 2\)</span> = OK; near 0 = positive autocorrelation; near 4 = negative</td>
 </tr>
 </tbody>
 </table>
@@ -1018,7 +1094,7 @@ Shapiro–Wilk:  W = 0.9177,  p = 3.939e-09
 Durbin–Watson: DW = 2.0836
   -&gt; Close to 2 means no autocorrelation.
 </code></pre></div>
-<h3 id="108-a-diagnostic-summary">10.8 A diagnostic summary</h3>
+<h3 id="108-a-diagnostic-summary">10.8 A diagnostic summary<a class="headerlink" href="#108-a-diagnostic-summary" title="Permanent link">&para;</a></h3>
 <p>Let's collect everything into one compact verdict.</p>
 <div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;================ DIAGNOSTIC SUMMARY ================&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;R²               : </span><span class="si">{</span><span class="n">ols_model</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1048,7 +1124,7 @@ VIFs:
 newspaper 3.055245
 ====================================================
 </code></pre></div>
-<h2 id="11-remedial-measures-what-to-do-when-assumptions-fail">11. Remedial Measures — What to Do When Assumptions Fail</h2>
+<h2 id="11-remedial-measures-what-to-do-when-assumptions-fail">11. Remedial Measures — What to Do When Assumptions Fail<a class="headerlink" href="#11-remedial-measures-what-to-do-when-assumptions-fail" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -1059,15 +1135,15 @@ newspaper 3.055245
 <tbody>
 <tr>
 <td><strong>Non-linearity</strong> (curved residual plot)</td>
-<td>Add polynomial / interaction terms, or transform $x$ (e.g. $\log x$, $\sqrt{x}$).</td>
+<td>Add polynomial / interaction terms, or transform <span class="arithmatex">\(x\)</span> (e.g. <span class="arithmatex">\(\log x\)</span>, <span class="arithmatex">\(\sqrt{x}\)</span>).</td>
 </tr>
 <tr>
 <td><strong>Heteroscedasticity</strong> (fanning residuals)</td>
-<td>Transform $y$ (often $\log y$ or Box–Cox), or fit <strong>Weighted Least Squares</strong>.</td>
+<td>Transform <span class="arithmatex">\(y\)</span> (often <span class="arithmatex">\(\log y\)</span> or Box–Cox), or fit <strong>Weighted Least Squares</strong>.</td>
 </tr>
 <tr>
 <td><strong>Non-normal residuals</strong></td>
-<td>Transform $y$, drop extreme outliers after investigation, or use <strong>robust regression</strong>.</td>
+<td>Transform <span class="arithmatex">\(y\)</span>, drop extreme outliers after investigation, or use <strong>robust regression</strong>.</td>
 </tr>
 <tr>
 <td><strong>Multicollinearity</strong> (high VIF)</td>
@@ -1083,7 +1159,7 @@ newspaper 3.055245
 </tr>
 </tbody>
 </table>
-<h3 id="111-a-concrete-example-when-a-straight-line-just-isnt-enough">11.1 A concrete example — when a straight line just isn't enough</h3>
+<h3 id="111-a-concrete-example-when-a-straight-line-just-isnt-enough">11.1 A concrete example — when a straight line just isn't enough<a class="headerlink" href="#111-a-concrete-example-when-a-straight-line-just-isnt-enough" title="Permanent link">&para;</a></h3>
 <p>Consider this toy dataset of reaction yield vs. temperature. A straight line
 will <em>not</em> be enough — we'll need a <strong>polynomial</strong> feature to capture the
 curvature.</p>
@@ -1179,11 +1255,11 @@ curvature.</p>
 </code></pre></div>
 <p><img alt="png" src="../LinearRegression_files/LinearRegression_51_0.png" /></p>
 <p><strong>Key insight:</strong> "Linear regression" means <strong>linear in the coefficients</strong>,
-not linear in the raw inputs. We can freely add $x^2$, $x^3$, $\log x$,
-$x_1 \cdot x_2$ (interactions), etc. and still fit them with OLS.</p>
-<h3 id="112-dropping-a-non-significant-collinear-predictor">11.2 Dropping a non-significant / collinear predictor</h3>
+not linear in the raw inputs. We can freely add <span class="arithmatex">\(x^2\)</span>, <span class="arithmatex">\(x^3\)</span>, <span class="arithmatex">\(\log x\)</span>,
+<span class="arithmatex">\(x_1 \cdot x_2\)</span> (interactions), etc. and still fit them with OLS.</p>
+<h3 id="112-dropping-a-non-significant-collinear-predictor">11.2 Dropping a non-significant / collinear predictor<a class="headerlink" href="#112-dropping-a-non-significant-collinear-predictor" title="Permanent link">&para;</a></h3>
 <p>Earlier we saw <code>newspaper</code> was not significant. Let's refit without it and
-compare Adjusted $R^2$ (the honest metric when removing features).</p>
+compare Adjusted <span class="arithmatex">\(R^2\)</span> (the honest metric when removing features).</p>
 <div class="highlight"><pre><span></span><code><span class="n">X2</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="s1">&#39;TV&#39;</span><span class="p">,</span> <span class="s1">&#39;radio&#39;</span><span class="p">]])</span>
 <span class="n">fit2</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">],</span> <span class="n">X2</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 
@@ -1195,9 +1271,9 @@ compare Adjusted $R^2$ (the honest metric when removing features).</p>
 <div class="highlight"><pre><span></span><code>Original  R² = 0.8972   Adj R² = 0.8956
 Reduced   R² = 0.8972   Adj R² = 0.8962
 </code></pre></div>
-<p>Adjusted $R^2$ actually <strong>goes up</strong> when we drop <code>newspaper</code> — a cleaner,
+<p>Adjusted <span class="arithmatex">\(R^2\)</span> actually <strong>goes up</strong> when we drop <code>newspaper</code> — a cleaner,
 simpler, equally-good model. That is a successful remedial step.</p>
-<h2 id="12-key-takeaways">12. Key Takeaways</h2>
+<h2 id="12-key-takeaways">12. Key Takeaways<a class="headerlink" href="#12-key-takeaways" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Regression is curve fitting with uncertainty.</strong> Linear regression picks
    the straight line / flat plane that minimizes the <strong>sum of squared
@@ -1214,14 +1290,14 @@ simpler, equally-good model. That is a successful remedial step.</p>
    interaction terms, drop collinear predictors, use WLS or robust
    regression. Pick the remedy that targets the specific violation.</li>
 </ol>
-<h2 id="13-practice-exercises">13. Practice Exercises</h2>
+<h2 id="13-practice-exercises">13. Practice Exercises<a class="headerlink" href="#13-practice-exercises" title="Permanent link">&para;</a></h2>
 <p>Try these on your own — they reuse the same Advertising dataset.</p>
 <ol>
 <li>Fit a model of <code>sales</code> on <strong>only</strong> <code>TV</code>. Interpret the slope: what does it
    say about the ROI of one extra unit of TV advertising?</li>
 <li>Add an <strong>interaction term</strong> <code>TV * radio</code> to the full model. Does the
    coefficient turn out significant? What does it mean in plain English?</li>
-<li>Apply $\log(1 + \text{newspaper})$ as a transformation and refit. Does
+<li>Apply <span class="arithmatex">\(\log(1 + \text{newspaper})\)</span> as a transformation and refit. Does
    the diagnostic picture improve?</li>
 <li>Re-run the full diagnostic battery on the reduced <code>TV + radio</code> model.
    Which assumptions look healthier? Which (if any) still look bad?</li>
@@ -1265,6 +1341,8 @@ simpler, equally-good model. That is a successful remedial step.</p>
     <script>var base_url = "../..";</script>
     <script src="../../js/theme_extra.js"></script>
     <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
       <script src="../../search/main.js"></script>
     <script>
         jQuery(function () {
