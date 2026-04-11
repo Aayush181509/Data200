@@ -124,9 +124,21 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#11-remedial-measures-what-to-do-when-assumptions-fail">11. Remedial Measures — What to Do When Assumptions Fail</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#111-a-concrete-example-when-a-straight-line-just-isnt-enough">11.1 A concrete example — when a straight line just isn't enough</a>
+    <li class="toctree-l3"><a class="reference internal" href="#111-transforming-the-response-log-y-for-heteroscedasticity">11.1 Transforming the Response — \(\log y\) for Heteroscedasticity</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#112-dropping-a-non-significant-collinear-predictor">11.2 Dropping a non-significant / collinear predictor</a>
+    <li class="toctree-l3"><a class="reference internal" href="#112-polynomial-features-when-the-true-shape-is-curved">11.2 Polynomial Features — When the True Shape is Curved</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#113-interaction-terms-hidden-non-linearity-on-the-advertising-data">11.3 Interaction Terms — Hidden Non-linearity on the Advertising Data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#114-weighted-least-squares-a-formal-fix-for-heteroscedasticity">11.4 Weighted Least Squares — A Formal Fix for Heteroscedasticity</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#115-heteroscedasticity-robust-standard-errors-the-one-line-fix">11.5 Heteroscedasticity-Robust Standard Errors — The One-Line Fix</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#116-dropping-redundant-predictors-simplest-multicollinearity-fix">11.6 Dropping Redundant Predictors — Simplest Multicollinearity Fix</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#117-ridge-regression-multicollinearity-via-regularization">11.7 Ridge Regression — Multicollinearity via Regularization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#118-picking-a-remedy-a-decision-flow">11.8 Picking a Remedy — A Decision Flow</a>
     </li>
         </ul>
     </li>
@@ -718,7 +730,7 @@ Dep. Variable:                  sales   R-squared:                       0.897
 Model:                            OLS   Adj. R-squared:                  0.896
 Method:                 Least Squares   F-statistic:                     570.3
 Date:                Sat, 11 Apr 2026   Prob (F-statistic):           1.58e-96
-Time:                        20:46:55   Log-Likelihood:                -386.18
+Time:                        21:15:03   Log-Likelihood:                -386.18
 No. Observations:                 200   AIC:                             780.4
 Df Residuals:                     196   BIC:                             793.6
 Df Model:                           3                                         
@@ -1125,49 +1137,225 @@ newspaper 3.055245
 ====================================================
 </code></pre></div>
 <h2 id="11-remedial-measures-what-to-do-when-assumptions-fail">11. Remedial Measures — What to Do When Assumptions Fail<a class="headerlink" href="#11-remedial-measures-what-to-do-when-assumptions-fail" title="Permanent link">&para;</a></h2>
+<p>A diagnostic only tells you <em>that</em> something is wrong. A <strong>remedy</strong> tells
+you <em>what to do about it</em>. The table below maps each finding from
+Section 10 to the most common fixes; the rest of this section walks through
+the most useful ones with runnable code.</p>
 <table>
 <thead>
 <tr>
-<th>Problem seen in diagnostics</th>
-<th>Usual remedy</th>
+<th>Diagnostic finding</th>
+<th>Likely violation</th>
+<th>Common remedies</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Non-linearity</strong> (curved residual plot)</td>
-<td>Add polynomial / interaction terms, or transform <span class="arithmatex">\(x\)</span> (e.g. <span class="arithmatex">\(\log x\)</span>, <span class="arithmatex">\(\sqrt{x}\)</span>).</td>
+<td>Curved residual-vs-fitted plot</td>
+<td><strong>Non-linearity</strong></td>
+<td>Polynomial features, interaction terms, <span class="arithmatex">\(\log x\)</span> / <span class="arithmatex">\(\sqrt{x}\)</span> transforms, splines</td>
 </tr>
 <tr>
-<td><strong>Heteroscedasticity</strong> (fanning residuals)</td>
-<td>Transform <span class="arithmatex">\(y\)</span> (often <span class="arithmatex">\(\log y\)</span> or Box–Cox), or fit <strong>Weighted Least Squares</strong>.</td>
+<td>Fanning residual plot; Breusch–Pagan <span class="arithmatex">\(p &lt; 0.05\)</span></td>
+<td><strong>Heteroscedasticity</strong></td>
+<td>Log-transform <span class="arithmatex">\(y\)</span>, Weighted Least Squares, HC-robust standard errors</td>
 </tr>
 <tr>
-<td><strong>Non-normal residuals</strong></td>
-<td>Transform <span class="arithmatex">\(y\)</span>, drop extreme outliers after investigation, or use <strong>robust regression</strong>.</td>
+<td>Q–Q tails bend; Shapiro <span class="arithmatex">\(p &lt; 0.05\)</span></td>
+<td><strong>Non-Normal residuals</strong></td>
+<td>Transform <span class="arithmatex">\(y\)</span>, investigate outliers, robust regression</td>
 </tr>
 <tr>
-<td><strong>Multicollinearity</strong> (high VIF)</td>
-<td>Drop one of the correlated predictors, combine them, or use <strong>Ridge regression</strong>.</td>
+<td>VIF &gt; 5 (some &gt; 10)</td>
+<td><strong>Multicollinearity</strong></td>
+<td>Drop a redundant predictor, combine features, Ridge regression</td>
 </tr>
 <tr>
-<td><strong>Influential points</strong> (Cook's D large)</td>
-<td>Investigate them — is it bad data? a rare but real case? Consider robust regression.</td>
+<td>Large Cook's distance</td>
+<td><strong>Influential points</strong></td>
+<td>Investigate the data, Huber robust regression (RLM), Winsorize</td>
 </tr>
 <tr>
-<td><strong>Autocorrelation</strong> (DW far from 2)</td>
-<td>Use time-series models (ARIMA, Newey–West standard errors).</td>
+<td>Durbin–Watson far from 2</td>
+<td><strong>Autocorrelation</strong></td>
+<td>Lag features, ARIMA, Newey–West HAC standard errors</td>
 </tr>
 </tbody>
 </table>
-<h3 id="111-a-concrete-example-when-a-straight-line-just-isnt-enough">11.1 A concrete example — when a straight line just isn't enough<a class="headerlink" href="#111-a-concrete-example-when-a-straight-line-just-isnt-enough" title="Permanent link">&para;</a></h3>
-<p>Consider this toy dataset of reaction yield vs. temperature. A straight line
-will <em>not</em> be enough — we'll need a <strong>polynomial</strong> feature to capture the
-curvature.</p>
+<p><strong>General rule:</strong> fix the <em>most severe</em> violation first (usually
+non-linearity), then re-run diagnostics. Remedies interact, so never apply
+two at once without checking what each did.</p>
+<h3 id="111-transforming-the-response-log-y-for-heteroscedasticity">11.1 Transforming the Response — <span class="arithmatex">\(\log y\)</span> for Heteroscedasticity<a class="headerlink" href="#111-transforming-the-response-log-y-for-heteroscedasticity" title="Permanent link">&para;</a></h3>
+<p>When the variance of the residuals <strong>grows with the mean</strong> (a "fan" shape
+in the residual plot), a <strong>log transform of <span class="arithmatex">\(y\)</span></strong> often fixes it.
+Intuition: <span class="arithmatex">\(\log\)</span> compresses large values more than small ones, so a
+<em>multiplicative</em> error <span class="arithmatex">\(y = e^{\beta_0 + \beta_1 x} \cdot e^{\varepsilon}\)</span>
+becomes an <em>additive</em> one after taking logs:
+<span class="arithmatex">\(<span class="arithmatex">\(\log y = \beta_0 + \beta_1 x + \varepsilon.\)</span>\)</span></p>
+<p>Let's simulate data that is truly log-linear, fit OLS naively, then fit OLS
+on <span class="arithmatex">\(\log y\)</span> and compare diagnostics.</p>
+<div class="highlight"><pre><span></span><code><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">n_sim</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">x_h</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">n_sim</span><span class="p">)</span>
+<span class="c1"># Multiplicative error: variance of y grows with its mean</span>
+<span class="n">y_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">x_h</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">n_sim</span><span class="p">))</span>
+
+<span class="n">fit_raw</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">y_h</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_h</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">fit_log</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y_h</span><span class="p">),</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_h</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">fit_raw</span><span class="o">.</span><span class="n">fittedvalues</span><span class="p">,</span> <span class="n">fit_raw</span><span class="o">.</span><span class="n">resid</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:red&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;OLS on raw y  —  fan-shaped residuals&#39;</span><span class="p">,</span>
+          <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;fitted&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;residual&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">fit_log</span><span class="o">.</span><span class="n">fittedvalues</span><span class="p">,</span> <span class="n">fit_log</span><span class="o">.</span><span class="n">resid</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;tab:green&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;OLS on log(y)  —  flat, well-behaved&#39;</span><span class="p">,</span>
+          <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;fitted&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;residual&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">bp_raw</span> <span class="o">=</span> <span class="n">het_breuschpagan</span><span class="p">(</span><span class="n">fit_raw</span><span class="o">.</span><span class="n">resid</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_h</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">bp_log</span> <span class="o">=</span> <span class="n">het_breuschpagan</span><span class="p">(</span><span class="n">fit_log</span><span class="o">.</span><span class="n">resid</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_h</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Breusch</span><span class="se">\u2013</span><span class="s2">Pagan p on raw y   : </span><span class="si">{</span><span class="n">bp_raw</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">  &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="s1">&#39;heteroscedastic&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">bp_raw</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.05</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Breusch</span><span class="se">\u2013</span><span class="s2">Pagan p on log y   : </span><span class="si">{</span><span class="n">bp_log</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">  &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="s1">&#39;heteroscedastic&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">bp_log</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.05</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="png" src="../LinearRegression_files/LinearRegression_51_0.png" /></p>
+<div class="highlight"><pre><span></span><code>Breusch–Pagan p on raw y   : 5.8032e-03  (heteroscedastic)
+Breusch–Pagan p on log y   : 2.5889e-01  (ok)
+</code></pre></div>
+<p><strong>Caveat — interpretation changes.</strong> After log-transforming, the
+coefficient of <span class="arithmatex">\(x\)</span> is no longer "units of <span class="arithmatex">\(y\)</span> per unit of <span class="arithmatex">\(x\)</span>" but rather a
+<strong>percentage change</strong>: a one-unit increase in <span class="arithmatex">\(x\)</span> multiplies <span class="arithmatex">\(y\)</span> by
+<span class="arithmatex">\(e^{\beta_1}\)</span>. Always report which transformation you used.</p>
+<h3 id="112-polynomial-features-when-the-true-shape-is-curved">11.2 Polynomial Features — When the True Shape is Curved<a class="headerlink" href="#112-polynomial-features-when-the-true-shape-is-curved" title="Permanent link">&para;</a></h3>
+<p>Consider this toy dataset of reaction yield vs. temperature. A straight
+line clearly won't fit — but a <em>cubic</em> polynomial will.</p>
 <div class="highlight"><pre><span></span><code><span class="n">poly_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
     <span class="s1">&#39;temp&#39;</span><span class="p">:</span>  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>
     <span class="s1">&#39;yield&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0020</span><span class="p">,</span> <span class="mf">0.0012</span><span class="p">,</span> <span class="mf">0.0060</span><span class="p">,</span> <span class="mf">0.0300</span><span class="p">,</span> <span class="mf">0.0900</span><span class="p">,</span> <span class="mf">0.2700</span><span class="p">],</span>
 <span class="p">})</span>
-<span class="n">poly_data</span>
+
+<span class="n">xp</span> <span class="o">=</span> <span class="n">poly_data</span><span class="p">[</span><span class="s1">&#39;temp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">yp</span> <span class="o">=</span> <span class="n">poly_data</span><span class="p">[</span><span class="s1">&#39;yield&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="n">lin_fit</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">yp</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">xp</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">X_poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">xp</span><span class="p">,</span> <span class="n">xp</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">xp</span> <span class="o">**</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">poly_fit</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">yp</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">X_poly</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">xp</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">lin_curve</span>  <span class="o">=</span> <span class="n">lin_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">lin_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xs</span>
+<span class="n">poly_curve</span> <span class="o">=</span> <span class="p">(</span><span class="n">poly_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span>
+              <span class="n">poly_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xs</span> <span class="o">+</span>
+              <span class="n">poly_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">xs</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
+              <span class="n">poly_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">xs</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">xp</span><span class="p">,</span> <span class="n">yp</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">lin_curve</span><span class="p">,</span>  <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>   <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+         <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;linear (R</span><span class="se">\u00b2</span><span class="s1">=</span><span class="si">{</span><span class="n">lin_fit</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">poly_curve</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+         <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;cubic  (R</span><span class="se">\u00b2</span><span class="s1">=</span><span class="si">{</span><span class="n">poly_fit</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;temperature&#39;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;yield&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Polynomial features rescue a non-linear relationship&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../LinearRegression_files/LinearRegression_54_0.png" /></p>
+<p><strong>Key insight:</strong> "Linear regression" means <em>linear in the
+coefficients</em>, not linear in the raw inputs. We can freely add <span class="arithmatex">\(x^2\)</span>,
+<span class="arithmatex">\(x^3\)</span>, <span class="arithmatex">\(\log x\)</span>, <span class="arithmatex">\(\sqrt{x}\)</span>, <span class="arithmatex">\(x_1 \cdot x_2\)</span> (interactions) and still fit
+everything with OLS. The price is that <strong>higher-degree polynomials
+overfit quickly</strong> — always watch the adjusted <span class="arithmatex">\(R^2\)</span> and validate on held-out
+data.</p>
+<h3 id="113-interaction-terms-hidden-non-linearity-on-the-advertising-data">11.3 Interaction Terms — Hidden Non-linearity on the Advertising Data<a class="headerlink" href="#113-interaction-terms-hidden-non-linearity-on-the-advertising-data" title="Permanent link">&para;</a></h3>
+<p>Sometimes the problem isn't a global curve but a <strong>synergy</strong>: the effect of
+one predictor depends on another. On the Advertising data, doubling the TV
+budget pays off <em>more</em> when you are also advertising on radio — TV and
+radio reinforce each other.</p>
+<p>We add a <strong>TV × radio</strong> product column and refit.</p>
+<div class="highlight"><pre><span></span><code><span class="n">X_int</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s1">&#39;TV&#39;</span><span class="p">,</span> <span class="s1">&#39;radio&#39;</span><span class="p">,</span> <span class="s1">&#39;newspaper&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">X_int</span><span class="p">[</span><span class="s1">&#39;TV_radio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_int</span><span class="p">[</span><span class="s1">&#39;TV&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">X_int</span><span class="p">[</span><span class="s1">&#39;radio&#39;</span><span class="p">]</span>
+
+<span class="n">fit_int</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">],</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">X_int</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original model       Adj R</span><span class="se">\u00b2</span><span class="s2"> = </span><span class="si">{</span><span class="n">ols_model</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;With TV </span><span class="se">\u00d7</span><span class="s2"> radio term  Adj R</span><span class="se">\u00b2</span><span class="s2"> = </span><span class="si">{</span><span class="n">fit_int</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Coefficients of the interaction model:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fit_int</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;p-value for TV</span><span class="se">\u00b7</span><span class="s2">radio interaction: &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fit_int</span><span class="o">.</span><span class="n">pvalues</span><span class="p">[</span><span class="s1">&#39;TV_radio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Original model       Adj R² = 0.8956
+With TV × radio term  Adj R² = 0.9672
+
+Coefficients of the interaction model:
+const        6.72841
+TV           0.01907
+radio        0.02799
+newspaper    0.00144
+TV_radio     0.00109
+dtype: float64
+
+p-value for TV·radio interaction: 4.56e-51
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Residual-vs-fitted plots: original model vs. interaction model</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">residplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">ols_model</span><span class="o">.</span><span class="n">fittedvalues</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">ols_model</span><span class="o">.</span><span class="n">resid</span><span class="p">,</span>
+              <span class="n">lowess</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+              <span class="n">line_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original (TV + radio + newspaper)&#39;</span><span class="p">,</span>
+          <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;fitted&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;residual&#39;</span><span class="p">)</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">residplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">fit_int</span><span class="o">.</span><span class="n">fittedvalues</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">fit_int</span><span class="o">.</span><span class="n">resid</span><span class="p">,</span>
+              <span class="n">lowess</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+              <span class="n">line_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="s1">&#39;lw&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;With TV </span><span class="se">\u00d7</span><span class="s1"> radio interaction&#39;</span><span class="p">,</span>
+          <span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;fitted&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../LinearRegression_files/LinearRegression_58_0.png" /></p>
+<p>Adjusted <span class="arithmatex">\(R^2\)</span> jumps from about <strong>0.90 to 0.97</strong>, and the residual plot
+becomes dramatically more symmetric — the interaction term was the missing
+piece. <strong>Interpretation:</strong> the marginal effect of TV is now
+<span class="arithmatex">\((\beta_{\text{TV}} + \beta_{\text{TV·radio}} \cdot \text{radio})\)</span> — i.e. the
+payoff of one more TV dollar <em>depends</em> on the current radio spend.</p>
+<h3 id="114-weighted-least-squares-a-formal-fix-for-heteroscedasticity">11.4 Weighted Least Squares — A Formal Fix for Heteroscedasticity<a class="headerlink" href="#114-weighted-least-squares-a-formal-fix-for-heteroscedasticity" title="Permanent link">&para;</a></h3>
+<p>If the error variance changes from observation to observation, OLS still
+gives unbiased coefficients, but its <strong>standard errors are wrong</strong> — so
+p-values and confidence intervals can't be trusted. <strong>Weighted Least
+Squares (WLS)</strong> fixes this by giving each observation a weight <span class="arithmatex">\(w_i\)</span>
+proportional to the <em>inverse</em> of its error variance:</p>
+<div class="arithmatex">\[\hat{\boldsymbol{\beta}}_{\text{WLS}} \;=\; \arg\min_{\boldsymbol{\beta}}\; \sum_i w_i \bigl(y_i - \mathbf{x}_i^\top \boldsymbol{\beta}\bigr)^2, \quad w_i = 1/\sigma_i^2.\]</div>
+<p>In practice we don't know <span class="arithmatex">\(\sigma_i^2\)</span>, so we <strong>estimate</strong> it — a standard
+recipe is to regress the squared OLS residuals on <span class="arithmatex">\(x\)</span> and use the
+reciprocal of the prediction as the weight.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Reuse the heteroscedastic simulated data from section 11.1</span>
+<span class="n">ols_sim</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">y_h</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_h</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="c1"># Estimate variance as a linear function of x</span>
+<span class="n">var_hat</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">ols_sim</span><span class="o">.</span><span class="n">resid</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_h</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">fittedvalues</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">var_hat</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="n">wls_sim</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">WLS</span><span class="p">(</span><span class="n">y_h</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_h</span><span class="p">),</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">compare</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;OLS coef&#39;</span><span class="p">:</span>  <span class="n">ols_sim</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="s1">&#39;OLS SE&#39;</span><span class="p">:</span>    <span class="n">ols_sim</span><span class="o">.</span><span class="n">bse</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="s1">&#39;WLS coef&#39;</span><span class="p">:</span>  <span class="n">wls_sim</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="s1">&#39;WLS SE&#39;</span><span class="p">:</span>    <span class="n">wls_sim</span><span class="o">.</span><span class="n">bse</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">])</span>
+<span class="n">compare</span>
 </code></pre></div>
 <div>
 <style scoped>
@@ -1187,122 +1375,259 @@ curvature.</p>
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>temp</th>
-      <th>yield</th>
+      <th>OLS coef</th>
+      <th>OLS SE</th>
+      <th>WLS coef</th>
+      <th>WLS SE</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>0.0020</td>
+      <th>const</th>
+      <td>-5.338</td>
+      <td>1.370</td>
+      <td>1.606</td>
+      <td>0.278</td>
     </tr>
     <tr>
-      <th>1</th>
-      <td>20</td>
-      <td>0.0012</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>40</td>
-      <td>0.0060</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>60</td>
-      <td>0.0300</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>80</td>
-      <td>0.0900</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>100</td>
-      <td>0.2700</td>
+      <th>x</th>
+      <td>3.179</td>
+      <td>0.212</td>
+      <td>0.792</td>
+      <td>0.147</td>
     </tr>
   </tbody>
 </table>
 </div>
 
-<div class="highlight"><pre><span></span><code><span class="n">xp</span> <span class="o">=</span> <span class="n">poly_data</span><span class="p">[</span><span class="s1">&#39;temp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-<span class="n">yp</span> <span class="o">=</span> <span class="n">poly_data</span><span class="p">[</span><span class="s1">&#39;yield&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<p>Both methods give similar point estimates, but WLS produces <strong>smaller
+standard errors</strong> because it down-weights the noisy observations near the
+upper tail of <span class="arithmatex">\(x\)</span>. That translates directly into tighter confidence
+intervals and more reliable p-values.</p>
+<h3 id="115-heteroscedasticity-robust-standard-errors-the-one-line-fix">11.5 Heteroscedasticity-Robust Standard Errors — The One-Line Fix<a class="headerlink" href="#115-heteroscedasticity-robust-standard-errors-the-one-line-fix" title="Permanent link">&para;</a></h3>
+<p>If you only care about <strong>honest inference</strong> (standard errors, p-values,
+CIs) and not a better point estimate, <code>statsmodels</code> can recompute the
+standard errors with <strong>one extra argument</strong>. No transformation, no
+weights, no refit.</p>
+<p>The most widely used flavor is <strong>HC3</strong> (a.k.a. MacKinnon–White), which works
+well even on small samples.</p>
+<div class="highlight"><pre><span></span><code><span class="n">fit_plain</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X_const</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">fit_hc3</span>   <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X_const</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">cov_type</span><span class="o">=</span><span class="s1">&#39;HC3&#39;</span><span class="p">)</span>
 
-<span class="c1"># Simple linear regression</span>
-<span class="n">lin_fit</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">yp</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">xp</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
-
-<span class="c1"># Polynomial regression (degree 3) — still linear in the *coefficients*!</span>
-<span class="n">X_poly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">xp</span><span class="p">,</span> <span class="n">xp</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">xp</span> <span class="o">**</span> <span class="mi">3</span><span class="p">])</span>
-<span class="n">poly_fit</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">yp</span><span class="p">,</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">X_poly</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
-
-<span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">xp</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">200</span><span class="p">)</span>
-<span class="n">lin_curve</span>  <span class="o">=</span> <span class="n">lin_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">lin_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xs</span>
-<span class="n">poly_curve</span> <span class="o">=</span> <span class="p">(</span><span class="n">poly_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span>
-              <span class="n">poly_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">xs</span> <span class="o">+</span>
-              <span class="n">poly_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">xs</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span>
-              <span class="n">poly_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">xs</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">xp</span><span class="p">,</span> <span class="n">yp</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">lin_curve</span><span class="p">,</span>  <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span>  <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;linear  (R²=</span><span class="si">{</span><span class="n">lin_fit</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">poly_curve</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;green&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;cubic  (R²=</span><span class="si">{</span><span class="n">poly_fit</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;temperature&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;yield&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Polynomial features rescue a non-linear relationship&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">se_compare</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;coef&#39;</span><span class="p">:</span>        <span class="n">fit_plain</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+    <span class="s1">&#39;SE (plain)&#39;</span><span class="p">:</span>  <span class="n">fit_plain</span><span class="o">.</span><span class="n">bse</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+    <span class="s1">&#39;SE (HC3)&#39;</span><span class="p">:</span>    <span class="n">fit_hc3</span><span class="o">.</span><span class="n">bse</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+    <span class="s1">&#39;p (plain)&#39;</span><span class="p">:</span>   <span class="n">fit_plain</span><span class="o">.</span><span class="n">pvalues</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+    <span class="s1">&#39;p (HC3)&#39;</span><span class="p">:</span>     <span class="n">fit_hc3</span><span class="o">.</span><span class="n">pvalues</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">se_compare</span>
 </code></pre></div>
-<p><img alt="png" src="../LinearRegression_files/LinearRegression_51_0.png" /></p>
-<p><strong>Key insight:</strong> "Linear regression" means <strong>linear in the coefficients</strong>,
-not linear in the raw inputs. We can freely add <span class="arithmatex">\(x^2\)</span>, <span class="arithmatex">\(x^3\)</span>, <span class="arithmatex">\(\log x\)</span>,
-<span class="arithmatex">\(x_1 \cdot x_2\)</span> (interactions), etc. and still fit them with OLS.</p>
-<h3 id="112-dropping-a-non-significant-collinear-predictor">11.2 Dropping a non-significant / collinear predictor<a class="headerlink" href="#112-dropping-a-non-significant-collinear-predictor" title="Permanent link">&para;</a></h3>
-<p>Earlier we saw <code>newspaper</code> was not significant. Let's refit without it and
-compare Adjusted <span class="arithmatex">\(R^2\)</span> (the honest metric when removing features).</p>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coef</th>
+      <th>SE (plain)</th>
+      <th>SE (HC3)</th>
+      <th>p (plain)</th>
+      <th>p (HC3)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>const</th>
+      <td>2.9389</td>
+      <td>0.3119</td>
+      <td>0.3420</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>TV</th>
+      <td>0.0458</td>
+      <td>0.0014</td>
+      <td>0.0020</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>radio</th>
+      <td>0.1885</td>
+      <td>0.0086</td>
+      <td>0.0111</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+    </tr>
+    <tr>
+      <th>newspaper</th>
+      <td>-0.0010</td>
+      <td>0.0059</td>
+      <td>0.0066</td>
+      <td>0.8599</td>
+      <td>0.8754</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Coefficients are <strong>identical</strong> (HC doesn't refit the model), but the
+standard errors and p-values adjust to account for heteroscedasticity.
+This is the go-to fix whenever you don't want to change the model itself.</p>
+<h3 id="116-dropping-redundant-predictors-simplest-multicollinearity-fix">11.6 Dropping Redundant Predictors — Simplest Multicollinearity Fix<a class="headerlink" href="#116-dropping-redundant-predictors-simplest-multicollinearity-fix" title="Permanent link">&para;</a></h3>
+<p>Back in Section 8 the coefficient on <code>newspaper</code> had a huge p-value —
+once TV and radio were in the model, newspaper added essentially nothing.
+The simplest remedy is to <strong>drop it</strong> and compare adjusted <span class="arithmatex">\(R^2\)</span> (the
+honest metric when removing features).</p>
 <div class="highlight"><pre><span></span><code><span class="n">X2</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="s1">&#39;TV&#39;</span><span class="p">,</span> <span class="s1">&#39;radio&#39;</span><span class="p">]])</span>
 <span class="n">fit2</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">],</span> <span class="n">X2</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original  R² = </span><span class="si">{</span><span class="n">ols_model</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">   &quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;Adj R² = </span><span class="si">{</span><span class="n">ols_model</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reduced   R² = </span><span class="si">{</span><span class="n">fit2</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">   &quot;</span>
-      <span class="sa">f</span><span class="s2">&quot;Adj R² = </span><span class="si">{</span><span class="n">fit2</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Full (TV, radio, newspaper)  R</span><span class="se">\u00b2</span><span class="s2"> = </span><span class="si">{</span><span class="n">ols_model</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">   &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;Adj R</span><span class="se">\u00b2</span><span class="s2"> = </span><span class="si">{</span><span class="n">ols_model</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reduced (TV, radio)          R</span><span class="se">\u00b2</span><span class="s2"> = </span><span class="si">{</span><span class="n">fit2</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">   &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;Adj R</span><span class="se">\u00b2</span><span class="s2"> = </span><span class="si">{</span><span class="n">fit2</span><span class="o">.</span><span class="n">rsquared_adj</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code>Original  R² = 0.8972   Adj R² = 0.8956
-Reduced   R² = 0.8972   Adj R² = 0.8962
+<div class="highlight"><pre><span></span><code>Full (TV, radio, newspaper)  R² = 0.8972   Adj R² = 0.8956
+Reduced (TV, radio)          R² = 0.8972   Adj R² = 0.8962
 </code></pre></div>
-<p>Adjusted <span class="arithmatex">\(R^2\)</span> actually <strong>goes up</strong> when we drop <code>newspaper</code> — a cleaner,
-simpler, equally-good model. That is a successful remedial step.</p>
+<p>Adjusted <span class="arithmatex">\(R^2\)</span> <em>improves</em> when we drop <code>newspaper</code> — a cleaner,
+simpler, equally-good model. A successful, essentially free, remedial
+step.</p>
+<h3 id="117-ridge-regression-multicollinearity-via-regularization">11.7 Ridge Regression — Multicollinearity via Regularization<a class="headerlink" href="#117-ridge-regression-multicollinearity-via-regularization" title="Permanent link">&para;</a></h3>
+<p>When two predictors are <strong>almost a copy of each other</strong>, OLS becomes
+wildly unstable: the inverse of <span class="arithmatex">\(X^\top X\)</span> is nearly singular, so tiny
+perturbations in the data cause huge swings in the coefficients. <strong>Ridge
+regression</strong> adds a penalty on the size of the coefficients,</p>
+<div class="arithmatex">\[\hat{\boldsymbol{\beta}}_{\text{ridge}} \;=\; \arg\min_{\boldsymbol{\beta}}\; \|y - X\boldsymbol{\beta}\|^2 \;+\; \alpha \|\boldsymbol{\beta}\|^2,\]</div>
+<p>which <strong>shrinks</strong> coefficients towards zero. This introduces a small bias
+but <em>massively</em> reduces variance — a classic bias-variance trade.</p>
+<p>We'll demonstrate on two synthetic predictors that are almost identical.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearRegression</span> <span class="k">as</span> <span class="n">SkLR</span><span class="p">,</span> <span class="n">Ridge</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">n_c</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">n_c</span><span class="p">)</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_c</span><span class="p">)</span>        <span class="c1"># ~ copy of x1</span>
+<span class="n">y_c</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x2</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_c</span><span class="p">)</span>
+<span class="n">X_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">])</span>
+
+<span class="n">lr_fit</span>   <span class="o">=</span> <span class="n">SkLR</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_c</span><span class="p">,</span> <span class="n">y_c</span><span class="p">)</span>
+<span class="n">ridge_fit</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_c</span><span class="p">,</span> <span class="n">y_c</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;True coefficients      : [ 3.00, -2.00 ]  (but x1 </span><span class="se">\u2248</span><span class="s2"> x2)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OLS  coefficients      : </span><span class="si">{</span><span class="n">lr_fit</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ridge coefficients     : </span><span class="si">{</span><span class="n">ridge_fit</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OLS correlation(x1,x2) : </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="n">x2</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>True coefficients      : [ 3.00, -2.00 ]  (but x1 ≈ x2)
+OLS  coefficients      : [3.35, -2.35]
+Ridge coefficients     : [0.55, 0.44]
+
+OLS correlation(x1,x2) : 0.9997
+</code></pre></div>
+<p>Because <span class="arithmatex">\(x_1\)</span> and <span class="arithmatex">\(x_2\)</span> are almost identical, the individual OLS
+coefficients balloon to cancel each other out — OLS is trying to
+distinguish two essentially-equal columns and picks an arbitrary split.
+Ridge pulls them back to sensible, nearly-equal values. <strong>Takeaway:</strong> when
+VIFs are large, prefer regularized estimators (Ridge or Lasso) over raw
+OLS if prediction is the goal, or combine the collinear features into
+one.</p>
+<h3 id="118-picking-a-remedy-a-decision-flow">11.8 Picking a Remedy — A Decision Flow<a class="headerlink" href="#118-picking-a-remedy-a-decision-flow" title="Permanent link">&para;</a></h3>
+<p>Faced with a failing diagnostic, here is a sensible order of operations:</p>
+<ol>
+<li><strong>Start with the diagnostics, not the remedy.</strong> Run the full battery
+   from Section 10 <em>before</em> touching the model.</li>
+<li><strong>Fix the most severe violation first.</strong> Non-linearity almost always
+   dominates — a bent residual plot makes everything else meaningless.</li>
+<li><strong>Prefer structural fixes over band-aids.</strong> A log-transform or an
+   interaction term that flattens the residual plot is better than
+   slapping HC standard errors on a misspecified model.</li>
+<li><strong>Re-run the diagnostics after each fix.</strong> Remedies interact; one can
+   create a new problem while solving another.</li>
+<li><strong>"Good enough" is good enough.</strong> Perfect normality is <em>not</em> required
+   for large samples — the Central Limit Theorem kicks in for the
+   sampling distribution of <span class="arithmatex">\(\hat{\boldsymbol{\beta}}\)</span>.</li>
+<li><strong>Know when to give up on linear regression.</strong> If nothing cleans up
+   the residual plot, the tool is wrong. Consider:</li>
+<li><strong>GLMs</strong> (Poisson for counts, logistic for binary, gamma for positive
+     skewed data),</li>
+<li><strong>Generalized Additive Models (GAMs)</strong> for smooth non-linear fits,</li>
+<li><strong>Tree-based models</strong> (Random Forest, Gradient Boosting) when
+     interpretability is less important than raw accuracy.</li>
+</ol>
 <h2 id="12-key-takeaways">12. Key Takeaways<a class="headerlink" href="#12-key-takeaways" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>Regression is curve fitting with uncertainty.</strong> Linear regression picks
-   the straight line / flat plane that minimizes the <strong>sum of squared
-   residuals</strong>.</li>
+<li><strong>Regression is curve fitting with uncertainty.</strong> Linear regression
+   picks the straight line / flat plane that minimizes the <strong>sum of
+   squared residuals</strong>, giving <em>unbiased</em> coefficients under the LINEM
+   assumptions.</li>
 <li><strong>The derivative-equals-zero trick</strong> finds the minimum because at the
-   bottom of a smooth bowl there is no direction to move to decrease the
-   value — the tangent is flat.</li>
-<li><strong><code>statsmodels</code> is your friend for inference</strong> — it gives you the OLS
-   summary with coefficients, standard errors, p-values and diagnostics.</li>
-<li><strong>Never trust a model you haven't diagnosed.</strong> Residual plots, Q–Q plots,
-   VIF, Cook's distance and the formal tests catch different assumption
-   violations.</li>
-<li><strong>Remedies usually exist:</strong> transform variables, add polynomial or
-   interaction terms, drop collinear predictors, use WLS or robust
-   regression. Pick the remedy that targets the specific violation.</li>
+   bottom of a smooth bowl there is no direction to move that decreases
+   the value — the tangent is flat. Setting partials to zero yields the
+   <strong>normal equations</strong> <span class="arithmatex">\(X^\top X \boldsymbol{\beta} = X^\top y\)</span>.</li>
+<li><strong>"Linear" means linear in the coefficients</strong>, not in the inputs. You
+   can fit <span class="arithmatex">\(y = \beta_0 + \beta_1 x + \beta_2 x^2 + \beta_3 \log x\)</span> with
+   OLS — feature engineering is a first-class remedial tool.</li>
+<li><strong><code>statsmodels</code> is your friend for inference</strong> — it gives you the full
+   OLS summary with standard errors, p-values, confidence intervals and
+   diagnostics; <code>sklearn</code> is better when you only care about prediction.</li>
+<li><strong>Never trust a model you haven't diagnosed.</strong> Residual plots, Q–Q
+   plots, VIF, Cook's distance and the formal tests each catch a
+   different assumption violation.</li>
+<li><strong>Remedies are targeted.</strong> Match the fix to the failing assumption:
+   transform <span class="arithmatex">\(y\)</span> or use WLS/HC for heteroscedasticity; add polynomial or
+   interaction terms for non-linearity; drop collinear predictors or use
+   Ridge for multicollinearity; use RLM for influential points.</li>
+<li><strong>Iterate.</strong> Diagnose → fix → re-diagnose. Stop when the residuals
+   look boring and the inference is honest.</li>
 </ol>
 <h2 id="13-practice-exercises">13. Practice Exercises<a class="headerlink" href="#13-practice-exercises" title="Permanent link">&para;</a></h2>
-<p>Try these on your own — they reuse the same Advertising dataset.</p>
+<p>Try these on your own — they reuse the same Advertising dataset we loaded
+in Section 5. Write your answers as new code cells below.</p>
 <ol>
-<li>Fit a model of <code>sales</code> on <strong>only</strong> <code>TV</code>. Interpret the slope: what does it
-   say about the ROI of one extra unit of TV advertising?</li>
-<li>Add an <strong>interaction term</strong> <code>TV * radio</code> to the full model. Does the
-   coefficient turn out significant? What does it mean in plain English?</li>
-<li>Apply <span class="arithmatex">\(\log(1 + \text{newspaper})\)</span> as a transformation and refit. Does
-   the diagnostic picture improve?</li>
-<li>Re-run the full diagnostic battery on the reduced <code>TV + radio</code> model.
-   Which assumptions look healthier? Which (if any) still look bad?</li>
-<li>Construct a synthetic dataset where <strong>Cook's distance</strong> flags a single
-   influential point. Show how removing it changes the fitted slope.</li>
+<li><strong>Simple regression revisited.</strong> Fit a model of <code>sales</code> on <strong>only</strong>
+   <code>TV</code>. What does the slope say about the return on one extra unit of
+   TV advertising? Draw the fitted line on top of a scatter plot.</li>
+<li><strong>Interaction deep-dive.</strong> Extend the model with <code>TV × radio</code>. Does
+   the coefficient of the interaction term turn out significant? In
+   plain English, what does it mean for the business?</li>
+<li><strong>Transforming the response.</strong> Apply <span class="arithmatex">\(\log(\text{sales})\)</span> as a
+   transformation and refit with all three predictors. Does the
+   Breusch–Pagan p-value improve? How do you now interpret the TV
+   coefficient?</li>
+<li><strong>HC standard errors.</strong> Re-fit the full Advertising model using
+   <code>cov_type='HC3'</code>. Compare the p-value on <code>newspaper</code> with the plain
+   OLS version — does the verdict change?</li>
+<li><strong>WLS from scratch.</strong> On the same Advertising data, estimate
+   observation-level variance by regressing the squared OLS residuals on
+   <code>TV + radio</code>, then re-fit using <code>sm.WLS</code> with the inverse predictions
+   as weights. Compare the slopes and standard errors.</li>
+<li><strong>Ridge on Advertising.</strong> Standardize <code>TV</code>, <code>radio</code>, <code>newspaper</code> and
+   fit <code>sklearn.linear_model.Ridge(alpha=1.0)</code>. Are the coefficients
+   different from OLS? Sweep <span class="arithmatex">\(\alpha\)</span> from 0 to 100 and plot how each
+   coefficient shrinks.</li>
+<li><strong>Influential-point hunt.</strong> Construct a synthetic dataset where a
+   single point has Cook's distance greater than 1. Refit with and
+   without the point, and show how much the slope changes.</li>
+<li><strong>Beyond linear.</strong> Take the yield-vs-temperature data from Section 11.2
+   and fit <code>sklearn.ensemble.GradientBoostingRegressor</code>. Compare its fit
+   to the cubic polynomial. Which generalizes better if you add new
+   points between the existing ones?</li>
 </ol>
               
             </div>
