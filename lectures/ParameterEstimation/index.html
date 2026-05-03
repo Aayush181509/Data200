@@ -5,14 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>Parameter Estimation & Regularization - Data 200</title>
+    <title>Parameter Estimation - Data 200</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Parameter Estimation \u0026 Regularization";
+        var mkdocs_page_name = "Parameter Estimation";
         var mkdocs_page_input_path = "lectures/ParameterEstimation.md";
         var mkdocs_page_url = null;
       </script>
@@ -61,7 +61,7 @@
               <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Parameter Estimation & Regularization</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Parameter Estimation</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
     </li>
@@ -107,13 +107,7 @@
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#7-underfitting-overfitting-and-the-bias-variance-tradeoff">7. Underfitting, Overfitting, and the Bias-Variance Tradeoff</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#the-bias-variance-tradeoff">The Bias-Variance Tradeoff</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#8-regression-metrics-how-good-is-good">8. Regression Metrics — How Good is "Good"?</a>
+    <li class="toctree-l2"><a class="reference internal" href="#7-regression-metrics-how-good-is-good">7. Regression Metrics — How Good is "Good"?</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#a-5-row-worked-example">A 5-row worked example</a>
     </li>
@@ -121,23 +115,15 @@
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#9-regularization-fighting-overfitting-gently">9. Regularization — Fighting Overfitting Gently</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#91-ridge-penalise-the-squares">9.1 Ridge — penalise the squares</a>
+    <li class="toctree-l2"><a class="reference internal" href="#8-where-to-next">8. Where to Next</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#92-lasso-penalise-the-absolute-values">9.2 Lasso — penalise the absolute values</a>
+    <li class="toctree-l2"><a class="reference internal" href="#9-key-takeaways">9. Key Takeaways</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#93-elastic-net-the-best-of-both">9.3 Elastic Net — the best of both</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#how-do-you-pick-alpha">How do you pick \(\alpha\)?</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#10-key-takeaways">10. Key Takeaways</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#11-practice-exercises">11. Practice Exercises</a>
+    <li class="toctree-l2"><a class="reference internal" href="#10-practice-exercises">10. Practice Exercises</a>
     </li>
     </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Time Series Analysis</span></p>
@@ -162,7 +148,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Applied Statistical Analysis</li>
-      <li class="breadcrumb-item active">Parameter Estimation & Regularization</li>
+      <li class="breadcrumb-item active">Parameter Estimation</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -171,7 +157,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="parameter-estimation-metrics-regularization">Parameter Estimation, Metrics &amp; Regularization<a class="headerlink" href="#parameter-estimation-metrics-regularization" title="Permanent link">&para;</a></h1>
+                <h1 id="parameter-estimation-how-a-model-actually-learns">Parameter Estimation — How a Model Actually Learns<a class="headerlink" href="#parameter-estimation-how-a-model-actually-learns" title="Permanent link">&para;</a></h1>
 <p><em>Data 200 · Applied Statistical Analysis · Instructor: Aayush Regmi</em></p>
 <hr />
 <p>In the <a href="../LinearRegression/">Linear Regression notebook</a> we used the
@@ -179,9 +165,11 @@
 was small and the math was friendly.</p>
 <p>Real machine-learning problems are not always so kind. This notebook
 answers a more honest question: <strong>how does a model actually learn?</strong>
-We will walk through three different ways to find good parameters, see
-when each one works, and then look at how to <em>measure</em> a fitted model
-and how to <em>protect it</em> from overfitting.</p>
+We will walk through three different ways to find good parameters
+(OLS, Gradient Descent, MLE) and see when each one works.</p>
+<p>Once you understand <em>how</em> a model learns, the next question is whether
+it is learning <strong>too much</strong> — that is the topic of the
+<a href="../Regularization/">Bias, Variance &amp; Regularization notebook</a>.</p>
 <h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
 <p>By the end of this notebook you should be able to:</p>
 <ol>
@@ -195,11 +183,7 @@ and how to <em>protect it</em> from overfitting.</p>
 <li>Explain what a <strong>gradient</strong> is and why Gradient Descent is the
    workhorse of neural networks.</li>
 <li>Connect MLE to <strong>Bayes' theorem</strong> at a conceptual level.</li>
-<li>Recognise <strong>underfitting</strong>, <strong>overfitting</strong>, and the
-   <strong>bias-variance tradeoff</strong>.</li>
 <li>Pick the right <strong>regression metric</strong> (MAE, RMSE, R²) for the job.</li>
-<li>Describe how <strong>Ridge</strong>, <strong>Lasso</strong>, and <strong>Elastic Net</strong> fight
-   overfitting.</li>
 </ol>
 <h2 id="1-models-dont-learn-by-magic">1. Models Don't Learn by Magic<a class="headerlink" href="#1-models-dont-learn-by-magic" title="Permanent link">&para;</a></h2>
 <p>Suppose I make two predictions about the upcoming football season:</p>
@@ -344,11 +328,7 @@ that pin that shape in place. Those numbers are the <strong>parameters</strong>.
 <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">LinearRegression</span><span class="p">,</span> <span class="n">Ridge</span><span class="p">,</span> <span class="n">Lasso</span><span class="p">,</span> <span class="n">ElasticNet</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialFeatures</span><span class="p">,</span> <span class="n">StandardScaler</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearRegression</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
 
 <span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
@@ -621,74 +601,7 @@ look like. If you assume a flat prior (all values equally believable
 before seeing data), Bayes and MLE give the same answer.</p>
 <p>Full Bayesian analysis is beyond this course, but this is the link
 worth remembering: <strong>MLE is Bayes without a prior</strong>.</p>
-<h2 id="7-underfitting-overfitting-and-the-bias-variance-tradeoff">7. Underfitting, Overfitting, and the Bias-Variance Tradeoff<a class="headerlink" href="#7-underfitting-overfitting-and-the-bias-variance-tradeoff" title="Permanent link">&para;</a></h2>
-<p>Once we <em>can</em> fit a model, the next question is: <strong>should we fit it
-harder?</strong> A more flexible model can chase every wiggle in the training
-data — but that doesn't mean it is a <em>better</em> model.</p>
-<p>Here are three fits to the same noisy data, generated from a smooth
-underlying curve <span class="arithmatex">\(y = \sin(1.5\pi x)\)</span>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">true_f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
-
-<span class="n">n_sam</span> <span class="o">=</span> <span class="mi">25</span>
-<span class="n">x_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_sam</span><span class="p">))</span>
-<span class="n">y_train</span> <span class="o">=</span> <span class="n">true_f</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_sam</span><span class="p">)</span>
-<span class="n">x_grid</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-
-<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">deg</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-    <span class="n">axes</span><span class="p">,</span>
-    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span>
-    <span class="p">[</span><span class="s2">&quot;Degree 1 — underfit&quot;</span><span class="p">,</span> <span class="s2">&quot;Degree 4 — about right&quot;</span><span class="p">,</span> <span class="s2">&quot;Degree 15 — overfit&quot;</span><span class="p">],</span>
-<span class="p">):</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">deg</span><span class="p">),</span> <span class="n">LinearRegression</span><span class="p">())</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y_train</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;training data&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">true_f</span><span class="p">(</span><span class="n">x_grid</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;truth&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
-            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
-  return X @ coef_ + self.intercept_
-</code></pre></div>
-<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_31_1.png" /></p>
-<p>Read the three plots:</p>
-<ul>
-<li><strong>Underfitting (left).</strong> The straight line is too rigid to capture
-  the curve. It will be wrong on training <em>and</em> test data. We say it
-  has <strong>high bias</strong> — a systematic mismatch between model and reality.</li>
-<li><strong>Just right (middle).</strong> A modestly flexible polynomial captures the
-  shape without chasing the noise.</li>
-<li><strong>Overfitting (right).</strong> The degree-15 polynomial passes very close
-  to every training point but goes wild between them. It will look
-  great on training data and terrible on new data. We say it has
-  <strong>high variance</strong> — small changes in the training sample produce
-  wildly different fits.</li>
-</ul>
-<h3 id="the-bias-variance-tradeoff">The Bias-Variance Tradeoff<a class="headerlink" href="#the-bias-variance-tradeoff" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Bias</strong> = how badly your model is <em>systematically</em> wrong because it
-  is too simple.</li>
-<li><strong>Variance</strong> = how much your model would <em>change</em> if you trained it
-  on a different sample of the same data.</li>
-</ul>
-<p>Total prediction error roughly decomposes as</p>
-<div class="arithmatex">\[\text{error} \;\approx\; \text{bias}^2 \;+\; \text{variance} \;+\; \text{noise}.\]</div>
-<p>Simpler models → high bias, low variance.<br>
-More complex models → low bias, high variance.</p>
-<p>There is a <strong>sweet spot</strong> in between — not too simple, not too
-flexible — and the rest of this notebook is about finding it.</p>
-<h2 id="8-regression-metrics-how-good-is-good">8. Regression Metrics — How Good is "Good"?<a class="headerlink" href="#8-regression-metrics-how-good-is-good" title="Permanent link">&para;</a></h2>
+<h2 id="7-regression-metrics-how-good-is-good">7. Regression Metrics — How Good is "Good"?<a class="headerlink" href="#7-regression-metrics-how-good-is-good" title="Permanent link">&para;</a></h2>
 <p>Once a model makes predictions, we need a single number that says
 <em>how good</em>. Different numbers tell different stories. Three are enough
 for almost everything:</p>
@@ -745,125 +658,13 @@ model was off by 4. Squaring magnifies that single large miss.</p>
 </tr>
 </tbody>
 </table>
-<h2 id="9-regularization-fighting-overfitting-gently">9. Regularization — Fighting Overfitting Gently<a class="headerlink" href="#9-regularization-fighting-overfitting-gently" title="Permanent link">&para;</a></h2>
-<p>Section 7 showed what overfitting looks like. <strong>Regularization</strong> is
-the standard fix: we <em>gently punish</em> the model for being too eager.
-Specifically, we add a penalty on the <strong>size of the coefficients</strong> to
-the OLS loss.</p>
-<p>Three flavours dominate practice: <strong>Ridge</strong>, <strong>Lasso</strong>, and
-<strong>Elastic Net</strong>. Let's see them in action on the same overfit problem
-from Section 7.</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Same noisy sin-curve data, but fit a degree-15 polynomial with</span>
-<span class="c1"># three different regularizers.</span>
-<span class="n">deg</span> <span class="o">=</span> <span class="mi">15</span>
-<span class="n">models</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;OLS (no penalty)&quot;</span><span class="p">:</span> <span class="n">make_pipeline</span><span class="p">(</span>
-        <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">deg</span><span class="p">),</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">LinearRegression</span><span class="p">()),</span>
-    <span class="s2">&quot;Ridge (alpha=0.5)&quot;</span><span class="p">:</span> <span class="n">make_pipeline</span><span class="p">(</span>
-        <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">deg</span><span class="p">),</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)),</span>
-    <span class="s2">&quot;Lasso (alpha=0.01)&quot;</span><span class="p">:</span> <span class="n">make_pipeline</span><span class="p">(</span>
-        <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">deg</span><span class="p">),</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">20000</span><span class="p">)),</span>
-<span class="p">}</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;training&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">true_f</span><span class="p">(</span><span class="n">x_grid</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;truth&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y_train</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_grid</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Same degree-15 polynomial, three different penalties&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code>/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/utils/extmath.py:203: RuntimeWarning: divide by zero encountered in matmul
-  ret = a @ b
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/utils/extmath.py:203: RuntimeWarning: overflow encountered in matmul
-  ret = a @ b
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/utils/extmath.py:203: RuntimeWarning: invalid value encountered in matmul
-  ret = a @ b
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: divide by zero encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: overflow encountered in matmul
-  return X @ coef_ + self.intercept_
-/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_base.py:280: RuntimeWarning: invalid value encountered in matmul
-  return X @ coef_ + self.intercept_
-</code></pre></div>
-<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_37_1.png" /></p>
-<p>OLS contorts itself to pass through every noisy point. Ridge and
-Lasso pull the curve back to something far closer to the true sine
-wave — even though the model is the <em>same shape</em> (degree 15). The
-penalty is doing the work.</p>
-<h3 id="91-ridge-penalise-the-squares">9.1 Ridge — penalise the squares<a class="headerlink" href="#91-ridge-penalise-the-squares" title="Permanent link">&para;</a></h3>
-<p>Ridge minimises</p>
-<div class="arithmatex">\[L_{\text{Ridge}}(\boldsymbol\beta) \;=\;
-\sum_i (y_i - \hat y_i)^2 \;+\; \alpha \sum_j \beta_j^2.\]</div>
-<p>The bigger <span class="arithmatex">\(\alpha\)</span>, the harsher the penalty, the smaller the
-coefficients get. They <strong>shrink toward zero, but never quite reach
-zero</strong>.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_regression</span>
-<span class="n">X_r</span><span class="p">,</span> <span class="n">y_r</span> <span class="o">=</span> <span class="n">make_regression</span><span class="p">(</span>
-    <span class="n">n_samples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-    <span class="n">noise</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">alphas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
-<span class="n">ridge_path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_r</span><span class="p">,</span> <span class="n">y_r</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alphas</span><span class="p">])</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ridge_path</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alphas</span><span class="p">,</span> <span class="n">ridge_path</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;feature </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;alpha (penalty strength)&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;coefficient value&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Ridge: coefficients shrink smoothly toward zero&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_40_0.png" /></p>
-<h3 id="92-lasso-penalise-the-absolute-values">9.2 Lasso — penalise the absolute values<a class="headerlink" href="#92-lasso-penalise-the-absolute-values" title="Permanent link">&para;</a></h3>
-<p>Lasso replaces the squared penalty with an absolute-value penalty:</p>
-<div class="arithmatex">\[L_{\text{Lasso}}(\boldsymbol\beta) \;=\;
-\sum_i (y_i - \hat y_i)^2 \;+\; \alpha \sum_j \lvert\beta_j\rvert.\]</div>
-<p>That tiny change has a big consequence: as <span class="arithmatex">\(\alpha\)</span> grows, Lasso
-<strong>snaps coefficients to exactly zero</strong> one by one. So Lasso doubles as
-a <strong>feature-selection</strong> tool — features whose coefficient becomes zero
-have been dropped from the model.</p>
-<div class="highlight"><pre><span></span><code><span class="n">alphas_l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
-<span class="n">lasso_path</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-    <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">a</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">20000</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_r</span><span class="p">,</span> <span class="n">y_r</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alphas_l</span>
-<span class="p">])</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lasso_path</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">alphas_l</span><span class="p">,</span> <span class="n">lasso_path</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;feature </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;alpha (penalty strength)&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;coefficient value&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Lasso: coefficients snap to zero one by one&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-<p><img alt="png" src="../ParameterEstimation_files/ParameterEstimation_42_0.png" /></p>
-<h3 id="93-elastic-net-the-best-of-both">9.3 Elastic Net — the best of both<a class="headerlink" href="#93-elastic-net-the-best-of-both" title="Permanent link">&para;</a></h3>
-<p><strong>Elastic Net</strong> mixes the Ridge and Lasso penalties together. Use it
-when you want <em>some</em> shrinkage and <em>some</em> feature selection — it tends
-to behave more sensibly than pure Lasso when several features are
-correlated.</p>
-<h3 id="how-do-you-pick-alpha">How do you pick <span class="arithmatex">\(\alpha\)</span>?<a class="headerlink" href="#how-do-you-pick-alpha" title="Permanent link">&para;</a></h3>
-<p><span class="arithmatex">\(\alpha\)</span> is a <strong>hyperparameter</strong> — it isn't learned from the training
-data directly. The standard recipe is <strong>k-fold cross-validation</strong>: try
-a list of candidate values, score each one on held-out folds of the
-training data, and pick the value with the best average score.
-Cross-validation gets a notebook of its own later in the course.</p>
-<h2 id="10-key-takeaways">10. Key Takeaways<a class="headerlink" href="#10-key-takeaways" title="Permanent link">&para;</a></h2>
+<h2 id="8-where-to-next">8. Where to Next<a class="headerlink" href="#8-where-to-next" title="Permanent link">&para;</a></h2>
+<p>We have seen <em>how</em> a model finds its parameters and <em>how</em> to score it
+once it does. The next question — <strong>is the model fitting the signal,
+or chasing the noise?</strong> — opens up the worlds of <strong>bias, variance,
+overfitting, and regularization</strong>. That is the subject of the next
+notebook: <a href="../Regularization/">Bias, Variance &amp; Regularization</a>.</p>
+<h2 id="9-key-takeaways">9. Key Takeaways<a class="headerlink" href="#9-key-takeaways" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>A model is just a rule that produces predictions; learning is the
    search for parameters that make the total error small.</strong></li>
@@ -875,11 +676,10 @@ Cross-validation gets a notebook of its own later in the course.</p>
 <li><strong>MLE</strong> picks the parameters that make the observed data most
    likely. It is the probabilistic sister of OLS, and it becomes
    Bayesian estimation once you add a prior.</li>
-<li><strong>Bias</strong> is being too simple; <strong>variance</strong> is being too sensitive.
-   Good models live in the sweet spot. <strong>Regularization</strong> (Ridge,
-   Lasso, Elastic Net) is how we slide along that tradeoff in practice.</li>
+<li><strong>MAE, RMSE, R²</strong> are the three workhorse regression metrics — each
+   tells a slightly different story about "how good".</li>
 </ol>
-<h2 id="11-practice-exercises">11. Practice Exercises<a class="headerlink" href="#11-practice-exercises" title="Permanent link">&para;</a></h2>
+<h2 id="10-practice-exercises">10. Practice Exercises<a class="headerlink" href="#10-practice-exercises" title="Permanent link">&para;</a></h2>
 <ol>
 <li><strong>Error scoreboard.</strong> Write your own predicted probabilities for
    five sporting events of your choice. After the events happen,
@@ -888,17 +688,17 @@ Cross-validation gets a notebook of its own later in the course.</p>
 <li><strong>Learning-rate hunt.</strong> Re-run the 1-D gradient descent demo with
    <span class="arithmatex">\(\eta \in \{0.001, 0.05, 0.5, 1.0, 1.05\}\)</span>. For each, plot the
    trajectory and label whether it converges, oscillates, or diverges.</li>
-<li><strong>Ridge vs. Lasso intuition.</strong> Refit the degree-15 polynomial in
-   Section 9 with <span class="arithmatex">\(\alpha = 0.001, 0.1, 10\)</span>. Describe in plain words
-   how the curve changes as <span class="arithmatex">\(\alpha\)</span> grows. Which <span class="arithmatex">\(\alpha\)</span> would you
-   pick by eye, and why?</li>
+<li><strong>MLE for a biased die.</strong> Suppose a six-sided die rolled 60 times
+   gave you 14 sixes. Write the likelihood as a function of <span class="arithmatex">\(p\)</span> (the
+   probability of rolling a six) and find the MLE numerically. Does it
+   match the obvious answer?</li>
 </ol>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../LinearRegression/" class="btn btn-neutral float-left" title="Linear Regression"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../TimeSeries/" class="btn btn-neutral float-right" title="Time Series">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../Regularization/" class="btn btn-neutral float-right" title="Bias, Variance & Regularization">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -925,7 +725,7 @@ Cross-validation gets a notebook of its own later in the course.</p>
       <span><a href="../LinearRegression/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../TimeSeries/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../Regularization/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
