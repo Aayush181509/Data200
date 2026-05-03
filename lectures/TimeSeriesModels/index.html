@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Time Series Models - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Time Series Models";
+        var mkdocs_page_input_path = "lectures/TimeSeriesModels.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../StatisticsFoundations/">Statistical Foundations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../MLConcepts/">ML / AI / DS Concepts</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation & Regularization</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../TimeSeries/">Time Series</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Time Series Models</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#1-a-synthetic-stock-like-dataset">1. A synthetic stock-like dataset</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-adding-technical-indicators">2. Adding technical indicators</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-ar-and-ma-the-building-blocks">3. AR and MA - the building blocks</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#31-the-autoregressive-model-arp">3.1 The autoregressive model AR(p)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#32-the-moving-average-model-maq">3.2 The moving-average model MA(q)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#33-why-both">3.3 Why both?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-armap-q-combining-ar-and-ma">4. ARMA(p, q) - combining AR and MA</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-arimap-d-q-adding-differencing">5. ARIMA(p, d, q) - adding differencing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-sarimap-d-qp-d-q-s-adding-seasonality">6. SARIMA(p, d, q)(P, D, Q, s) - adding seasonality</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-sarimax-sarima-with-exogenous-regressors">7. SARIMAX - SARIMA with eXogenous regressors</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#walking-up-the-ladder">Walking up the ladder</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#8-neural-forecasting-n-beats">8. Neural forecasting - N-BEATS</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#81-the-basic-block">8.1 The basic block</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#82-stacking-and-residuals">8.2 Stacking and residuals</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#83-training-one-with-neuralforecast">8.3 Training one with neuralforecast</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-the-temporal-fusion-transformer-tft">9. The Temporal Fusion Transformer (TFT)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#91-building-blocks">9.1 Building blocks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#92-training-a-tft-with-neuralforecast">9.2 Training a TFT with neuralforecast</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#93-reading-the-tft-output">9.3 Reading the TFT output</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#10-hierarchical-forecasting">10. Hierarchical forecasting</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#101-the-summing-matrix">10.1 The summing matrix</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#102-reconciliation-methods">10.2 Reconciliation methods</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#103-doing-it-with-hierarchicalforecast">10.3 Doing it with hierarchicalforecast</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#11-summary">11. Summary</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#suggested-next-steps">Suggested next steps</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Time Series Models</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="time-series-models-from-arma-to-modern-forecasting">Time Series Models - From ARMA to Modern Forecasting<a class="headerlink" href="#time-series-models-from-arma-to-modern-forecasting" title="Permanent link">&para;</a></h1>
+<p>The previous notebook (<code>TimeSeries.ipynb</code>) introduced the ideas of trend, seasonality, stationarity, autocorrelation, and the simple workflow of forecasting. This notebook is the next step: a tour of the actual models that practitioners use.</p>
+<p>We will start with the classical statistical family - AR, MA, ARMA, ARIMA, SARIMA, SARIMAX - and derive each one in a simplified form. Then we will look at modern neural approaches - N-BEATS and the Temporal Fusion Transformer - at a conceptual level, with a small NumPy demonstration of the N-BEATS basis idea. We will close with hierarchical forecasting and reconciliation.</p>
+<p>The running example throughout this notebook is a <strong>synthetic stock-like dataset</strong>, with daily price and volume that look very similar to a real equity. We will compute a few common technical indicators (simple and exponential moving averages, RSI, log returns, on-balance volume) and use both the price and the indicators when we fit models.</p>
+<p>This is a long notebook. Treat it as a reference; you are not expected to absorb every formula on the first read.</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>We will use:</p>
+<ul>
+<li><code>numpy</code>, <code>pandas</code>, <code>matplotlib</code> for data and plots.</li>
+<li><code>statsmodels</code> for the classical models (ARIMA, SARIMA, SARIMAX).</li>
+<li>The <strong>Nixtla</strong> ecosystem for the more complex models, which gives us a uniform interface and saves a lot of glue code:</li>
+<li><code>statsforecast</code> for fast classical forecasting (AutoARIMA, AutoETS).</li>
+<li><code>neuralforecast</code> for <strong>N-BEATS</strong> and the <strong>Temporal Fusion Transformer (TFT)</strong>.</li>
+<li><code>hierarchicalforecast</code> for hierarchical reconciliation.</li>
+</ul>
+<p>If anything is missing, install with:</p>
+<div class="highlight"><pre><span></span><code>pip install statsmodels statsforecast neuralforecast hierarchicalforecast utilsforecast
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span><span class="o">,</span><span class="w"> </span><span class="nn">logging</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;pytorch_lightning&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;lightning_fabric&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYTORCH_LIGHTNING_VERBOSITY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+<span class="c1"># Classical statistical models</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.arima.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ARIMA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.statespace.sarimax</span><span class="w"> </span><span class="kn">import</span> <span class="n">SARIMAX</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.stattools</span><span class="w"> </span><span class="kn">import</span> <span class="n">adfuller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.graphics.tsaplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_acf</span><span class="p">,</span> <span class="n">plot_pacf</span>
+
+<span class="c1"># Nixtla ecosystem - one consistent API across statistical, neural, and hierarchical models</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsforecast</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatsForecast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsforecast.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoARIMA</span><span class="p">,</span> <span class="n">AutoETS</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">neuralforecast</span><span class="w"> </span><span class="kn">import</span> <span class="n">NeuralForecast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">neuralforecast.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">NBEATS</span><span class="p">,</span> <span class="n">TFT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">neuralforecast.losses.pytorch</span><span class="w"> </span><span class="kn">import</span> <span class="n">MAE</span><span class="p">,</span> <span class="n">MQLoss</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hierarchicalforecast.core</span><span class="w">   </span><span class="kn">import</span> <span class="n">HierarchicalReconciliation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hierarchicalforecast.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">BottomUp</span><span class="p">,</span> <span class="n">TopDown</span><span class="p">,</span> <span class="n">MinTrace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hierarchicalforecast.utils</span><span class="w">  </span><span class="kn">import</span> <span class="n">aggregate</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Libraries loaded.&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>2026-05-03 09:35:43,415 INFO util.py:154 -- Missing packages: [&#39;ipywidgets&#39;]. Run `pip install -U ipywidgets`, then restart the notebook server for rich notebook output.
+2026-05-03 09:35:43,589 INFO util.py:154 -- Missing packages: [&#39;ipywidgets&#39;]. Run `pip install -U ipywidgets`, then restart the notebook server for rich notebook output.
+
+
+Libraries loaded.
+</code></pre></div>
+<h2 id="1-a-synthetic-stock-like-dataset">1. A synthetic stock-like dataset<a class="headerlink" href="#1-a-synthetic-stock-like-dataset" title="Permanent link">&para;</a></h2>
+<p>Real intraday equity data has several features that make it interesting for time-series modelling:</p>
+<ul>
+<li>A long-term trend (companies grow or shrink over years).</li>
+<li>A weekly seasonal effect on volume (e.g. Mondays and Fridays are different).</li>
+<li>Volatility that clusters - a calm week is often followed by a calm week, a turbulent week by another turbulent week.</li>
+<li>A relationship between price and volume (sharp moves come with heavier volume).</li>
+</ul>
+<p>We will generate a two-year daily series that exhibits all of these. Working with synthetic data lets us know the true structure, which is invaluable when learning.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Two years of business-day timestamps.</span>
+<span class="n">dates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">bdate_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;2025-12-31&quot;</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span>
+
+<span class="c1"># Geometric Brownian motion-like log-returns with volatility clustering.</span>
+<span class="c1"># A simple GARCH-style innovation: today&#39;s volatility depends on yesterday&#39;s shock.</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+<span class="n">shock</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+<span class="n">sigma</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.012</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+    <span class="n">sigma</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.00002</span> <span class="o">+</span> <span class="mf">0.10</span> <span class="o">*</span> <span class="n">shock</span><span class="p">[</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.85</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">[</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">shock</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">()</span>
+
+<span class="c1"># Drift component (a small upward trend) plus the volatility shock.</span>
+<span class="n">mu</span> <span class="o">=</span> <span class="mf">0.0006</span>
+<span class="n">log_ret</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">+</span> <span class="n">shock</span>
+
+<span class="c1"># Build the price by exponentiating cumulative log returns.</span>
+<span class="n">price</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">log_ret</span><span class="p">))</span>
+
+<span class="c1"># Volume: weekly seasonality (heavier on Mondays and Fridays) + reaction to large moves.</span>
+<span class="n">day_of_week</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofweek</span><span class="o">.</span><span class="n">values</span>   <span class="c1"># 0 = Monday</span>
+<span class="n">weekly</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.20</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">1.15</span><span class="p">])[</span><span class="n">day_of_week</span><span class="p">]</span>
+<span class="n">volume</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1_000_000</span> <span class="o">*</span> <span class="n">weekly</span> <span class="o">*</span>
+          <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">log_ret</span><span class="p">))</span> <span class="o">*</span>
+          <span class="n">rng</span><span class="o">.</span><span class="n">lognormal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">T</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="n">stock</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;close&quot;</span><span class="p">:</span> <span class="n">price</span><span class="p">,</span> <span class="s2">&quot;log_return&quot;</span><span class="p">:</span> <span class="n">log_ret</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">:</span> <span class="n">volume</span><span class="p">},</span>
+    <span class="n">index</span><span class="o">=</span><span class="n">dates</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;date&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">stock</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stock</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Date range: </span><span class="si">{</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>                 close  log_return   volume
+date                                       
+2024-01-01  100.060018    0.000600  1469741
+2024-01-02  100.484795    0.004236   938763
+2024-01-03   99.305185   -0.011809  1163421
+2024-01-04  100.301744    0.009985   924493
+2024-01-05  101.569712    0.012562  1502373
+
+Rows: 523
+Date range: 2024-01-01 to 2025-12-31
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># A quick look at the price and volume.</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Synthetic stock - daily close&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Price&quot;</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;volume&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#DD8452&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Synthetic stock - daily volume&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Volume&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeriesModels_files/TimeSeriesModels_5_0.png" /></p>
+<h2 id="2-adding-technical-indicators">2. Adding technical indicators<a class="headerlink" href="#2-adding-technical-indicators" title="Permanent link">&para;</a></h2>
+<p>Most practitioners do not feed raw prices into a model. They first compute a handful of <em>indicators</em> that summarise level, trend, and momentum. We will compute four classic ones:</p>
+<table>
+<thead>
+<tr>
+<th>Indicator</th>
+<th>What it measures</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple moving average (SMA-20)</td>
+<td>Average price of the last 20 days.</td>
+<td><code>SMA_t = mean(close[t-19 .. t])</code></td>
+</tr>
+<tr>
+<td>Exponential moving average (EMA-20)</td>
+<td>A smoothed price that weights recent days more.</td>
+<td><code>EMA_t = alpha * close_t + (1 - alpha) * EMA_{t-1}</code> with <code>alpha = 2 / (n + 1)</code></td>
+</tr>
+<tr>
+<td>Relative Strength Index (RSI-14)</td>
+<td>Momentum: how much the recent gains dominate the recent losses, on a 0-100 scale.</td>
+<td>See code below.</td>
+</tr>
+<tr>
+<td>On-Balance Volume (OBV)</td>
+<td>Cumulative volume, signed by whether price went up or down that day.</td>
+<td><code>OBV_t = OBV_{t-1} + sign(close_t - close_{t-1}) * volume_t</code></td>
+</tr>
+</tbody>
+</table>
+<p>These will become useful when we fit the SARIMAX model later (X = exogenous variables).</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rsi</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">14</span><span class="p">):</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
+    <span class="n">gain</span>  <span class="o">=</span> <span class="n">delta</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">loss</span>  <span class="o">=</span> <span class="o">-</span><span class="n">delta</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">upper</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">avg_gain</span> <span class="o">=</span> <span class="n">gain</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">avg_loss</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">avg_gain</span> <span class="o">/</span> <span class="n">avg_loss</span>
+    <span class="k">return</span> <span class="mi">100</span> <span class="o">-</span> <span class="p">(</span><span class="mi">100</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">rs</span><span class="p">))</span>
+
+
+<span class="n">stock</span><span class="p">[</span><span class="s2">&quot;sma_20&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">stock</span><span class="p">[</span><span class="s2">&quot;ema_20&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ewm</span><span class="p">(</span><span class="n">span</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">stock</span><span class="p">[</span><span class="s2">&quot;rsi_14&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rsi</span><span class="p">(</span><span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">],</span> <span class="mi">14</span><span class="p">)</span>
+<span class="n">stock</span><span class="p">[</span><span class="s2">&quot;obv&quot;</span><span class="p">]</span>    <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">())</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;volume&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">stock</span><span class="p">[[</span><span class="s2">&quot;close&quot;</span><span class="p">,</span> <span class="s2">&quot;sma_20&quot;</span><span class="p">,</span> <span class="s2">&quot;ema_20&quot;</span><span class="p">,</span> <span class="s2">&quot;rsi_14&quot;</span><span class="p">,</span> <span class="s2">&quot;obv&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>                 close     sma_20     ema_20     rsi_14        obv
+date                                                              
+2024-01-26  100.423124  99.024360  99.303461  55.117948  5741066.0
+2024-01-29  100.409041  99.041811  99.408754  64.162173  4494950.0
+2024-01-30  100.202497  99.027696  99.484349  62.181801  3562533.0
+2024-01-31   99.309964  99.027935  99.467741  59.676272  2665089.0
+2024-02-01  101.085905  99.067143  99.621852  64.853642  3658438.0
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Quick visual of the indicators.</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">],</span>  <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgrey&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;close&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;sma_20&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">,</span>   <span class="n">label</span><span class="o">=</span><span class="s2">&quot;SMA-20&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;ema_20&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span>   <span class="n">label</span><span class="o">=</span><span class="s2">&quot;EMA-20&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Price with moving averages&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;rsi_14&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#DD8452&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>   <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;RSI-14 (momentum)&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;obv&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#55A868&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;On-Balance Volume&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeriesModels_files/TimeSeriesModels_8_0.png" /></p>
+<h2 id="3-ar-and-ma-the-building-blocks">3. AR and MA - the building blocks<a class="headerlink" href="#3-ar-and-ma-the-building-blocks" title="Permanent link">&para;</a></h2>
+<p>Every model in this section is built out of two ideas: regressing on past values (AR), and regressing on past errors (MA).</p>
+<h3 id="31-the-autoregressive-model-arp">3.1 The autoregressive model AR(p)<a class="headerlink" href="#31-the-autoregressive-model-arp" title="Permanent link">&para;</a></h3>
+<p>An AR(p) model says today's value is a linear combination of the previous p values, plus a random shock:</p>
+<div class="arithmatex">\[
+y_t = c + \phi_1 y_{t-1} + \phi_2 y_{t-2} + \dots + \phi_p y_{t-p} + \varepsilon_t
+\]</div>
+<p>where <span class="arithmatex">\(\varepsilon_t\)</span> is white noise (mean zero, constant variance, independent across time).</p>
+<p><strong>Reading the equation.</strong> "Today is some constant plus a weighted sum of recent past, plus a random surprise." The weights <span class="arithmatex">\(\phi_i\)</span> are the parameters we estimate.</p>
+<h3 id="32-the-moving-average-model-maq">3.2 The moving-average model MA(q)<a class="headerlink" href="#32-the-moving-average-model-maq" title="Permanent link">&para;</a></h3>
+<p>An MA(q) model says today's value is a linear combination of the previous q random shocks:</p>
+<div class="arithmatex">\[
+y_t = \mu + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \theta_2 \varepsilon_{t-2} + \dots + \theta_q \varepsilon_{t-q}
+\]</div>
+<p>The shocks <span class="arithmatex">\(\varepsilon_t\)</span> are unobserved; we only see <span class="arithmatex">\(y_t\)</span>. Even so, the parameters <span class="arithmatex">\(\theta_i\)</span> can be estimated by maximum likelihood.</p>
+<h3 id="33-why-both">3.3 Why both?<a class="headerlink" href="#33-why-both" title="Permanent link">&para;</a></h3>
+<ul>
+<li>AR captures <em>persistence</em>: trends, momentum, mean-reverting behaviour.</li>
+<li>MA captures the lingering effect of past <em>shocks</em> that are no longer fully visible.</li>
+</ul>
+<p>Real series usually need a bit of each, which is exactly what ARMA combines.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Generate two clean simulated series to illustrate.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_ar1</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">*</span> <span class="n">y</span><span class="p">[</span><span class="n">t</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">g</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">y</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_ma1</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">eps</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">theta</span> <span class="o">*</span> <span class="n">eps</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">ar1</span> <span class="o">=</span> <span class="n">simulate_ar1</span><span class="p">(</span><span class="n">phi</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">ma1</span> <span class="o">=</span> <span class="n">simulate_ma1</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ar1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Simulated AR(1), phi = 0.8&quot;</span><span class="p">)</span>
+<span class="n">plot_acf</span><span class="p">(</span><span class="n">ar1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">lags</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;ACF of AR(1) - decays slowly&quot;</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ma1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#DD8452&quot;</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Simulated MA(1), theta = 0.7&quot;</span><span class="p">)</span>
+<span class="n">plot_acf</span><span class="p">(</span><span class="n">ma1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">lags</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;ACF of MA(1) - cuts off after lag 1&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeriesModels_files/TimeSeriesModels_10_0.png" /></p>
+<p>Two important visual rules of thumb:</p>
+<ul>
+<li>The <strong>ACF of an MA(q)</strong> cuts off sharply after lag q.</li>
+<li>The <strong>PACF of an AR(p)</strong> cuts off sharply after lag p.</li>
+</ul>
+<p>These two facts are the basis of the classical "Box-Jenkins" approach for choosing model orders.</p>
+<h2 id="4-armap-q-combining-ar-and-ma">4. ARMA(p, q) - combining AR and MA<a class="headerlink" href="#4-armap-q-combining-ar-and-ma" title="Permanent link">&para;</a></h2>
+<p>The ARMA(p, q) model puts the two pieces together:</p>
+<div class="arithmatex">\[
+y_t = c + \sum_{i=1}^{p} \phi_i\, y_{t-i} + \varepsilon_t + \sum_{j=1}^{q} \theta_j\, \varepsilon_{t-j}
+\]</div>
+<p>Or, using the <strong>lag operator</strong> <span class="arithmatex">\(L\)</span> where <span class="arithmatex">\(L y_t = y_{t-1}\)</span>, it can be written compactly as</p>
+<div class="arithmatex">\[
+\Phi(L)\, y_t = \Theta(L)\, \varepsilon_t,
+\]</div>
+<p>with <span class="arithmatex">\(\Phi(L) = 1 - \phi_1 L - \dots - \phi_p L^p\)</span> and <span class="arithmatex">\(\Theta(L) = 1 + \theta_1 L + \dots + \theta_q L^q\)</span>.</p>
+<p><strong>Stationarity requirement.</strong> ARMA assumes the series is already stationary. If it has a trend or growing variance, ARMA is the wrong tool - which is exactly what ARIMA fixes.</p>
+<h2 id="5-arimap-d-q-adding-differencing">5. ARIMA(p, d, q) - adding differencing<a class="headerlink" href="#5-arimap-d-q-adding-differencing" title="Permanent link">&para;</a></h2>
+<p>The "I" in ARIMA stands for <em>integrated</em>. It means we difference the series d times before we apply ARMA:</p>
+<div class="arithmatex">\[
+\nabla^d y_t = (1 - L)^d y_t.
+\]</div>
+<p>So ARIMA(p, d, q) is just ARMA(p, q) applied to the d-times differenced series:</p>
+<div class="arithmatex">\[
+\Phi(L)\, (1 - L)^d\, y_t = \Theta(L)\, \varepsilon_t.
+\]</div>
+<p>Choosing d:</p>
+<ul>
+<li>d = 0: the original series is already stationary.</li>
+<li>d = 1: a single difference removes a linear trend.</li>
+<li>d = 2: rarely needed; two differences remove a quadratic trend.</li>
+</ul>
+<p>In practice you almost always pick d using the ADF test (see <code>TimeSeries.ipynb</code>).</p>
+<p>We will fit an ARIMA model to our stock's <strong>log returns</strong> rather than the raw price, because returns are much closer to stationary.</p>
+<div class="highlight"><pre><span></span><code><span class="n">returns</span> <span class="o">=</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;log_return&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ADF test on log returns:&quot;</span><span class="p">)</span>
+<span class="n">stat</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">adfuller</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ADF stat = </span><span class="si">{</span><span class="n">stat</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">,  p-value = </span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Returns are already stationary, so we will use d = 0.&quot;</span><span class="p">)</span>
+
+<span class="c1"># Fit ARIMA(p=2, d=0, q=2) - a small, illustrative order.</span>
+<span class="n">arima_model</span> <span class="o">=</span> <span class="n">ARIMA</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">arima_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>ADF test on log returns:
+  ADF stat = -16.627,  p-value = 0.0000
+Returns are already stationary, so we will use d = 0.
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.0003      0.001      0.425      0.671      -0.001       0.001
+ar.L1          0.7303      0.279      2.614      0.009       0.183       1.278
+ar.L2          0.0310      0.287      0.108      0.914      -0.532       0.594
+ma.L1         -0.6480      0.287     -2.257      0.024      -1.211      -0.085
+ma.L2         -0.1750      0.291     -0.601      0.548      -0.745       0.395
+sigma2         0.0003   1.79e-05     18.173      0.000       0.000       0.000
+==============================================================================
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Diagnostic plots.</span>
+<span class="n">arima_model</span><span class="o">.</span><span class="n">plot_diagnostics</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeriesModels_files/TimeSeriesModels_15_0.png" /></p>
+<p>How to read an ARIMA diagnostic panel:</p>
+<ul>
+<li><strong>Top-left (residuals over time):</strong> should look like noise around zero.</li>
+<li><strong>Top-right (histogram and KDE):</strong> should be roughly bell-shaped.</li>
+<li><strong>Bottom-left (Q-Q plot):</strong> points should sit on the red line if residuals are Normal.</li>
+<li><strong>Bottom-right (correlogram):</strong> should show no significant bars - the model has captured the autocorrelation.</li>
+</ul>
+<p>If any of these look wrong, increase or decrease p or q and try again.</p>
+<h2 id="6-sarimap-d-qp-d-q-s-adding-seasonality">6. SARIMA(p, d, q)(P, D, Q, s) - adding seasonality<a class="headerlink" href="#6-sarimap-d-qp-d-q-s-adding-seasonality" title="Permanent link">&para;</a></h2>
+<p>Many series repeat at a fixed period s: weekly (s = 7 for daily data), monthly (s = 12 for monthly data), yearly. SARIMA extends ARIMA by adding a <em>seasonal</em> AR-I-MA on top of the regular one:</p>
+<div class="arithmatex">\[
+\Phi(L)\, \Phi_s(L^s)\, (1 - L)^d\, (1 - L^s)^D\, y_t = \Theta(L)\, \Theta_s(L^s)\, \varepsilon_t.
+\]</div>
+<p>The full notation <code>SARIMA(p, d, q)(P, D, Q, s)</code> looks intimidating, but each letter has a simple meaning:</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>p, d, q</td>
+<td>Non-seasonal AR order, differencing, MA order.</td>
+</tr>
+<tr>
+<td>P, D, Q</td>
+<td>Seasonal AR order, seasonal differencing, seasonal MA order.</td>
+</tr>
+<tr>
+<td>s</td>
+<td>Seasonal period (7 for weekly cycles in daily data).</td>
+</tr>
+</tbody>
+</table>
+<p>Our stock's <em>volume</em> has a clear weekly cycle (heavier Mondays and Fridays), so SARIMA is a good fit for that series.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># We will work with log volume to stabilise the variance.</span>
+<span class="n">log_volume</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">stock</span><span class="p">[</span><span class="s2">&quot;volume&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+<span class="c1"># Fit SARIMA(1, 0, 1)(1, 0, 1, 5) - non-seasonal AR(1) and MA(1),</span>
+<span class="c1"># plus a weekly seasonal AR and MA term (5 business days per week).</span>
+<span class="n">sarima_model</span> <span class="o">=</span> <span class="n">SARIMAX</span><span class="p">(</span>
+    <span class="n">log_volume</span><span class="p">,</span>
+    <span class="n">order</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">seasonal_order</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">disp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">sarima_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+ar.L1          0.9999      0.000   6316.768      0.000       1.000       1.000
+ma.L1         -0.9860      0.014    -68.976      0.000      -1.014      -0.958
+ar.S.L5        1.0000   9.92e-05   1.01e+04      0.000       1.000       1.000
+ma.S.L5       -0.9925      0.016    -63.212      0.000      -1.023      -0.962
+sigma2         0.0243      0.001     16.351      0.000       0.021       0.027
+==============================================================================
+
+
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn(&quot;Maximum Likelihood optimization failed to &quot;
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Forecast the next 30 business days of log volume.</span>
+<span class="n">horizon</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">sarima_model</span><span class="o">.</span><span class="n">get_forecast</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">horizon</span><span class="p">)</span>
+<span class="n">mean_fc</span> <span class="o">=</span> <span class="n">forecast</span><span class="o">.</span><span class="n">predicted_mean</span>
+<span class="n">ci</span>      <span class="o">=</span> <span class="n">forecast</span><span class="o">.</span><span class="n">conf_int</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+<span class="n">future_dates</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">bdate_range</span><span class="p">(</span><span class="n">log_volume</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">&quot;1D&quot;</span><span class="p">),</span> <span class="n">periods</span><span class="o">=</span><span class="n">horizon</span><span class="p">)</span>
+<span class="n">mean_fc</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">future_dates</span>
+<span class="n">ci</span><span class="o">.</span><span class="n">index</span>      <span class="o">=</span> <span class="n">future_dates</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">log_volume</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">120</span><span class="p">:]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;observed log volume&quot;</span><span class="p">)</span>
+<span class="n">mean_fc</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;SARIMA forecast&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">future_dates</span><span class="p">,</span> <span class="n">ci</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ci</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;95</span><span class="si">% i</span><span class="s2">nterval&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;SARIMA forecast of log volume - the weekly pattern is preserved&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeriesModels_files/TimeSeriesModels_19_0.png" /></p>
+<p>Notice the forecast wiggles up and down with a weekly rhythm - that is the seasonal component of SARIMA in action. A plain ARIMA without the seasonal terms would produce a flat or smoothly-decaying forecast.</p>
+<h2 id="7-sarimax-sarima-with-exogenous-regressors">7. SARIMAX - SARIMA with eXogenous regressors<a class="headerlink" href="#7-sarimax-sarima-with-exogenous-regressors" title="Permanent link">&para;</a></h2>
+<p>The "X" stands for <em>eXogenous</em>. SARIMAX lets us include external variables that we believe influence the series:</p>
+<div class="arithmatex">\[
+\Phi(L)\, \Phi_s(L^s)\, (1 - L)^d\, (1 - L^s)^D\, y_t
+   \;=\; \beta^\top x_t + \Theta(L)\, \Theta_s(L^s)\, \varepsilon_t.
+\]</div>
+<p>The new term <span class="arithmatex">\(\beta^\top x_t\)</span> is just a linear regression of <span class="arithmatex">\(y_t\)</span> on a vector of exogenous variables <span class="arithmatex">\(x_t\)</span> - the same kind of regression you saw in <code>LinearRegression.ipynb</code>, except wrapped inside a SARIMA structure.</p>
+<p>Why is this useful for stocks?</p>
+<ul>
+<li>We can use <strong>volume</strong> to help predict <strong>returns</strong> (price moves are often accompanied by volume spikes).</li>
+<li>We can use <strong>RSI</strong> as an additional signal of momentum.</li>
+<li>For real equities, you would also include macro variables: interest rates, news sentiment, etc.</li>
+</ul>
+<p>Below we use SMA-20 (level), RSI-14 (momentum), and log-volume as exogenous inputs to forecast log returns.</p>
+<div class="highlight"><pre><span></span><code><span class="n">data</span> <span class="o">=</span> <span class="n">stock</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;log_return&quot;</span><span class="p">]</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s2">&quot;sma_20&quot;</span><span class="p">,</span> <span class="s2">&quot;rsi_14&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">X</span><span class="p">[</span><span class="s2">&quot;log_volume&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;volume&quot;</span><span class="p">])</span>
+
+<span class="c1"># Chronological split: train on the first 80%, test on the last 20%.</span>
+<span class="n">split</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.8</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">split</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">split</span><span class="p">:]</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">split</span><span class="p">],</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">split</span><span class="p">:]</span>
+
+<span class="n">sarimax_model</span> <span class="o">=</span> <span class="n">SARIMAX</span><span class="p">(</span>
+    <span class="n">y_train</span><span class="p">,</span>
+    <span class="n">exog</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span>
+    <span class="n">order</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">seasonal_order</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">disp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">sarimax_model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+sma_20        -0.0001   9.63e-05     -1.103      0.270      -0.000    8.26e-05
+rsi_14         0.0003   6.22e-05      4.620      0.000       0.000       0.000
+log_volume    -0.0003      0.001     -0.360      0.719      -0.002       0.001
+ar.L1         -0.1240      0.538     -0.230      0.818      -1.179       0.931
+ma.L1          0.2070      0.546      0.379      0.705      -0.864       1.278
+ar.S.L5        0.0282      0.903      0.031      0.975      -1.742       1.799
+ma.S.L5       -0.0915      0.902     -0.101      0.919      -1.860       1.677
+sigma2         0.0003   1.96e-05     15.581      0.000       0.000       0.000
+==============================================================================
+
+
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn(&quot;Maximum Likelihood optimization failed to &quot;
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># One-step-ahead forecasts on the test set, using true exog values for X.</span>
+<span class="n">pred</span> <span class="o">=</span> <span class="n">sarimax_model</span><span class="o">.</span><span class="n">get_forecast</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y_test</span><span class="p">),</span> <span class="n">exog</span><span class="o">=</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">pred_mean</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">predicted_mean</span>
+<span class="n">pred_ci</span>   <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">conf_int</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+<span class="c1"># Mean absolute error.</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">pred_mean</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SARIMAX out-of-sample MAE on log returns: </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">y_test</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;actual log return&quot;</span><span class="p">)</span>
+<span class="n">pred_mean</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;SARIMAX forecast&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">y_test</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pred_ci</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">pred_ci</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;95</span><span class="si">% i</span><span class="s2">nterval&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;SARIMAX forecast of log returns with technical indicators as exog&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>SARIMAX out-of-sample MAE on log returns: 0.01501
+</code></pre></div>
+<p><img alt="png" src="../TimeSeriesModels_files/TimeSeriesModels_23_1.png" /></p>
+<p>A practical note: log returns are notoriously hard to predict on real stocks. Out-of-sample MAE is small mostly because returns themselves are small. The interesting question is whether the model's directional accuracy is better than chance - we leave that as an exercise.</p>
+<h3 id="walking-up-the-ladder">Walking up the ladder<a class="headerlink" href="#walking-up-the-ladder" title="Permanent link">&para;</a></h3>
+<p>We have just gone from the simplest building block to a fairly capable model:</p>
+<ol>
+<li>AR(p) - regress on the past.</li>
+<li>MA(q) - regress on past errors.</li>
+<li>ARMA(p, q) - combine them.</li>
+<li>ARIMA(p, d, q) - difference first, then ARMA.</li>
+<li>SARIMA(p, d, q)(P, D, Q, s) - add seasonal AR, I, and MA.</li>
+<li>SARIMAX - add exogenous regressors.</li>
+</ol>
+<p>Almost every classical time-series problem in finance, retail, energy, and operations is solved with some member of this family.</p>
+<h2 id="8-neural-forecasting-n-beats">8. Neural forecasting - N-BEATS<a class="headerlink" href="#8-neural-forecasting-n-beats" title="Permanent link">&para;</a></h2>
+<p>N-BEATS (<em>Neural Basis Expansion Analysis for Time Series</em>, Oreshkin et al., 2019) is a feed-forward neural network for time-series forecasting. It is interesting for two reasons:</p>
+<ol>
+<li>It does not use convolutions or recurrence - just simple fully-connected blocks.</li>
+<li>It is <em>interpretable</em>: it explicitly decomposes the forecast into a trend block and a seasonality block.</li>
+</ol>
+<h3 id="81-the-basic-block">8.1 The basic block<a class="headerlink" href="#81-the-basic-block" title="Permanent link">&para;</a></h3>
+<p>Given a window of the last <span class="arithmatex">\(L\)</span> observations <span class="arithmatex">\(\mathbf{x} \in \mathbb{R}^L\)</span>, a single block produces two outputs:</p>
+<ul>
+<li>A <strong>backcast</strong> <span class="arithmatex">\(\hat{\mathbf{x}}\)</span> that tries to reconstruct the input window.</li>
+<li>A <strong>forecast</strong> <span class="arithmatex">\(\hat{\mathbf{y}}\)</span> for the next <span class="arithmatex">\(H\)</span> steps.</li>
+</ul>
+<p>Internally:</p>
+<div class="arithmatex">\[
+\mathbf{h} = \text{FC}_4 \circ \text{FC}_3 \circ \text{FC}_2 \circ \text{FC}_1 (\mathbf{x}),
+\]</div>
+<div class="arithmatex">\[
+\theta^{\text{back}} = W_b\, \mathbf{h}, \qquad \theta^{\text{fore}} = W_f\, \mathbf{h},
+\]</div>
+<div class="arithmatex">\[
+\hat{\mathbf{x}} = g_b(\theta^{\text{back}}), \qquad \hat{\mathbf{y}} = g_f(\theta^{\text{fore}}).
+\]</div>
+<p>The functions <span class="arithmatex">\(g_b\)</span> and <span class="arithmatex">\(g_f\)</span> are <strong>basis expansions</strong>. In the <em>interpretable</em> version of N-BEATS, <span class="arithmatex">\(g\)</span> is a polynomial (for trend) or a Fourier series (for seasonality):</p>
+<ul>
+<li>Trend basis: <span class="arithmatex">\(\hat{y}_t = \sum_{i=0}^{p} \theta_i\, t^i\)</span>.</li>
+<li>Seasonality basis: <span class="arithmatex">\(\hat{y}_t = \sum_{i=0}^{H/2-1} \theta_i^{(c)} \cos(2\pi i t / H) + \theta_i^{(s)} \sin(2\pi i t / H)\)</span>.</li>
+</ul>
+<h3 id="82-stacking-and-residuals">8.2 Stacking and residuals<a class="headerlink" href="#82-stacking-and-residuals" title="Permanent link">&para;</a></h3>
+<p>Blocks are stacked. Each block subtracts its backcast from the input before passing it on, so later blocks see only what previous blocks failed to explain. The forecasts of all blocks are summed:</p>
+<div class="arithmatex">\[
+\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \hat{\mathbf{x}}^{(k)}, \qquad
+\hat{\mathbf{y}}^{\text{total}} = \sum_k \hat{\mathbf{y}}^{(k)}.
+\]</div>
+<p>This residual structure is what makes N-BEATS interpretable: the trend stack captures slow drift, the seasonality stack captures repeating patterns, and the "generic" stack captures whatever is left.</p>
+<h3 id="83-training-one-with-neuralforecast">8.3 Training one with <code>neuralforecast</code><a class="headerlink" href="#83-training-one-with-neuralforecast" title="Permanent link">&para;</a></h3>
+<p>The Nixtla <code>neuralforecast</code> library wraps all of this in a one-line model definition. It expects the data in <strong>long form</strong> with three required columns:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>unique_id</code></td>
+<td>An identifier for the series (since the library can train on many series at once).</td>
+</tr>
+<tr>
+<td><code>ds</code></td>
+<td>The timestamp.</td>
+</tr>
+<tr>
+<td><code>y</code></td>
+<td>The value to forecast.</td>
+</tr>
+</tbody>
+</table>
+<p>Below we reshape our log-volume series into that format and train an N-BEATS model with a forecast horizon of 30 business days. We use a small <code>max_steps</code> so it trains in seconds rather than minutes - in production you would use several thousand steps.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Reshape log_volume into the long-form (unique_id, ds, y) layout that Nixtla expects.</span>
+<span class="n">H</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># forecast horizon (business days)</span>
+
+<span class="n">nf_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;unique_id&quot;</span><span class="p">:</span> <span class="s2">&quot;VOL&quot;</span><span class="p">,</span>                         <span class="c1"># one series, called VOL</span>
+    <span class="s2">&quot;ds&quot;</span><span class="p">:</span>        <span class="n">log_volume</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="s2">&quot;y&quot;</span><span class="p">:</span>         <span class="n">log_volume</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="n">train_df</span> <span class="o">=</span> <span class="n">nf_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="n">H</span><span class="p">]</span>
+<span class="n">test_df</span>  <span class="o">=</span> <span class="n">nf_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">H</span><span class="p">:]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">train_df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Training rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span><span class="si">}</span><span class="s2">    Test rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test_df</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>  unique_id         ds          y
+0       VOL 2024-01-01  14.200597
+1       VOL 2024-01-02  13.752318
+2       VOL 2024-01-03  13.966875
+3       VOL 2024-01-04  13.737001
+4       VOL 2024-01-05  14.222556
+
+Training rows: 493    Test rows: 30
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Train an N-BEATS model. The `freq=&quot;B&quot;` argument tells Nixtla we are using business days.</span>
+<span class="c1"># `input_size` is the look-back window length the model gets to see.</span>
+<span class="n">nbeats_model</span> <span class="o">=</span> <span class="n">NBEATS</span><span class="p">(</span>
+    <span class="n">h</span><span class="o">=</span><span class="n">H</span><span class="p">,</span>
+    <span class="n">input_size</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="n">H</span><span class="p">,</span>        <span class="c1"># look back 90 business days</span>
+    <span class="n">max_steps</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>           <span class="c1"># small; bump up to a few thousand for real use</span>
+    <span class="n">val_check_steps</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+    <span class="n">scaler_type</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">nf</span> <span class="o">=</span> <span class="n">NeuralForecast</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="n">nbeats_model</span><span class="p">],</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">)</span>
+<span class="n">nf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">train_df</span><span class="p">)</span>
+
+<span class="n">nbeats_fc</span> <span class="o">=</span> <span class="n">nf</span><span class="o">.</span><span class="n">predict</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nbeats_fc</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Seed set to 42
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+</code></pre></div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold">   </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> Name         </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> Type          </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> Params </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> Mode  </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> FLOPs </span>┃
+┡━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 0 </span>│ loss         │ MAE           │      0 │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 1 </span>│ padder_train │ ConstantPad1d │      0 │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 2 </span>│ scaler       │ TemporalNorm  │      0 │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 3 </span>│ blocks       │ ModuleList    │  2.6 M │ train │     0 │
+└───┴──────────────┴───────────────┴────────┴───────┴───────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Trainable params</span>: 2.6 M                                                                                            
+<span style="font-weight: bold">Non-trainable params</span>: 7.3 K                                                                                        
+<span style="font-weight: bold">Total params</span>: 2.6 M                                                                                                
+<span style="font-weight: bold">Total estimated model params size (MB)</span>: 10                                                                         
+<span style="font-weight: bold">Modules in train mode</span>: 31                                                                                          
+<span style="font-weight: bold">Modules in eval mode</span>: 0                                                                                            
+<span style="font-weight: bold">Total FLOPs</span>: 0                                                                                                     
+</pre>
+
+<div class="highlight"><pre><span></span><code>`Trainer.fit` stopped: `max_steps=200` reached.
+</code></pre></div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+
+<div class="highlight"><pre><span></span><code>GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+</code></pre></div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+
+<div class="highlight"><pre><span></span><code>  unique_id         ds     NBEATS
+0       VOL 2025-11-20  13.901414
+1       VOL 2025-11-21  13.913710
+2       VOL 2025-11-24  14.035612
+3       VOL 2025-11-25  13.761031
+4       VOL 2025-11-26  13.759041
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Compare the N-BEATS forecast to the actual held-out values.</span>
+<span class="n">mae_nbeats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">nbeats_fc</span><span class="p">[</span><span class="s2">&quot;NBEATS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;N-BEATS out-of-sample MAE on log volume: </span><span class="si">{</span><span class="n">mae_nbeats</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">H</span><span class="p">:],</span> <span class="n">train_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">H</span><span class="p">:],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span>
+         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;recent history&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">test_df</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">],</span> <span class="n">test_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;actual&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">nbeats_fc</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">],</span> <span class="n">nbeats_fc</span><span class="p">[</span><span class="s2">&quot;NBEATS&quot;</span><span class="p">],</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span>
+         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;N-BEATS forecast&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;N-BEATS forecast of log volume (Nixtla `neuralforecast`)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;log volume&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>N-BEATS out-of-sample MAE on log volume: 0.1421
+</code></pre></div>
+<p><img alt="png" src="../TimeSeriesModels_files/TimeSeriesModels_28_1.png" /></p>
+<p>N-BEATS picks up the weekly rhythm and tracks the level reasonably well even with very limited training. Three things to try yourself:</p>
+<ul>
+<li>Bump <code>max_steps</code> up to a few thousand. Quality usually improves smoothly with training.</li>
+<li>Swap <code>NBEATS</code> for <code>NHITS</code> (also from <code>neuralforecast.models</code>) - it is the next-generation cousin of N-BEATS that handles long horizons better.</li>
+<li>Train on multiple stocks at once by stacking them in the same long-form DataFrame, each with its own <code>unique_id</code>. The same <code>nf.fit()</code> call handles many series in parallel - this is the practical superpower of cross-series neural forecasting.</li>
+</ul>
+<h2 id="9-the-temporal-fusion-transformer-tft">9. The Temporal Fusion Transformer (TFT)<a class="headerlink" href="#9-the-temporal-fusion-transformer-tft" title="Permanent link">&para;</a></h2>
+<p>TFT (Lim et al., 2021) was designed for <strong>multi-horizon, multi-input</strong> forecasting where you have a mix of:</p>
+<ul>
+<li><em>Past observations</em> of the target series (e.g. price history).</li>
+<li><em>Past covariates</em> whose values you observed (e.g. realised volume, RSI).</li>
+<li><em>Known future inputs</em> (calendar features, scheduled events).</li>
+<li><em>Static covariates</em> (which stock, which store, which country).</li>
+</ul>
+<h3 id="91-building-blocks">9.1 Building blocks<a class="headerlink" href="#91-building-blocks" title="Permanent link">&para;</a></h3>
+<p>The TFT pipeline can be summarised in five stages:</p>
+<ol>
+<li><strong>Variable-selection networks.</strong> A small gated network at each time step decides which of the many input variables to weight up or down. This is how TFT achieves feature importance.</li>
+<li><strong>Static covariate encoders.</strong> Static features (e.g. "ticker symbol") are encoded once and used to <em>condition</em> every other component.</li>
+<li><strong>Local processing with an LSTM.</strong> A sequence-to-sequence LSTM gives a strong baseline for short-term temporal patterns.</li>
+<li><strong>Multi-head attention over time.</strong> A transformer head looks at the entire history at once. Crucially, the attention weights are <strong>interpretable</strong> - you can read off which past time steps mattered most for each forecast.</li>
+<li><strong>Quantile output head.</strong> Instead of producing a single number, TFT predicts several quantiles (<span class="arithmatex">\(q_{0.1}, q_{0.5}, q_{0.9}\)</span>, etc.) so you get a forecast distribution. The training loss is the <strong>pinball loss</strong>:</li>
+</ol>
+<div class="arithmatex">\[
+\mathcal{L}_q(y, \hat{y}) = \begin{cases} q\, (y - \hat{y}) &amp; \text{if } y \geq \hat{y}, \\ (1 - q)(\hat{y} - y) &amp; \text{if } y &lt; \hat{y}. \end{cases}
+\]</div>
+<p>Pinball loss is what allows a single network to be trained to predict any quantile, including the median (q = 0.5).</p>
+<h3 id="92-training-a-tft-with-neuralforecast">9.2 Training a TFT with <code>neuralforecast</code><a class="headerlink" href="#92-training-a-tft-with-neuralforecast" title="Permanent link">&para;</a></h3>
+<p>Just like N-BEATS, the Nixtla wrapper hides almost all of the architectural complexity. The interesting choice we make here is the loss: <code>MQLoss(level=[80, 90])</code> asks the model to predict three quantiles - the median and the lower/upper bounds of 80% and 90% prediction intervals - using pinball loss for each.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Forecast log returns with a TFT, asking for 80% and 90% prediction intervals.</span>
+<span class="n">returns_long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;unique_id&quot;</span><span class="p">:</span> <span class="s2">&quot;RET&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ds&quot;</span><span class="p">:</span>        <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;log_return&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="s2">&quot;y&quot;</span><span class="p">:</span>         <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;log_return&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="n">H_ret</span>  <span class="o">=</span> <span class="mi">30</span>
+<span class="n">ret_train</span> <span class="o">=</span> <span class="n">returns_long</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="n">H_ret</span><span class="p">]</span>
+<span class="n">ret_test</span>  <span class="o">=</span> <span class="n">returns_long</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">H_ret</span><span class="p">:]</span>
+
+<span class="n">tft_model</span> <span class="o">=</span> <span class="n">TFT</span><span class="p">(</span>
+    <span class="n">h</span><span class="o">=</span><span class="n">H_ret</span><span class="p">,</span>
+    <span class="n">input_size</span><span class="o">=</span><span class="mi">4</span> <span class="o">*</span> <span class="n">H_ret</span><span class="p">,</span>
+    <span class="n">loss</span><span class="o">=</span><span class="n">MQLoss</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">90</span><span class="p">]),</span>     <span class="c1"># pinball loss for the median + 80% + 90% intervals</span>
+    <span class="n">max_steps</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+    <span class="n">val_check_steps</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+    <span class="n">scaler_type</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span>
+    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">nf_tft</span> <span class="o">=</span> <span class="n">NeuralForecast</span><span class="p">(</span><span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="n">tft_model</span><span class="p">],</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">)</span>
+<span class="n">nf_tft</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">ret_train</span><span class="p">)</span>
+
+<span class="n">tft_fc</span> <span class="o">=</span> <span class="n">nf_tft</span><span class="o">.</span><span class="n">predict</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tft_fc</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Quantile columns produced by TFT:&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">tft_fc</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;TFT&quot;</span><span class="p">)])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Seed set to 42
+GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+</code></pre></div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━┓
+┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold">   </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> Name                    </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> Type                     </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> Params </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> Mode  </span>┃<span style="color: #800080; text-decoration-color: #800080; font-weight: bold"> FLOPs </span>┃
+┡━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━┩
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 0 </span>│ loss                    │ MQLoss                   │      5 │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 1 </span>│ padder_train            │ ConstantPad1d            │      0 │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 2 </span>│ scaler                  │ TemporalNorm             │      0 │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 3 </span>│ embedding               │ TFTEmbedding             │    512 │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 4 </span>│ temporal_encoder        │ TemporalCovariateEncoder │  613 K │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 5 </span>│ temporal_fusion_decoder │ TemporalFusionDecoder    │  256 K │ train │     0 │
+│<span style="color: #7f7f7f; text-decoration-color: #7f7f7f"> 6 </span>│ output_adapter          │ Linear                   │    645 │ train │     0 │
+└───┴─────────────────────────┴──────────────────────────┴────────┴───────┴───────┘
+</pre>
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">Trainable params</span>: 870 K                                                                                            
+<span style="font-weight: bold">Non-trainable params</span>: 5                                                                                            
+<span style="font-weight: bold">Total params</span>: 870 K                                                                                                
+<span style="font-weight: bold">Total estimated model params size (MB)</span>: 3                                                                          
+<span style="font-weight: bold">Modules in train mode</span>: 88                                                                                          
+<span style="font-weight: bold">Modules in eval mode</span>: 0                                                                                            
+<span style="font-weight: bold">Total FLOPs</span>: 0                                                                                                     
+</pre>
+
+<div class="highlight"><pre><span></span><code>`Trainer.fit` stopped: `max_steps=200` reached.
+</code></pre></div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+
+<div class="highlight"><pre><span></span><code>GPU available: True (mps), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+</code></pre></div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+
+<div class="highlight"><pre><span></span><code>  unique_id         ds  TFT-median  TFT-lo-90  TFT-lo-80  TFT-hi-80  TFT-hi-90
+0       RET 2025-11-20    0.001595  -0.025177  -0.022354   0.028162   0.034207
+1       RET 2025-11-21   -0.000991  -0.027397  -0.024017   0.026000   0.033592
+2       RET 2025-11-24   -0.002093  -0.028847  -0.024570   0.024702   0.032879
+3       RET 2025-11-25   -0.002773  -0.029817  -0.024708   0.023822   0.032110
+4       RET 2025-11-26   -0.003079  -0.030565  -0.024800   0.023357   0.031579
+
+Quantile columns produced by TFT: [&#39;TFT-median&#39;, &#39;TFT-lo-90&#39;, &#39;TFT-lo-80&#39;, &#39;TFT-hi-80&#39;, &#39;TFT-hi-90&#39;]
+</code></pre></div>
+<h3 id="93-reading-the-tft-output">9.3 Reading the TFT output<a class="headerlink" href="#93-reading-the-tft-output" title="Permanent link">&para;</a></h3>
+<p>Notice the difference compared to ARIMA: the model produces a <strong>forecast distribution</strong>, not a single number. The 80% and 90% intervals widen with the horizon, which is exactly what we want a quantile forecast to do.</p>
+<p>Practical note: in finance, the gap between the 0.1 and 0.9 quantiles is usually a more useful number than the median. It tells you the range your portfolio should be prepared for, not just the most likely outcome.</p>
+<p>What we did <em>not</em> do here that would help on real data:</p>
+<ul>
+<li>Pass past covariates with <code>hist_exog_list=["volume", "rsi_14"]</code>. Each row of the long-form DataFrame would carry those extra columns.</li>
+<li>Pass static metadata like a ticker symbol with <code>static_features</code>.</li>
+<li>Train across many series at once - TFT really shines when it can learn shared structure across hundreds or thousands of related series.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Plot the TFT median plus the 80% and 90% prediction intervals.</span>
+<span class="n">median_col</span> <span class="o">=</span> <span class="s2">&quot;TFT-median&quot;</span>
+<span class="n">lo80_col</span> <span class="o">=</span> <span class="s2">&quot;TFT-lo-80&quot;</span><span class="p">;</span>  <span class="n">hi80_col</span> <span class="o">=</span> <span class="s2">&quot;TFT-hi-80&quot;</span>
+<span class="n">lo90_col</span> <span class="o">=</span> <span class="s2">&quot;TFT-lo-90&quot;</span><span class="p">;</span>  <span class="n">hi90_col</span> <span class="o">=</span> <span class="s2">&quot;TFT-hi-90&quot;</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ret_train</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">H_ret</span><span class="p">:],</span> <span class="n">ret_train</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">H_ret</span><span class="p">:],</span>
+         <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;recent history&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ret_test</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">],</span> <span class="n">ret_test</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;actual log return&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tft_fc</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">],</span> <span class="n">tft_fc</span><span class="p">[</span><span class="n">median_col</span><span class="p">],</span> <span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span>
+         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TFT median forecast&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">tft_fc</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">],</span> <span class="n">tft_fc</span><span class="p">[</span><span class="n">lo90_col</span><span class="p">],</span> <span class="n">tft_fc</span><span class="p">[</span><span class="n">hi90_col</span><span class="p">],</span>
+                 <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;90</span><span class="si">% i</span><span class="s2">nterval&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">tft_fc</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">],</span> <span class="n">tft_fc</span><span class="p">[</span><span class="n">lo80_col</span><span class="p">],</span> <span class="n">tft_fc</span><span class="p">[</span><span class="n">hi80_col</span><span class="p">],</span>
+                 <span class="n">alpha</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;80</span><span class="si">% i</span><span class="s2">nterval&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;TFT quantile forecast of daily log returns&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;log return&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">mae_tft</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ret_test</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">tft_fc</span><span class="p">[</span><span class="n">median_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;TFT median MAE on log returns: </span><span class="si">{</span><span class="n">mae_tft</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeriesModels_files/TimeSeriesModels_33_0.png" /></p>
+<div class="highlight"><pre><span></span><code>TFT median MAE on log returns: 0.02000
+</code></pre></div>
+<h2 id="10-hierarchical-forecasting">10. Hierarchical forecasting<a class="headerlink" href="#10-hierarchical-forecasting" title="Permanent link">&para;</a></h2>
+<p>So far we have forecast a single series at a time. In reality, time-series problems often come with a <strong>hierarchy</strong>:</p>
+<div class="highlight"><pre><span></span><code>                   Total
+                    /  \
+                Equity   Bonds
+                /  \      /  \
+            Tech  Bank  Govt Corp
+</code></pre></div>
+<p>Each level is the sum of the level below it. We want all levels to be forecast well, <em>and</em> we want the forecasts at different levels to be <strong>coherent</strong> - the forecast of "Total" should equal the sum of the forecasts of "Tech", "Bank", "Govt", and "Corp". If we forecast each level independently, that almost never holds.</p>
+<p>The standard fix is <strong>reconciliation</strong>: we forecast every level independently, then adjust them so that they add up.</p>
+<h3 id="101-the-summing-matrix">10.1 The summing matrix<a class="headerlink" href="#101-the-summing-matrix" title="Permanent link">&para;</a></h3>
+<p>If there are <span class="arithmatex">\(m\)</span> bottom-level series (the leaves) and <span class="arithmatex">\(n\)</span> total series including all aggregates, we collect every level into a single vector <span class="arithmatex">\(\mathbf{y}_t \in \mathbb{R}^n\)</span>. The aggregation can be written</p>
+<div class="arithmatex">\[
+\mathbf{y}_t = S\, \mathbf{b}_t,
+\]</div>
+<p>where <span class="arithmatex">\(\mathbf{b}_t \in \mathbb{R}^m\)</span> is the bottom level and <span class="arithmatex">\(S \in \{0, 1\}^{n \times m}\)</span> is the <strong>summing matrix</strong> that adds up the right rows.</p>
+<h3 id="102-reconciliation-methods">10.2 Reconciliation methods<a class="headerlink" href="#102-reconciliation-methods" title="Permanent link">&para;</a></h3>
+<p>Given independent base forecasts <span class="arithmatex">\(\hat{\mathbf{y}}_t\)</span> at every level, the reconciled forecast is</p>
+<div class="arithmatex">\[
+\tilde{\mathbf{y}}_t = S\, P\, \hat{\mathbf{y}}_t,
+\]</div>
+<p>for some projection matrix <span class="arithmatex">\(P\)</span>. Choices of <span class="arithmatex">\(P\)</span> correspond to different methods:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bottom-up</td>
+<td>Use only the leaf forecasts; sum them up to get every aggregate.</td>
+</tr>
+<tr>
+<td>Top-down</td>
+<td>Use the top forecast; split it according to historical proportions.</td>
+</tr>
+<tr>
+<td>OLS / MinT</td>
+<td>Use information from all levels and combine them optimally.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="103-doing-it-with-hierarchicalforecast">10.3 Doing it with <code>hierarchicalforecast</code><a class="headerlink" href="#103-doing-it-with-hierarchicalforecast" title="Permanent link">&para;</a></h3>
+<p>The Nixtla <code>hierarchicalforecast</code> package automates the whole pipeline:</p>
+<ol>
+<li>Build a long-form DataFrame of leaf-level series.</li>
+<li><code>aggregate(...)</code> constructs the aggregated series and the summing matrix <code>S</code> for you.</li>
+<li>Use <code>StatsForecast</code> (or any other forecaster) to get base forecasts at every level.</li>
+<li><code>HierarchicalReconciliation(reconcilers=[...])</code> reconciles them into coherent forecasts in one call.</li>
+</ol>
+<p>We will build a small two-level hierarchy: <code>total = tech + bank</code>, where <code>tech = tech_a + tech_b</code> and <code>bank = bank_a + bank_b</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build four leaf-level series by perturbing our synthetic stock series.</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stock</span><span class="p">)</span>
+<span class="n">leaf_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;tech_a&quot;</span><span class="p">:</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span>
+    <span class="s2">&quot;tech_b&quot;</span><span class="p">:</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span>
+    <span class="s2">&quot;bank_a&quot;</span><span class="p">:</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">0.7</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span>
+    <span class="s2">&quot;bank_b&quot;</span><span class="p">:</span> <span class="n">stock</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">0.7</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">0.02</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span>
+<span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">stock</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+<span class="c1"># Reshape to long form, with a `sector` column that encodes the hierarchy.</span>
+<span class="n">long_rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">leaf_data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="n">sector</span> <span class="o">=</span> <span class="s2">&quot;tech&quot;</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tech&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;bank&quot;</span>
+    <span class="n">long_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;sector&quot;</span><span class="p">:</span> <span class="n">sector</span><span class="p">,</span>
+        <span class="s2">&quot;stock&quot;</span><span class="p">:</span>  <span class="n">col</span><span class="p">,</span>
+        <span class="s2">&quot;ds&quot;</span><span class="p">:</span>     <span class="n">leaf_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="s2">&quot;y&quot;</span><span class="p">:</span>      <span class="n">leaf_data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+    <span class="p">}))</span>
+<span class="n">leaves_long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">long_rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">leaves_long</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">leaves_long</span><span class="p">)</span><span class="si">}</span><span class="s2">  (4 stocks x </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> days)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>  sector   stock         ds           y
+0   tech  tech_a 2024-01-01   99.984832
+1   tech  tech_a 2024-01-02  100.362041
+2   tech  tech_a 2024-01-03   99.230994
+3   tech  tech_a 2024-01-04  100.142984
+4   tech  tech_a 2024-01-05  101.447808
+
+Total rows: 2092  (4 stocks x 523 days)
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># `aggregate` builds (1) the long-form DataFrame at every hierarchy level,</span>
+<span class="c1"># (2) the summing matrix S, and (3) a tags dictionary that names each level.</span>
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s2">&quot;sector&quot;</span><span class="p">],</span>            <span class="c1"># level 1: sector totals (tech, bank)</span>
+    <span class="p">[</span><span class="s2">&quot;sector&quot;</span><span class="p">,</span> <span class="s2">&quot;stock&quot;</span><span class="p">],</span>   <span class="c1"># level 2: leaf stocks</span>
+<span class="p">]</span>
+<span class="n">Y_df</span><span class="p">,</span> <span class="n">S_df</span><span class="p">,</span> <span class="n">tags</span> <span class="o">=</span> <span class="n">aggregate</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">leaves_long</span><span class="p">,</span> <span class="n">spec</span><span class="o">=</span><span class="n">spec</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hierarchy levels and their series:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">level</span><span class="p">,</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">level</span><span class="si">:</span><span class="s2">14s</span><span class="si">}</span><span class="s2"> -&gt;  </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Summing matrix S (rows = series in hierarchy, columns = leaves):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">S_df</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Hierarchy levels and their series:
+  sector         -&gt;  [&#39;bank&#39;, &#39;tech&#39;]
+  sector/stock   -&gt;  [&#39;bank/bank_a&#39;, &#39;bank/bank_b&#39;, &#39;tech/tech_a&#39;, &#39;tech/tech_b&#39;]
+
+Summing matrix S (rows = series in hierarchy, columns = leaves):
+     unique_id  bank/bank_a  bank/bank_b  tech/tech_a  tech/tech_b
+0         bank          1.0          1.0          0.0          0.0
+1         tech          0.0          0.0          1.0          1.0
+2  bank/bank_a          1.0          0.0          0.0          0.0
+3  bank/bank_b          0.0          1.0          0.0          0.0
+4  tech/tech_a          0.0          0.0          1.0          0.0
+5  tech/tech_b          0.0          0.0          0.0          1.0
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Step 1: produce independent base forecasts for every series in the hierarchy</span>
+<span class="c1"># using `statsforecast` with AutoARIMA. We hold back the last 30 business days as test.</span>
+<span class="n">H_h</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">Y_train</span> <span class="o">=</span> <span class="n">Y_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;unique_id&quot;</span><span class="p">,</span> <span class="n">group_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="n">H_h</span><span class="p">])</span>
+<span class="n">Y_test</span>  <span class="o">=</span> <span class="n">Y_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;unique_id&quot;</span><span class="p">,</span> <span class="n">group_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">H_h</span><span class="p">:])</span>
+
+<span class="n">sf</span> <span class="o">=</span> <span class="n">StatsForecast</span><span class="p">(</span>
+    <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="n">AutoARIMA</span><span class="p">(</span><span class="n">season_length</span><span class="o">=</span><span class="mi">5</span><span class="p">)],</span>
+    <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">base_fc</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">forecast</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">Y_train</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">H_h</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">base_fc</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Base forecast rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">base_fc</span><span class="p">)</span><span class="si">}</span><span class="s2">  (= </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> levels with their series x </span><span class="si">{</span><span class="n">H_h</span><span class="si">}</span><span class="s2"> days, more or less)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>  unique_id         ds   AutoARIMA
+0      bank 2025-11-20  176.554823
+1      bank 2025-11-21  176.554823
+2      bank 2025-11-24  176.554823
+3      bank 2025-11-25  176.554823
+4      bank 2025-11-26  176.554823
+
+Base forecast rows: 180  (= 3 levels with their series x 30 days, more or less)
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Step 2: reconcile the base forecasts so they are coherent across levels.</span>
+<span class="c1"># We compare three reconcilers in one call.</span>
+<span class="n">reconcilers</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">BottomUp</span><span class="p">(),</span>
+    <span class="n">TopDown</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;forecast_proportions&quot;</span><span class="p">),</span>
+    <span class="n">MinTrace</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ols&quot;</span><span class="p">),</span>     <span class="c1"># the optimal-combination method</span>
+<span class="p">]</span>
+
+<span class="n">hrec</span> <span class="o">=</span> <span class="n">HierarchicalReconciliation</span><span class="p">(</span><span class="n">reconcilers</span><span class="o">=</span><span class="n">reconcilers</span><span class="p">)</span>
+<span class="n">reconciled</span> <span class="o">=</span> <span class="n">hrec</span><span class="o">.</span><span class="n">reconcile</span><span class="p">(</span>
+    <span class="n">Y_hat_df</span><span class="o">=</span><span class="n">base_fc</span><span class="p">,</span>
+    <span class="n">Y_df</span><span class="o">=</span><span class="n">Y_train</span><span class="p">,</span>
+    <span class="n">S_df</span><span class="o">=</span><span class="n">S_df</span><span class="p">,</span>
+    <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">reconciled</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>  unique_id         ds   AutoARIMA  AutoARIMA/BottomUp  \
+0      bank 2025-11-20  176.554823          176.554811   
+1      bank 2025-11-21  176.554823          176.554811   
+2      bank 2025-11-24  176.554823          176.554811   
+3      bank 2025-11-25  176.554823          176.554811   
+4      bank 2025-11-26  176.554823          176.554811
+
+   AutoARIMA/TopDown_method-forecast_proportions  \
+0                                     176.554823   
+1                                     176.554823   
+2                                     176.554823   
+3                                     176.554823   
+4                                     176.554823
+
+   AutoARIMA/MinTrace_method-ols  
+0                     176.554819  
+1                     176.554819  
+2                     176.554819  
+3                     176.554819  
+4                     176.554819
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Coherence check on the very first forecast horizon: does total = tech + bank</span>
+<span class="c1"># under each reconciler?</span>
+<span class="n">first_day</span> <span class="o">=</span> <span class="n">reconciled</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">day1</span> <span class="o">=</span> <span class="n">reconciled</span><span class="p">[</span><span class="n">reconciled</span><span class="p">[</span><span class="s2">&quot;ds&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">first_day</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;unique_id&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Forecast for </span><span class="si">{</span><span class="n">first_day</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;AutoARIMA&quot;</span><span class="p">,</span> <span class="s2">&quot;AutoARIMA/BottomUp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AutoARIMA/TopDown_method-forecast_proportions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AutoARIMA/MinTrace_method-ols&quot;</span><span class="p">]:</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">col</span> <span class="k">else</span> <span class="s2">&quot;base (un-reconciled)&quot;</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">day1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;sector/stock&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;sector/stock&quot;</span> <span class="ow">in</span> <span class="n">day1</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">tech</span>  <span class="o">=</span> <span class="n">day1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;tech&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>   <span class="k">if</span> <span class="s2">&quot;tech&quot;</span>   <span class="ow">in</span> <span class="n">day1</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">bank</span>  <span class="o">=</span> <span class="n">day1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;bank&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>   <span class="k">if</span> <span class="s2">&quot;bank&quot;</span>   <span class="ow">in</span> <span class="n">day1</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">leaves_sum</span> <span class="o">=</span> <span class="p">(</span><span class="n">day1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;tech/tech_a&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">+</span> <span class="n">day1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;tech/tech_b&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span>
+                 <span class="o">+</span> <span class="n">day1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;bank/bank_a&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">+</span> <span class="n">day1</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;bank/bank_b&quot;</span><span class="p">][</span><span class="n">col</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    tech            = </span><span class="si">{</span><span class="n">tech</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    bank            = </span><span class="si">{</span><span class="n">bank</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    sum of 4 leaves = </span><span class="si">{</span><span class="n">leaves_sum</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    tech + bank     = </span><span class="si">{</span><span class="n">tech</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bank</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">    &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;(should equal sum of leaves under bottom-up / MinT)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Forecast for 2025-11-20:
+
+  base (un-reconciled)
+    tech            = 239.62
+    bank            = 176.55
+    sum of 4 leaves = 416.17
+    tech + bank     = 416.17    (should equal sum of leaves under bottom-up / MinT)
+
+  BottomUp
+    tech            = 239.62
+    bank            = 176.55
+    sum of 4 leaves = 416.17
+    tech + bank     = 416.17    (should equal sum of leaves under bottom-up / MinT)
+
+  TopDown_method-forecast_proportions
+    tech            = 239.62
+    bank            = 176.55
+    sum of 4 leaves = 416.17
+    tech + bank     = 416.17    (should equal sum of leaves under bottom-up / MinT)
+
+  MinTrace_method-ols
+    tech            = 239.62
+    bank            = 176.55
+    sum of 4 leaves = 416.17
+    tech + bank     = 416.17    (should equal sum of leaves under bottom-up / MinT)
+</code></pre></div>
+<p>After reconciliation, "tech + bank" matches the sum of all four leaf forecasts under both bottom-up and MinT - the hierarchy is now coherent. The base AutoARIMA forecasts on their own would not satisfy this, because each was fit independently.</p>
+<p>The choice between methods is a question of where you trust your data most:</p>
+<ul>
+<li><strong>Bottom-up</strong> (<code>BottomUp</code>) is the right choice when leaf-level data is reliable.</li>
+<li><strong>Top-down</strong> (<code>TopDown(method="forecast_proportions")</code>) works when only the aggregate is well-measured.</li>
+<li><strong>OLS / MinT</strong> (<code>MinTrace(method="ols" | "wls_struct" | "wls_var" | "mint_shrink" | "mint_cov")</code>) combines information from every level using a covariance estimate of the base forecast errors. It is usually the best default in production.</li>
+</ul>
+<p>In real portfolio management, hierarchical reconciliation is what keeps "predicted total revenue" equal to "predicted revenue per region summed up", which auditors and finance teams care about deeply. The Nixtla <code>hierarchicalforecast</code> library makes the whole pipeline a few lines of code regardless of how deep your hierarchy is.</p>
+<h2 id="11-summary">11. Summary<a class="headerlink" href="#11-summary" title="Permanent link">&para;</a></h2>
+<p>In this notebook we covered the main families of time-series models, with simplified mathematics and a running stock-style example.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Captures</th>
+<th>How we ran it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AR(p)</td>
+<td>Persistence in the value</td>
+<td>Simulated by hand, ACF/PACF in <code>statsmodels</code>.</td>
+</tr>
+<tr>
+<td>MA(q)</td>
+<td>Lingering effect of past shocks</td>
+<td>Simulated by hand.</td>
+</tr>
+<tr>
+<td>ARMA(p, q)</td>
+<td>Both</td>
+<td>Special case of <code>statsmodels.tsa.arima.ARIMA</code>.</td>
+</tr>
+<tr>
+<td>ARIMA(p, d, q)</td>
+<td>Trend (via differencing) + ARMA</td>
+<td><code>statsmodels.tsa.arima.ARIMA</code>.</td>
+</tr>
+<tr>
+<td>SARIMA</td>
+<td>Trend + seasonality</td>
+<td><code>statsmodels.tsa.statespace.SARIMAX</code>.</td>
+</tr>
+<tr>
+<td>SARIMAX</td>
+<td>All of the above + exogenous regressors</td>
+<td><code>statsmodels.tsa.statespace.SARIMAX</code> with <code>exog</code>.</td>
+</tr>
+<tr>
+<td>N-BEATS</td>
+<td>Trend + seasonality via neural basis blocks</td>
+<td><code>neuralforecast.NBEATS</code>.</td>
+</tr>
+<tr>
+<td>TFT</td>
+<td>Multi-input, multi-horizon, quantile output</td>
+<td><code>neuralforecast.TFT</code> with <code>MQLoss</code>.</td>
+</tr>
+<tr>
+<td>Hierarchical reconciliation</td>
+<td>Coherence across levels</td>
+<td><code>hierarchicalforecast</code> with <code>BottomUp</code>, <code>TopDown</code>, <code>MinTrace</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>A few practical lessons:</p>
+<ul>
+<li>Start simple. ARIMA or SARIMA solves a surprising number of real problems.</li>
+<li>Always check residual diagnostics; a model is only as good as its residuals.</li>
+<li>Use a chronological train/test split. Never shuffle a time series.</li>
+<li>The Nixtla long-form data convention (<code>unique_id</code>, <code>ds</code>, <code>y</code>) is the same across <code>statsforecast</code>, <code>neuralforecast</code>, and <code>hierarchicalforecast</code>. Once you learn it, swapping models is almost trivial.</li>
+<li>For neural models, you usually need many series, not just one - feed them all in one DataFrame and let the model share parameters.</li>
+<li>For aggregated forecasts, reconcile. Stakeholders care about coherence.</li>
+</ul>
+<h3 id="suggested-next-steps">Suggested next steps<a class="headerlink" href="#suggested-next-steps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Apply this notebook to a real dataset: download daily OHLCV data for a stock or index from a public source and recompute the indicators. The Nixtla data layout makes this almost a copy-paste exercise.</li>
+<li>Try <code>AutoARIMA</code>, <code>AutoETS</code>, and <code>AutoTheta</code> from <code>statsforecast</code> as a fast classical baseline before reaching for neural models.</li>
+<li>Swap <code>NBEATS</code> for <code>NHITS</code> or <code>PatchTST</code> from <code>neuralforecast</code> and see if it improves accuracy.</li>
+<li>Read the original papers - they are short and surprisingly readable:</li>
+<li>Box and Jenkins (1970) for ARIMA.</li>
+<li>Oreshkin et al. (2019) for N-BEATS.</li>
+<li>Lim et al. (2021) for TFT.</li>
+<li>Hyndman et al. (2011) for hierarchical reconciliation.</li>
+<li>Browse the Nixtla documentation at <a href="https://nixtlaverse.nixtla.io">https://nixtlaverse.nixtla.io</a>; the tutorials there cover everything we touched on here, with real datasets.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../TimeSeries/" class="btn btn-neutral float-left" title="Time Series"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../TimeSeries/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

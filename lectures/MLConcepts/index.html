@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>ML / AI / DS Concepts - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "ML / AI / DS Concepts";
+        var mkdocs_page_input_path = "lectures/MLConcepts.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../StatisticsFoundations/">Statistical Foundations</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">ML / AI / DS Concepts</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#1-data-information-knowledge-wisdom">1. Data, Information, Knowledge, Wisdom</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-artificial-intelligence-machine-learning-deep-learning">2. Artificial Intelligence, Machine Learning, Deep Learning</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-where-does-data-science-fit-in">3. Where does Data Science fit in?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-types-of-machine-learning">4. Types of Machine Learning</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#41-supervised-learning">4.1 Supervised learning</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#42-unsupervised-learning">4.2 Unsupervised learning</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#43-reinforcement-learning">4.3 Reinforcement learning</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-common-vocabulary">5. Common Vocabulary</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-a-first-look-at-overfitting-and-underfitting">6. A first look at overfitting and underfitting</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-a-typical-machine-learning-workflow">7. A typical machine learning workflow</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#8-how-this-notebook-connects-to-the-rest-of-the-course">8. How this notebook connects to the rest of the course</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-quick-check">9. Quick check</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation & Regularization</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../TimeSeries/">Time Series</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../TimeSeriesModels/">Time Series Models</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">ML / AI / DS Concepts</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="machine-learning-concepts-a-gentle-overview">Machine Learning Concepts - A Gentle Overview<a class="headerlink" href="#machine-learning-concepts-a-gentle-overview" title="Permanent link">&para;</a></h1>
+<p>Before we start building actual models in the next notebook, it is worth taking some time to understand the words people use around this subject. Terms like <em>AI</em>, <em>machine learning</em>, <em>data science</em>, <em>supervised learning</em>, and <em>deep learning</em> often get used as if they were the same thing. They are related, but they are not interchangeable.</p>
+<p>This notebook is mostly about ideas. There is some code, but only enough to make a few of the concepts concrete. We will cover:</p>
+<ol>
+<li>The DIKW hierarchy: data, information, knowledge, and wisdom.</li>
+<li>What artificial intelligence is, and how machine learning fits inside it.</li>
+<li>What data science is, and how it overlaps with machine learning.</li>
+<li>The three main types of machine learning: supervised, unsupervised, and reinforcement learning.</li>
+<li>Common terms you will keep hearing: features, labels, training, testing, model, generalisation.</li>
+<li>A short note on where deep learning fits in.</li>
+</ol>
+<p>Take your time with the diagrams and tables. Most of the confusion in this field is just confusion about vocabulary.</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>We will only need a few libraries for the small examples below.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Libraries loaded.&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Libraries loaded.
+</code></pre></div>
+<h2 id="1-data-information-knowledge-wisdom">1. Data, Information, Knowledge, Wisdom<a class="headerlink" href="#1-data-information-knowledge-wisdom" title="Permanent link">&para;</a></h2>
+<p>Before we talk about machine learning we should be careful about the word <em>data</em>. Data on its own is rarely useful. There is a classical pyramid called the <strong>DIKW hierarchy</strong> that explains how raw numbers gradually become something we can act on.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>What it is</th>
+<th>Example from a college</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data</td>
+<td>Raw facts and figures with no context.</td>
+<td><code>72, 65, 88, 54, 90</code></td>
+</tr>
+<tr>
+<td>Information</td>
+<td>Data that has been organised or labelled.</td>
+<td>"These are the marks of five students in the Statistics exam."</td>
+</tr>
+<tr>
+<td>Knowledge</td>
+<td>Information combined with experience and understanding.</td>
+<td>"Most students who score below 60 struggled with the inferential part of the syllabus."</td>
+</tr>
+<tr>
+<td>Wisdom</td>
+<td>Knowledge applied to make good decisions.</td>
+<td>"Next semester we should spend an extra week on hypothesis testing before the mid-term."</td>
+</tr>
+</tbody>
+</table>
+<p>Machine learning operates mostly in the lower three levels. It takes data, organises it into information, and learns rules from that information that we can think of as a kind of knowledge. Whether we apply those rules wisely is still a human responsibility.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># A small demonstration of the difference between data and information.</span>
+
+<span class="c1"># Pure data: just numbers, no meaning.</span>
+<span class="n">raw_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">72</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">77</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">49</span><span class="p">,</span> <span class="mi">70</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data (just numbers):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">raw_numbers</span><span class="p">)</span>
+
+<span class="c1"># Information: the same numbers organised and labelled.</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;student&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;S</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)],</span>
+    <span class="s2">&quot;subject&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Statistics&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s2">&quot;marks&quot;</span><span class="p">:</span>   <span class="n">raw_numbers</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Information (organised, labelled, in context):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># A small piece of knowledge we can extract from the information.</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Knowledge: average marks = </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;marks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, &quot;</span>
+      <span class="sa">f</span><span class="s2">&quot;and </span><span class="si">{</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;marks&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> students scored below 60.&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Data (just numbers):
+[72, 65, 88, 54, 90, 61, 77, 83, 49, 70]
+
+Information (organised, labelled, in context):
+  student     subject  marks
+0     S01  Statistics     72
+1     S02  Statistics     65
+2     S03  Statistics     88
+3     S04  Statistics     54
+4     S05  Statistics     90
+5     S06  Statistics     61
+6     S07  Statistics     77
+7     S08  Statistics     83
+8     S09  Statistics     49
+9     S10  Statistics     70
+
+Knowledge: average marks = 70.9, and 2 students scored below 60.
+</code></pre></div>
+<h2 id="2-artificial-intelligence-machine-learning-deep-learning">2. Artificial Intelligence, Machine Learning, Deep Learning<a class="headerlink" href="#2-artificial-intelligence-machine-learning-deep-learning" title="Permanent link">&para;</a></h2>
+<p>These three terms are often used loosely. The simplest way to keep them straight is to remember that they are nested inside each other.</p>
+<p><strong>Artificial Intelligence (AI)</strong> is the broadest term. It refers to any technique that allows a computer to do things that we would normally consider intelligent: solving puzzles, understanding language, recognising images, playing games, planning routes, and so on. AI is older than most people think; it has existed as an academic field since the 1950s.</p>
+<p><strong>Machine Learning (ML)</strong> is a subset of AI. Instead of programming rules by hand, we give the computer many examples and let it figure out the rules itself. A spam filter that learns from past emails is an ML system; an old spam filter that uses a hand-written list of "bad words" is just classical AI.</p>
+<p><strong>Deep Learning (DL)</strong> is a subset of ML. It uses a particular family of models called <em>neural networks</em> with many layers. It is responsible for most of the recent excitement: image recognition, voice assistants, large language models, and so on.</p>
+<div class="highlight"><pre><span></span><code>+---------------------------------------------------+
+|  Artificial Intelligence                          |
+|  +---------------------------------------------+  |
+|  |  Machine Learning                           |  |
+|  |  +---------------------------------------+  |  |
+|  |  |  Deep Learning                        |  |  |
+|  |  +---------------------------------------+  |  |
+|  +---------------------------------------------+  |
++---------------------------------------------------+
+</code></pre></div>
+<p>A useful sentence to remember:</p>
+<blockquote>
+<p>All deep learning is machine learning, and all machine learning is artificial intelligence, but not the other way around.</p>
+</blockquote>
+<h2 id="3-where-does-data-science-fit-in">3. Where does Data Science fit in?<a class="headerlink" href="#3-where-does-data-science-fit-in" title="Permanent link">&para;</a></h2>
+<p>Data science is a slightly different beast. It is less a single technique and more a collection of skills used to work with data end to end. A typical data scientist's day might involve:</p>
+<ul>
+<li>Collecting data from databases, APIs, or files.</li>
+<li>Cleaning and reshaping that data.</li>
+<li>Exploring it visually to understand what is there.</li>
+<li>Applying statistics or machine learning to answer a question.</li>
+<li>Communicating the results to people who are not programmers.</li>
+</ul>
+<p>The Venn diagram people usually draw looks like this:</p>
+<div class="highlight"><pre><span></span><code>                Mathematics &amp; Statistics
+                          /\
+                         /  \
+                        /    \
+   Computer Science ---|  DS  |--- Domain Knowledge
+                        \    /
+                         \  /
+                          \/
+</code></pre></div>
+<p>Machine learning sits inside this picture as one of the tools a data scientist might use. Some data science problems do not need machine learning at all - a well-made dashboard or a careful statistical test is often enough.</p>
+<table>
+<thead>
+<tr>
+<th>Discipline</th>
+<th>Main question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Statistics</td>
+<td>What does this data tell us, and how confident can we be?</td>
+</tr>
+<tr>
+<td>Machine learning</td>
+<td>Can a computer learn to predict or classify from this data?</td>
+</tr>
+<tr>
+<td>Data science</td>
+<td>What is the practical answer to the business or research question?</td>
+</tr>
+<tr>
+<td>Artificial intelligence</td>
+<td>Can a machine behave intelligently in this task?</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-types-of-machine-learning">4. Types of Machine Learning<a class="headerlink" href="#4-types-of-machine-learning" title="Permanent link">&para;</a></h2>
+<p>Machine learning is usually split into three big families based on what kind of data is available and what the goal is.</p>
+<h3 id="41-supervised-learning">4.1 Supervised learning<a class="headerlink" href="#41-supervised-learning" title="Permanent link">&para;</a></h3>
+<p>In supervised learning the data comes with a known answer for each example, called a <strong>label</strong>. The model's job is to learn the relationship between the inputs and the labels well enough to make predictions on new, unseen examples.</p>
+<p>Two common sub-types:</p>
+<table>
+<thead>
+<tr>
+<th>Sub-type</th>
+<th>Predicts</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Regression</td>
+<td>A number</td>
+<td>Predicting house price from house size.</td>
+</tr>
+<tr>
+<td>Classification</td>
+<td>A category</td>
+<td>Predicting whether an email is spam.</td>
+</tr>
+</tbody>
+</table>
+<p>Most of this course is about supervised learning.</p>
+<h3 id="42-unsupervised-learning">4.2 Unsupervised learning<a class="headerlink" href="#42-unsupervised-learning" title="Permanent link">&para;</a></h3>
+<p>In unsupervised learning, there are no labels. The model is given a pile of data and is asked to find structure in it on its own.</p>
+<table>
+<thead>
+<tr>
+<th>Sub-type</th>
+<th>Goal</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clustering</td>
+<td>Group similar items together</td>
+<td>Grouping customers by behaviour.</td>
+</tr>
+<tr>
+<td>Dimensionality reduction</td>
+<td>Compress data while keeping what matters</td>
+<td>Visualising high-dimensional data on a 2-D plot.</td>
+</tr>
+<tr>
+<td>Association</td>
+<td>Find rules that often hold together</td>
+<td>"People who buy bread often also buy butter."</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-reinforcement-learning">4.3 Reinforcement learning<a class="headerlink" href="#43-reinforcement-learning" title="Permanent link">&para;</a></h3>
+<p>Reinforcement learning is different again. There is an <strong>agent</strong> that acts in an <strong>environment</strong>. After each action the agent receives a numeric <strong>reward</strong> (or punishment) and the environment moves to a new state. The agent's job is to learn a strategy that earns the most reward over time.</p>
+<p>Examples:</p>
+<ul>
+<li>A program that learns to play chess by playing millions of games against itself.</li>
+<li>A robot that learns to walk by trying actions and being rewarded for moving forward.</li>
+<li>A recommendation system that learns to suggest videos you are likely to watch next.</li>
+</ul>
+<p>The key contrast: supervised learning is told the right answer for every example; reinforcement learning has to discover good behaviour through trial and error.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># A small picture to compare the three families.</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="c1"># Supervised: two clearly labelled groups.</span>
+<span class="n">x_a</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">50</span><span class="p">);</span> <span class="n">y_a</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">x_b</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">50</span><span class="p">);</span> <span class="n">y_b</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_a</span><span class="p">,</span> <span class="n">y_a</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;class A&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_b</span><span class="p">,</span> <span class="n">y_b</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;class B&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Supervised: data with labels&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Feature 1&quot;</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Feature 2&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="c1"># Unsupervised: same data points, but unlabelled.</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">x_a</span><span class="p">,</span> <span class="n">x_b</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">y_a</span><span class="p">,</span> <span class="n">y_b</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Unsupervised: no labels, find structure&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Feature 1&quot;</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Feature 2&quot;</span><span class="p">)</span>
+
+<span class="c1"># Reinforcement: a small grid where an agent moves towards a goal.</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span> <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;agent&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gold&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;goal (reward)&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">),(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">),(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">4</span><span class="p">,</span><span class="mi">3</span><span class="p">),(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">)]:</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Reinforcement: agent learns by doing&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../MLConcepts_files/MLConcepts_8_0.png" /></p>
+<p>These three pictures roughly correspond to the three learning settings:</p>
+<ul>
+<li><em>Supervised</em>: every point has a colour (a label). The job is to learn the boundary.</li>
+<li><em>Unsupervised</em>: no colours. The job is to notice that there are two natural groups.</li>
+<li><em>Reinforcement</em>: an agent navigating a small world, rewarded only when it reaches the goal.</li>
+</ul>
+<h2 id="5-common-vocabulary">5. Common Vocabulary<a class="headerlink" href="#5-common-vocabulary" title="Permanent link">&para;</a></h2>
+<p>Here are the terms that show up over and over again in this field. Spend a few minutes here; the rest of the course will be much easier if these are familiar.</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dataset</td>
+<td>A collection of examples we will learn from.</td>
+</tr>
+<tr>
+<td>Sample / Instance / Row</td>
+<td>One example in the dataset.</td>
+</tr>
+<tr>
+<td>Feature / Attribute / Input</td>
+<td>A property of an example used to make predictions.</td>
+</tr>
+<tr>
+<td>Label / Target / Output</td>
+<td>The answer we want to predict (only in supervised learning).</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>The mathematical object we train to make predictions.</td>
+</tr>
+<tr>
+<td>Algorithm</td>
+<td>The recipe used to fit the model to the data.</td>
+</tr>
+<tr>
+<td>Training set</td>
+<td>The portion of the data the model learns from.</td>
+</tr>
+<tr>
+<td>Test set</td>
+<td>A separate portion held back to evaluate how well the model has learned.</td>
+</tr>
+<tr>
+<td>Validation set</td>
+<td>A third portion used to tune choices like the learning rate.</td>
+</tr>
+<tr>
+<td>Prediction</td>
+<td>The model's output on a new input.</td>
+</tr>
+<tr>
+<td>Loss / Error</td>
+<td>A number that measures how wrong the model's predictions are.</td>
+</tr>
+<tr>
+<td>Overfitting</td>
+<td>The model memorised the training data and does poorly on new data.</td>
+</tr>
+<tr>
+<td>Underfitting</td>
+<td>The model is too simple and misses real patterns even on the training data.</td>
+</tr>
+<tr>
+<td>Generalisation</td>
+<td>How well the model performs on new, unseen examples.</td>
+</tr>
+</tbody>
+</table>
+<p>The single most important idea here is the difference between <strong>training</strong> and <strong>testing</strong>. We never judge a model only by how well it does on the data it was trained on. We always hold some data back, and the model's score on that held-back data is what we trust.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># A toy dataset: hours studied (feature) and whether the student passed (label).</span>
+<span class="n">hours</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">passed</span> <span class="o">=</span> <span class="p">(</span><span class="n">hours</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">:</span> <span class="n">hours</span><span class="p">,</span> <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="n">passed</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First few rows of our toy dataset:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">In the language of this section:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Number of samples (rows)   : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Feature (input)            : &#39;hours_studied&#39;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Label   (target output)    : &#39;passed&#39; (1 = yes, 0 = no)&quot;</span><span class="p">)</span>
+
+<span class="c1"># A simple 70/30 train-test split.</span>
+<span class="n">train</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">test</span>  <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">train</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Training set size : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test set size     : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>First few rows of our toy dataset:
+   hours_studied  passed
+0            0.1       0
+1            2.3       0
+2            1.3       0
+3            6.8       1
+4            1.2       0
+
+In the language of this section:
+  Number of samples (rows)   : 20
+  Feature (input)            : &#39;hours_studied&#39;
+  Label   (target output)    : &#39;passed&#39; (1 = yes, 0 = no)
+
+Training set size : 14
+Test set size     : 6
+</code></pre></div>
+<h2 id="6-a-first-look-at-overfitting-and-underfitting">6. A first look at overfitting and underfitting<a class="headerlink" href="#6-a-first-look-at-overfitting-and-underfitting" title="Permanent link">&para;</a></h2>
+<p>Overfitting is one of the most important ideas in machine learning, so it is worth seeing it once visually. We will fit three models of increasing complexity to the same noisy data:</p>
+<ul>
+<li>A straight line (too simple, <em>underfits</em>).</li>
+<li>A smooth curve (about right).</li>
+<li>A wiggly curve that passes through every point (memorises noise, <em>overfits</em>).</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Generate noisy data from a smooth underlying curve.</span>
+<span class="n">xs_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">ys_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xs_true</span> <span class="o">*</span> <span class="mf">0.6</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">xs_true</span>
+
+<span class="n">xs</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">xs</span> <span class="o">*</span> <span class="mf">0.6</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">xs</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">))</span>
+
+<span class="c1"># Fit polynomials of three different degrees.</span>
+<span class="n">degrees</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">deg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">degrees</span><span class="p">):</span>
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">)</span>
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;observed data&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs_true</span><span class="p">,</span> <span class="n">ys_true</span><span class="p">,</span> <span class="s2">&quot;g--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;true pattern&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">fit</span><span class="p">(</span><span class="n">grid</span><span class="p">),</span> <span class="s2">&quot;r-&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;polynomial of degree </span><span class="si">{</span><span class="n">deg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Underfit (too simple)&quot;</span><span class="p">,</span>
+                  <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;Good fit&quot;</span><span class="p">,</span>
+                  <span class="mi">15</span><span class="p">:</span> <span class="s2">&quot;Overfit (memorised noise)&quot;</span><span class="p">}[</span><span class="n">deg</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../MLConcepts_files/MLConcepts_13_0.png" /></p>
+<p>Look at the three plots:</p>
+<ul>
+<li>The straight line on the left is too rigid. It cannot capture the curve at all. This is <strong>underfitting</strong>.</li>
+<li>The middle curve roughly tracks the true underlying pattern, ignoring the noise. This is what we want.</li>
+<li>The wiggly curve on the right passes very close to every observed point, but it has to twist wildly to do so. On new data drawn from the same process, it would probably do worse than the middle curve. This is <strong>overfitting</strong>.</li>
+</ul>
+<p>The whole game of building good models is finding that middle ground - flexible enough to learn real patterns, but not so flexible that it learns the noise. We will see formal techniques for this in <code>Regularization&amp;Metrics.ipynb</code>.</p>
+<h2 id="7-a-typical-machine-learning-workflow">7. A typical machine learning workflow<a class="headerlink" href="#7-a-typical-machine-learning-workflow" title="Permanent link">&para;</a></h2>
+<p>Almost every applied ML project follows the same broad sequence of steps. The exact details vary, but the shape is consistent.</p>
+<ol>
+<li><strong>Define the problem.</strong> What question are we actually trying to answer? Is it a regression task, a classification task, or something else?</li>
+<li><strong>Collect data.</strong> From databases, APIs, files, or experiments.</li>
+<li><strong>Clean and prepare the data.</strong> Handle missing values, fix obvious errors, convert text to numbers, and so on.</li>
+<li><strong>Explore the data.</strong> Plot histograms, compute summary statistics, look for patterns. This is where descriptive statistics earns its keep.</li>
+<li><strong>Split the data</strong> into training and test sets. Always do this <em>before</em> you start fitting models.</li>
+<li><strong>Choose a model</strong> appropriate for the problem.</li>
+<li><strong>Train the model</strong> on the training set.</li>
+<li><strong>Evaluate the model</strong> on the test set. If the score is poor, go back and try a different model or different features.</li>
+<li><strong>Deploy the model</strong> so other people or systems can use it.</li>
+<li><strong>Monitor and update.</strong> Real-world data drifts over time, so models need to be checked and retrained.</li>
+</ol>
+<p>Notice that <em>most</em> of the work is not the modelling step. Practising data scientists routinely report that 60-80% of their time is spent on data preparation.</p>
+<h2 id="8-how-this-notebook-connects-to-the-rest-of-the-course">8. How this notebook connects to the rest of the course<a class="headerlink" href="#8-how-this-notebook-connects-to-the-rest-of-the-course" title="Permanent link">&para;</a></h2>
+<p>Think of this notebook as a glossary you can come back to. Here is how the pieces line up:</p>
+<table>
+<thead>
+<tr>
+<th>Concept introduced here</th>
+<th>Notebook where it is used in detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data, information, knowledge</td>
+<td><code>StatisticsFoundations.ipynb</code></td>
+</tr>
+<tr>
+<td>Supervised learning, regression</td>
+<td><code>LinearRegression.ipynb</code></td>
+</tr>
+<tr>
+<td>How models learn parameters</td>
+<td><code>ParameterEstimation.ipynb</code></td>
+</tr>
+<tr>
+<td>Overfitting, train/test split, model metrics</td>
+<td><code>Regularization&amp;Metrics.ipynb</code></td>
+</tr>
+</tbody>
+</table>
+<p>For now you do not need to remember every word in the table earlier in this notebook. As you meet each term again in context, it will start to feel natural. Vocabulary in this field is best learned by use, not memorisation.</p>
+<p>When you are ready, move on to <code>LinearRegression.ipynb</code>, where we will turn these concepts into our first proper model.</p>
+<h2 id="9-quick-check">9. Quick check<a class="headerlink" href="#9-quick-check" title="Permanent link">&para;</a></h2>
+<p>A few short questions to test your understanding. Try to answer them before peeking at the answers.</p>
+<ol>
+<li>A bank wants to flag whether a transaction is fraudulent based on past examples of fraudulent and legitimate transactions. Is this supervised, unsupervised, or reinforcement learning? What sub-type?</li>
+<li>A streaming service wants to group its users into similar listening profiles, with no pre-defined categories. Which family of learning is this?</li>
+<li>A self-driving car learns to take better routes by being rewarded when it arrives faster and safely. Which family of learning is this?</li>
+<li>Is "the average exam score is 72" data, information, or knowledge?</li>
+<li>Which of the following is <em>not</em> always true?</li>
+<li>(a) All deep learning is machine learning.</li>
+<li>(b) All machine learning is artificial intelligence.</li>
+<li>(c) All artificial intelligence is machine learning.</li>
+</ol>
+<p><em>Answers:</em></p>
+<ol>
+<li><em>Supervised learning, classification (the labels are "fraud" / "not fraud").</em></li>
+<li><em>Unsupervised learning, specifically clustering.</em></li>
+<li><em>Reinforcement learning.</em></li>
+<li><em>Information. Raw scores would be data; an explanation of why students did poorly would be closer to knowledge.</em></li>
+<li><em>(c) is the false one. Plenty of classical AI techniques, like rule-based expert systems, do not learn from data at all.</em></li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../StatisticsFoundations/" class="btn btn-neutral float-left" title="Statistical Foundations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../LinearRegression/" class="btn btn-neutral float-right" title="Linear Regression">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../StatisticsFoundations/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../LinearRegression/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

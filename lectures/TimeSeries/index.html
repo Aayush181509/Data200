@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Time Series - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Time Series";
+        var mkdocs_page_input_path = "lectures/TimeSeries.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../StatisticsFoundations/">Statistical Foundations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../MLConcepts/">ML / AI / DS Concepts</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation & Regularization</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Time Series</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-this-notebook-covers">What this notebook covers</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#1-what-makes-a-time-series-different">1. What makes a time series different</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-the-four-components-of-a-time-series">2. The four components of a time series</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-stationarity">3. Stationarity</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-autocorrelation">4. Autocorrelation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-smoothing-moving-averages-and-exponential-smoothing">5. Smoothing: moving averages and exponential smoothing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#51-simple-moving-average">5.1 Simple moving average</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#52-exponential-smoothing">5.2 Exponential smoothing</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-splitting-time-series-for-evaluation">6. Splitting time series for evaluation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-a-simple-forecast">7. A simple forecast</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#8-common-pitfalls">8. Common pitfalls</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-summary">9. Summary</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#where-to-go-next">Where to go next</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../TimeSeriesModels/">Time Series Models</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Time Series</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="time-series-analysis-an-introduction">Time Series Analysis - An Introduction<a class="headerlink" href="#time-series-analysis-an-introduction" title="Permanent link">&para;</a></h1>
+<p>A time series is a sequence of measurements taken in order, usually at regular intervals. The order matters, and that is what makes time series different from the data we have looked at so far.</p>
+<p>Some examples close to home:</p>
+<ul>
+<li>Daily active users of an app, recorded each day for a year.</li>
+<li>The hourly temperature in Kathmandu over the past month.</li>
+<li>Monthly sales of a small business.</li>
+<li>The number of GitHub commits to a project, counted per week.</li>
+<li>Heart-rate readings from a fitness tracker, recorded every second.</li>
+</ul>
+<p>In all of these, today's value is usually related to yesterday's. That dependence between consecutive points is the single most important feature of time series, and most of the techniques in this notebook are built around it.</p>
+<h2 id="what-this-notebook-covers">What this notebook covers<a class="headerlink" href="#what-this-notebook-covers" title="Permanent link">&para;</a></h2>
+<ol>
+<li>What makes a time series different from ordinary data.</li>
+<li>The four components: trend, seasonality, cyclical patterns, and noise.</li>
+<li>Stationarity, and why it matters for forecasting.</li>
+<li>Autocorrelation: how strongly today depends on yesterday.</li>
+<li>Smoothing techniques: moving averages and exponential smoothing.</li>
+<li>A small forecasting example.</li>
+</ol>
+<p>We will not assume any prior exposure to time series. The aim is intuition first, with code to make it concrete.</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>We will use NumPy, pandas, matplotlib, and a couple of helpers from statsmodels and scipy. Install with <code>pip install statsmodels</code> if needed.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Libraries loaded.&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Libraries loaded.
+</code></pre></div>
+<h2 id="1-what-makes-a-time-series-different">1. What makes a time series different<a class="headerlink" href="#1-what-makes-a-time-series-different" title="Permanent link">&para;</a></h2>
+<p>In all the previous notebooks we treated each row of data as independent. The order of the rows did not matter. We could shuffle our exam scores or our Instagram users and the analysis would give the same answer.</p>
+<p>For a time series, that is no longer true.</p>
+<ul>
+<li>The temperature today is correlated with the temperature yesterday.</li>
+<li>App users tomorrow are likely to be close to app users today.</li>
+<li>Weekly sales next week probably look like sales this week, plus some change.</li>
+</ul>
+<p>This means we cannot use the standard "shuffle, split, train, test" workflow without thinking carefully. If we shuffle a time series, we destroy the structure that we are trying to learn from.</p>
+<p>Two consequences follow:</p>
+<ol>
+<li>We need new techniques that respect order, like moving averages and autocorrelation.</li>
+<li>When we evaluate forecasting models, we always train on past data and test on <em>future</em> data, never the other way around.</li>
+</ol>
+<p>Let us start by generating a small synthetic time series so we have something concrete to look at.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># A synthetic two-year daily time series with a trend, a yearly cycle, and noise.</span>
+<span class="n">days</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;2025-12-31&quot;</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">days</span><span class="p">))</span>
+
+<span class="n">trend</span>       <span class="o">=</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">t</span>                                 <span class="c1"># slow upward drift</span>
+<span class="n">seasonality</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="mi">365</span><span class="p">)</span>         <span class="c1"># one full cycle per year</span>
+<span class="n">noise</span>       <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">days</span><span class="p">))</span>         <span class="c1"># day-to-day random variation</span>
+
+<span class="n">values</span> <span class="o">=</span> <span class="mi">50</span> <span class="o">+</span> <span class="n">trend</span> <span class="o">+</span> <span class="n">seasonality</span> <span class="o">+</span> <span class="n">noise</span>              <span class="c1"># final series</span>
+<span class="n">ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">days</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;visitors&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">ts</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Total length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span><span class="si">}</span><span class="s2"> days&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>2024-01-01    50.609434
+2024-01-02    48.142165
+2024-01-03    51.945119
+2024-01-04    52.547326
+2024-01-05    46.985954
+Freq: D, Name: visitors, dtype: float64
+
+Total length: 731 days
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># A simple plot is the right starting point for any time series.</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">ts</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Daily visitors to our (imaginary) website&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Visitors&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeries_files/TimeSeries_5_0.png" /></p>
+<p>Even from this single plot we can see two clear features: an overall upward drift, and a wave-like pattern that repeats once a year. This is exactly the kind of structure we will try to make explicit in the next section.</p>
+<h2 id="2-the-four-components-of-a-time-series">2. The four components of a time series<a class="headerlink" href="#2-the-four-components-of-a-time-series" title="Permanent link">&para;</a></h2>
+<p>A useful mental model is that any time series can be decomposed into four pieces:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What it is</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trend</td>
+<td>A long-term upward or downward drift.</td>
+<td>App users growing year on year.</td>
+</tr>
+<tr>
+<td>Seasonality</td>
+<td>A pattern that repeats over a fixed period.</td>
+<td>Higher ice-cream sales every summer.</td>
+</tr>
+<tr>
+<td>Cyclical</td>
+<td>Patterns that repeat but without a fixed period.</td>
+<td>Booms and recessions in the economy.</td>
+</tr>
+<tr>
+<td>Irregular / noise</td>
+<td>Random variation that is not explained by the rest.</td>
+<td>A one-off spike from a viral tweet.</td>
+</tr>
+</tbody>
+</table>
+<p>There are two common ways to combine them:</p>
+<ul>
+<li><strong>Additive model:</strong> <code>y(t) = trend + seasonality + noise</code>. Use this when the seasonal swings stay roughly the same size over time.</li>
+<li><strong>Multiplicative model:</strong> <code>y(t) = trend * seasonality * noise</code>. Use this when seasonal swings get bigger as the trend grows.</li>
+</ul>
+<p>In the synthetic series we just generated, we used an additive model. Let us pull the components apart visually.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.seasonal</span><span class="w"> </span><span class="kn">import</span> <span class="n">seasonal_decompose</span>
+
+<span class="n">decomposition</span> <span class="o">=</span> <span class="n">seasonal_decompose</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;additive&quot;</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mi">365</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">decomposition</span><span class="o">.</span><span class="n">observed</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;observed&quot;</span><span class="p">)</span>
+<span class="n">decomposition</span><span class="o">.</span><span class="n">trend</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#DD8452&quot;</span><span class="p">);</span>    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;trend&quot;</span><span class="p">)</span>
+<span class="n">decomposition</span><span class="o">.</span><span class="n">seasonal</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#55A868&quot;</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;seasonal&quot;</span><span class="p">)</span>
+<span class="n">decomposition</span><span class="o">.</span><span class="n">resid</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">);</span>    <span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;residual&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeries_files/TimeSeries_8_0.png" /></p>
+<p>The four panels show:</p>
+<ol>
+<li>The original series.</li>
+<li>The estimated long-term trend (a smooth upward line).</li>
+<li>The estimated seasonal pattern (a clean wave, repeating once per year).</li>
+<li>The residuals - what is left over after we remove trend and seasonality. If our model is good, this should look mostly like random noise.</li>
+</ol>
+<p>This decomposition is one of the standard first steps in any time series project.</p>
+<h2 id="3-stationarity">3. Stationarity<a class="headerlink" href="#3-stationarity" title="Permanent link">&para;</a></h2>
+<p>A time series is called <strong>stationary</strong> if its statistical properties do not change over time. Specifically:</p>
+<ul>
+<li>The mean stays roughly constant.</li>
+<li>The variance stays roughly constant.</li>
+<li>The relationship between values at different times depends only on the gap between them, not on the actual time.</li>
+</ul>
+<p>Why does this matter? Most classical forecasting techniques assume stationarity. If a series has a strong trend, those techniques will mis-behave - because what was "average" a year ago is not "average" today.</p>
+<p>The good news: even if a series is not stationary, we can often <em>make</em> it stationary by transforming it. The two most common transformations are:</p>
+<ul>
+<li><strong>Differencing:</strong> instead of looking at the value, look at the change from one step to the next, <code>y(t) - y(t-1)</code>. This removes a linear trend.</li>
+<li><strong>Log transform:</strong> take the logarithm of each value. This stabilises the variance when swings grow with the level.</li>
+</ul>
+<p>Let us see this in practice.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># The original series is clearly not stationary - it drifts upward and has seasonality.</span>
+<span class="n">diffed</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>  <span class="c1"># first difference: y(t) - y(t-1)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ts</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Original series (not stationary)&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Visitors&quot;</span><span class="p">)</span>
+
+<span class="n">diffed</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#DD8452&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;First difference (much closer to stationary)&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Change vs previous day&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean of original series : </span><span class="si">{</span><span class="n">ts</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean of differenced     : </span><span class="si">{</span><span class="n">diffed</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">  (close to zero, as expected)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeries_files/TimeSeries_11_0.png" /></p>
+<div class="highlight"><pre><span></span><code>Mean of original series : 68.16
+Mean of differenced     : 0.05  (close to zero, as expected)
+</code></pre></div>
+<p>The bottom plot looks much more like noise around zero. The trend is gone after a single differencing step. To remove the seasonality we would difference again at lag 365, but for our purposes this single differencing is enough to see the idea.</p>
+<p>There is a formal test for stationarity called the <strong>Augmented Dickey-Fuller (ADF) test</strong>. If the p-value is below 0.05, we usually treat the series as stationary.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.tsa.stattools</span><span class="w"> </span><span class="kn">import</span> <span class="n">adfuller</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">adf_summary</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">series</span><span class="p">):</span>
+    <span class="n">stat</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">adfuller</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
+    <span class="n">verdict</span> <span class="o">=</span> <span class="s2">&quot;stationary&quot;</span> <span class="k">if</span> <span class="n">p</span> <span class="o">&lt;</span> <span class="mf">0.05</span> <span class="k">else</span> <span class="s2">&quot;not stationary&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;20s</span><span class="si">}</span><span class="s2">  ADF stat = </span><span class="si">{</span><span class="n">stat</span><span class="si">:</span><span class="s2">7.3f</span><span class="si">}</span><span class="s2">   p-value = </span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">   -&gt; </span><span class="si">{</span><span class="n">verdict</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">adf_summary</span><span class="p">(</span><span class="s2">&quot;Original series&quot;</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+<span class="n">adf_summary</span><span class="p">(</span><span class="s2">&quot;Differenced series&quot;</span><span class="p">,</span> <span class="n">diffed</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Original series       ADF stat =  -0.805   p-value = 0.8178   -&gt; not stationary
+Differenced series    ADF stat = -16.170   p-value = 0.0000   -&gt; stationary
+</code></pre></div>
+<h2 id="4-autocorrelation">4. Autocorrelation<a class="headerlink" href="#4-autocorrelation" title="Permanent link">&para;</a></h2>
+<p>Autocorrelation measures how strongly a series is correlated with a lagged version of itself.</p>
+<ul>
+<li><em>Lag 1</em> autocorrelation: how much today depends on yesterday.</li>
+<li><em>Lag 7</em> autocorrelation: how much today depends on a week ago.</li>
+<li><em>Lag 365</em> autocorrelation: how much today depends on the same day a year ago.</li>
+</ul>
+<p>If we plot the autocorrelation at many lags, we get an <strong>autocorrelation function</strong> (ACF). The ACF is one of the most useful diagnostic tools for time series.</p>
+<p>What to look for:</p>
+<ul>
+<li>A slowly-decaying ACF suggests a strong trend.</li>
+<li>A spike at a particular lag suggests seasonality at that period.</li>
+<li>An ACF that drops to zero quickly suggests an essentially random series.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.graphics.tsaplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_acf</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plot_acf</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">lags</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;ACF of the original series&quot;</span><span class="p">)</span>
+
+<span class="n">plot_acf</span><span class="p">(</span><span class="n">diffed</span><span class="p">,</span> <span class="n">lags</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;ACF after differencing&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeries_files/TimeSeries_15_0.png" /></p>
+<p>On the left, the ACF of the original series decays slowly and oscillates - clear signs of trend and seasonality. On the right, after differencing, the ACF drops off quickly and most lags are inside the blue confidence band, meaning the differenced series is much closer to white noise.</p>
+<p>In short: the ACF tells us whether a series has memory, and how long that memory lasts.</p>
+<h2 id="5-smoothing-moving-averages-and-exponential-smoothing">5. Smoothing: moving averages and exponential smoothing<a class="headerlink" href="#5-smoothing-moving-averages-and-exponential-smoothing" title="Permanent link">&para;</a></h2>
+<p>Smoothing is one of the simplest but most useful tools for time series. It removes short-term noise to make the underlying signal easier to see.</p>
+<h3 id="51-simple-moving-average">5.1 Simple moving average<a class="headerlink" href="#51-simple-moving-average" title="Permanent link">&para;</a></h3>
+<p>A k-period moving average replaces each point with the average of the previous k points. Larger k means more smoothing, but also more lag.</p>
+<h3 id="52-exponential-smoothing">5.2 Exponential smoothing<a class="headerlink" href="#52-exponential-smoothing" title="Permanent link">&para;</a></h3>
+<p>A moving average gives equal weight to each of the k recent values, then sharply forgets everything older. Exponential smoothing weights recent values more heavily and old values less heavily, in a smooth way:</p>
+<p><code>smoothed(t) = alpha * y(t) + (1 - alpha) * smoothed(t-1)</code></p>
+<p>The parameter alpha is between 0 and 1:</p>
+<ul>
+<li>alpha close to 1 means follow the data closely (little smoothing).</li>
+<li>alpha close to 0 means smooth heavily (slow to react to change).</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Compute both kinds of smoothing on our daily visitors series.</span>
+<span class="n">ma_7</span>  <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>      <span class="c1"># one-week moving average</span>
+<span class="n">ma_30</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>     <span class="c1"># one-month moving average</span>
+<span class="n">ema</span>   <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">ewm</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>        <span class="c1"># exponential smoothing</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">ts</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgrey&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">)</span>
+<span class="n">ma_7</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;7-day moving average&quot;</span><span class="p">)</span>
+<span class="n">ma_30</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#DD8452&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;30-day moving average&quot;</span><span class="p">)</span>
+<span class="n">ema</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;exponential (alpha = 0.05)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Smoothing: noise removed, signal kept&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Visitors&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../TimeSeries_files/TimeSeries_18_0.png" /></p>
+<p>Notice how the 30-day average is much smoother than the 7-day average, but lags further behind. Picking the right amount of smoothing is always a trade-off between clarity and responsiveness.</p>
+<h2 id="6-splitting-time-series-for-evaluation">6. Splitting time series for evaluation<a class="headerlink" href="#6-splitting-time-series-for-evaluation" title="Permanent link">&para;</a></h2>
+<p>When we tested classification or regression models earlier in the course, we shuffled the data before splitting it. <strong>For time series, never shuffle.</strong> If we use future data to predict the past, we are cheating - the model will look much better than it really is.</p>
+<p>The correct approach is a chronological split: train on the earlier portion of the series, test on the later portion.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Hold back the last 60 days as a test set.</span>
+<span class="n">split_point</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">-</span> <span class="mi">60</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">split_point</span><span class="p">],</span> <span class="n">ts</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">split_point</span><span class="p">:]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training set: </span><span class="si">{</span><span class="n">train</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">  to  </span><span class="si">{</span><span class="n">train</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">  (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="si">}</span><span class="s2"> days)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test set    : </span><span class="si">{</span><span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">  to  </span><span class="si">{</span><span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">   (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="si">}</span><span class="s2"> days)&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">train</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;training&quot;</span><span class="p">)</span>
+<span class="n">test</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;test (held out)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Time series train/test split: chronological, never shuffled&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Visitors&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Training set: 2024-01-01  to  2025-11-01  (671 days)
+Test set    : 2025-11-02  to  2025-12-31   (60 days)
+</code></pre></div>
+<p><img alt="png" src="../TimeSeries_files/TimeSeries_21_1.png" /></p>
+<h2 id="7-a-simple-forecast">7. A simple forecast<a class="headerlink" href="#7-a-simple-forecast" title="Permanent link">&para;</a></h2>
+<p>Let us try the simplest forecasting approach: take the average of the last week of training data, and predict that value for every day of the test period. We will then compare it to what actually happened.</p>
+<p>This is intentionally crude. The point is to see the workflow end-to-end, not to win any forecasting competitions.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># A naive forecast: the mean of the last 7 days of training data.</span>
+<span class="n">forecast_value</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">:]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">forecast_value</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;forecast&quot;</span><span class="p">)</span>
+
+<span class="c1"># Mean absolute error: the average size of our prediction mistakes.</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">forecast</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Naive forecast value : </span><span class="si">{</span><span class="n">forecast_value</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean absolute error  : </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> visitors per day&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">90</span><span class="p">:]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#4C72B0&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;training (last 90 days)&quot;</span><span class="p">)</span>
+<span class="n">test</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;actual test values&quot;</span><span class="p">)</span>
+<span class="n">forecast</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#C44E52&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;naive forecast&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;A simple forecast vs reality&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Visitors&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Naive forecast value : 73.02
+Mean absolute error  : 7.06 visitors per day
+</code></pre></div>
+<p><img alt="png" src="../TimeSeries_files/TimeSeries_23_1.png" /></p>
+<p>The naive forecast misses the seasonal pattern entirely - it cannot, since it is just a flat line. A more capable model would account for the trend and the yearly cycle.</p>
+<p>For real forecasting work, the most common families of models are:</p>
+<ul>
+<li><strong>ARIMA (AutoRegressive Integrated Moving Average):</strong> classical, well-understood, good for many univariate problems.</li>
+<li><strong>Exponential smoothing (Holt-Winters):</strong> fast, simple, handles trend and seasonality.</li>
+<li><strong>Prophet:</strong> Facebook's library, designed for business time series with holidays and missing data.</li>
+<li><strong>Machine learning models (gradient boosting, neural networks):</strong> flexible, but require care to handle the time-ordering correctly.</li>
+</ul>
+<p>We will not go further into specific model families in this notebook; the aim here is to give you the vocabulary and intuition needed to study them later.</p>
+<h2 id="8-common-pitfalls">8. Common pitfalls<a class="headerlink" href="#8-common-pitfalls" title="Permanent link">&para;</a></h2>
+<p>A short list of mistakes to watch out for when working with time series data:</p>
+<ol>
+<li><strong>Shuffling the data before splitting.</strong> This leaks future information into training. Always split chronologically.</li>
+<li><strong>Ignoring missing dates.</strong> A pandas time index can hide gaps. Always check that the index is regular before fitting models.</li>
+<li><strong>Confusing correlation with causation.</strong> Two unrelated series can both have an upward trend and look highly correlated. They are not necessarily related.</li>
+<li><strong>Forgetting to check stationarity.</strong> Many models assume it. Plot the series and look at the ACF before modelling.</li>
+<li><strong>Reporting only training error.</strong> Always evaluate on a held-out future period, not the data the model was trained on.</li>
+<li><strong>Treating forecasts as certain.</strong> A good forecast comes with a confidence interval, not just a single number.</li>
+</ol>
+<h2 id="9-summary">9. Summary<a class="headerlink" href="#9-summary" title="Permanent link">&para;</a></h2>
+<p>The main ideas to remember from this notebook:</p>
+<ul>
+<li>Time series data is ordered, and that order carries information.</li>
+<li>Most series can be thought of as trend + seasonality + cyclical + noise.</li>
+<li>Stationary series are easier to model. We often achieve stationarity by differencing.</li>
+<li>Autocorrelation is the central diagnostic for time series; the ACF plot tells you a great deal at a glance.</li>
+<li>Smoothing (moving averages, exponential smoothing) helps reveal underlying patterns.</li>
+<li>Always split chronologically when evaluating forecasts.</li>
+<li>Even a very simple forecast is a useful baseline to beat.</li>
+</ul>
+<h3 id="where-to-go-next">Where to go next<a class="headerlink" href="#where-to-go-next" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Read about <strong>ARIMA</strong> models to formalise the trend + autoregression + moving-average ideas you saw here.</li>
+<li>Look into <strong>Holt-Winters exponential smoothing</strong> for series with both trend and seasonality.</li>
+<li>Learn about <strong>vector autoregression (VAR)</strong> when you have several related time series.</li>
+<li>For business-style data with holidays and irregular gaps, try the <strong>Prophet</strong> library.</li>
+</ul>
+<p>A good way to deepen your intuition is to grab a real data source you care about - your phone's screen time history, a stock price you follow, daily commits on a public GitHub repository - and run through this entire notebook on it. Real data has surprises that synthetic data does not.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ParameterEstimation/" class="btn btn-neutral float-left" title="Parameter Estimation & Regularization"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../TimeSeriesModels/" class="btn btn-neutral float-right" title="Time Series Models">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ParameterEstimation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../TimeSeriesModels/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
