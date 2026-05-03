@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Linear Mixed Models - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Linear Mixed Models";
+        var mkdocs_page_input_path = "lectures/LinearMixedModels.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../StatisticsFoundations/">Statistical Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../MLConcepts/">ML / AI / DS Concepts</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Applied Statistical Analysis</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Regression</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Anova</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ANOVA/">ANOVA, ANCOVA & MANOVA</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ANCOVA/">ANCOVA — The Tip Money Mystery</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >GLM</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../GLM/">Generalized Linear Models</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Mixed Models</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Linear Mixed Models</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#1-why-plain-ols-isnt-enough-for-clustered-data">1. Why Plain OLS Isn't Enough for Clustered Data</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-two-tempting-but-wrong-first-attempts">2. Two Tempting (But Wrong) First Attempts</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#synthetic-schools-and-students-dataset">Synthetic schools-and-students dataset</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#the-two-failed-approaches-plotted-side-by-side">The two failed approaches, plotted side by side</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-the-mixed-model-idea">3. The Mixed-Model Idea</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-random-intercepts-first-worked-example">4. Random Intercepts — First Worked Example</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#reading-the-summary">Reading the summary</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#visualising-the-partial-pooling-fit">Visualising the partial-pooling fit</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-random-slopes-when-the-effect-itself-varies-by-cluster">5. Random Slopes — When the Effect Itself Varies by Cluster</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#6-icc-how-clustered-are-the-data">6. ICC — How Clustered Are the Data?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#7-repeated-measures-example-patient-blood-pressure">7. Repeated-Measures Example — Patient Blood Pressure</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#8-mixed-models-vs-anova-ancova">8. Mixed Models vs. ANOVA / ANCOVA</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#9-assumptions-gotchas-and-the-glmm-teaser">9. Assumptions, Gotchas, and the GLMM Teaser</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#assumptions">Assumptions</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#common-gotchas">Common gotchas</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#where-to-next-glmms">Where to next — GLMMs</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#10-key-takeaways">10. Key Takeaways</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#11-practice-exercises">11. Practice Exercises</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Time Series Analysis</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeries/">Time Series</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeriesModels/">Time Series Models</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Applied Statistical Analysis</li>
+          <li class="breadcrumb-item">Mixed Models</li>
+      <li class="breadcrumb-item active">Linear Mixed Models</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="linear-mixed-models-when-your-data-comes-in-clusters">Linear Mixed Models — When Your Data Comes in Clusters<a class="headerlink" href="#linear-mixed-models-when-your-data-comes-in-clusters" title="Permanent link">&para;</a></h1>
+<p><em>Data 200 · Applied Statistical Analysis · Instructor: Aayush Regmi</em></p>
+<hr />
+<p>Every regression model we have built so far has quietly assumed that
+<strong>every row of the dataset is independent of every other row</strong>. That
+assumption holds for a clean random sample. It almost <em>never</em> holds
+for the data you'll see in real life:</p>
+<ul>
+<li>Students are nested inside <strong>classrooms</strong>, classrooms inside
+  <strong>schools</strong>.</li>
+<li>Patients are measured <strong>multiple times</strong> over weeks of treatment.</li>
+<li>Plots of land sit inside the <strong>same farm</strong>, farms inside the same
+  <strong>region</strong>.</li>
+</ul>
+<p>In all three cases, observations within a cluster are <strong>correlated</strong>.
+Pretending otherwise — by running plain OLS — quietly inflates your
+false-positive rate and gives you confidence intervals that are too
+small.</p>
+<p><strong>Linear Mixed Models (LMMs)</strong> are the principled fix. They let us
+estimate a population-wide pattern (the <strong>fixed effect</strong>) while <em>also</em>
+acknowledging that each cluster has its own quirks (the <strong>random
+effect</strong>).</p>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this notebook you'll be able to:</p>
+<ol>
+<li>Recognise <strong>clustered / hierarchical / repeated-measures</strong> data
+   and explain why plain OLS misbehaves on it.</li>
+<li>Distinguish <strong>fixed effects</strong> (population-wide) from <strong>random
+   effects</strong> (cluster-specific deviations).</li>
+<li>Fit a <strong>random-intercept</strong> mixed model with <code>statsmodels.mixedlm</code>
+   and read its summary.</li>
+<li>Add <strong>random slopes</strong> when the predictor's effect itself varies
+   between clusters.</li>
+<li>Compute the <strong>Intraclass Correlation Coefficient (ICC)</strong> and use it
+   to decide whether a mixed model is needed.</li>
+<li>Apply mixed models to <strong>repeated measurements</strong> of the same unit
+   over time.</li>
+<li>Know where <strong>Generalized Linear Mixed Models (GLMMs)</strong> fit in when
+   the outcome is not Gaussian.</li>
+</ol>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.formula.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smf</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="1-why-plain-ols-isnt-enough-for-clustered-data">1. Why Plain OLS Isn't Enough for Clustered Data<a class="headerlink" href="#1-why-plain-ols-isnt-enough-for-clustered-data" title="Permanent link">&para;</a></h2>
+<p>Linear regression's standard errors and p-values rely on this
+assumption from the <a href="../LinearRegression/">Linear Regression notebook</a>:</p>
+<blockquote>
+<p><strong>Each observation <span class="arithmatex">\((x_i, y_i)\)</span> is independent of every other.</strong></p>
+</blockquote>
+<p>Now think about a study of student exam scores from <strong>10 schools</strong>.
+Two students from the <em>same</em> school share more than two students
+picked at random — same teachers, same neighbourhood, same
+facilities. Their residuals are correlated.</p>
+<p>If you ignore that and run <code>ols("score ~ hours")</code> on the pooled data:</p>
+<ul>
+<li><strong>Effective sample size is smaller</strong> than the row count suggests.
+  200 students from 10 schools carry <em>less</em> information than 200
+  unrelated students.</li>
+<li><strong>Standard errors come out too small</strong>, so p-values are too small,
+  so you find effects that aren't really there.</li>
+<li><strong>Cluster-level patterns are invisible</strong> — "School C is unusually
+  high" gets averaged into nothing.</li>
+</ul>
+<p>Mixed models fix every one of these problems.</p>
+<h2 id="2-two-tempting-but-wrong-first-attempts">2. Two Tempting (But Wrong) First Attempts<a class="headerlink" href="#2-two-tempting-but-wrong-first-attempts" title="Permanent link">&para;</a></h2>
+<p>When you first realise the data has clusters, two natural reflexes
+appear:</p>
+<ol>
+<li><strong>Pool everything</strong> — fit one big regression, ignore which school
+   each student is from. Loses the cluster structure entirely.</li>
+<li><strong>Split everything</strong> — fit a <em>separate</em> regression per school. Now
+   you have 10 little, noisy fits and no shared learning.</li>
+</ol>
+<p>Mixed models walk a smart middle path: they <strong>share information
+across clusters</strong> (so each school's estimate is anchored to the
+overall trend) while still <strong>letting clusters differ</strong> from one
+another. Let's build the data first, then see all three approaches
+side by side.</p>
+<h3 id="synthetic-schools-and-students-dataset">Synthetic schools-and-students dataset<a class="headerlink" href="#synthetic-schools-and-students-dataset" title="Permanent link">&para;</a></h3>
+<p>10 schools, 20 students each. Every school has its <strong>own intercept
+shift</strong> (some schools just score higher, regardless of study habits).
+The slope of <code>score</code> on <code>hours_studied</code> is the same in every school.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_schools</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">n_per_school</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">true_slope</span> <span class="o">=</span> <span class="mf">4.0</span>          <span class="c1"># +4 marks per extra hour studied (population)</span>
+<span class="n">true_intercept</span> <span class="o">=</span> <span class="mf">50.0</span>     <span class="c1"># population baseline</span>
+<span class="n">school_sd</span> <span class="o">=</span> <span class="mf">6.0</span>           <span class="c1"># how much schools differ on average</span>
+<span class="n">noise_sd</span> <span class="o">=</span> <span class="mf">4.0</span>            <span class="c1"># within-school student-level noise</span>
+
+<span class="c1"># Each school gets its own intercept shift drawn from N(0, school_sd^2)</span>
+<span class="n">school_offsets</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">school_sd</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_schools</span><span class="p">)</span>
+
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_schools</span><span class="p">):</span>
+    <span class="n">hours</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_school</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_intercept</span> <span class="o">+</span> <span class="n">school_offsets</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+             <span class="o">+</span> <span class="n">true_slope</span> <span class="o">*</span> <span class="n">hours</span>
+             <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">noise_sd</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_school</span><span class="p">))</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;school&quot;</span><span class="p">:</span>         <span class="sa">f</span><span class="s2">&quot;S</span><span class="si">{</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hours_studied&quot;</span><span class="p">:</span>  <span class="n">hours</span><span class="p">,</span>
+        <span class="s2">&quot;score&quot;</span><span class="p">:</span>          <span class="n">score</span><span class="p">,</span>
+    <span class="p">}))</span>
+<span class="n">students</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">students</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>school</th>
+      <th>hours_studied</th>
+      <th>score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>S01</td>
+      <td>3.030324</td>
+      <td>56.008135</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>S01</td>
+      <td>2.784256</td>
+      <td>59.233392</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>S01</td>
+      <td>2.548696</td>
+      <td>56.288088</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>S01</td>
+      <td>4.450763</td>
+      <td>64.575084</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>S01</td>
+      <td>5.045483</td>
+      <td>74.432906</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Visualise the cluster structure</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">students</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;score&quot;</span><span class="p">,</span>
+                <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;school&quot;</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;tab10&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Each school sits at its own vertical level&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.02</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../LinearMixedModels_files/LinearMixedModels_8_0.png" /></p>
+<p>Notice the colour bands stack at slightly different heights — that
+is the <strong>between-school variation</strong> that OLS will pretend doesn't
+exist.</p>
+<h3 id="the-two-failed-approaches-plotted-side-by-side">The two failed approaches, plotted side by side<a class="headerlink" href="#the-two-failed-approaches-plotted-side-by-side" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># (a) Pool everything — one regression on all 200 students</span>
+<span class="n">pooled</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">ols</span><span class="p">(</span><span class="s2">&quot;score ~ hours_studied&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">students</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">students</span><span class="p">[</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">],</span> <span class="n">students</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
+                <span class="n">c</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span>
+             <span class="n">pooled</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">pooled</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_grid</span><span class="p">,</span>
+             <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;single pooled line&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;(a) Pool everything — ignore school&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;hours studied&quot;</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="c1"># (b) Split everything — one regression per school</span>
+<span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">students</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;school&quot;</span><span class="p">):</span>
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">ols</span><span class="p">(</span><span class="s2">&quot;score ~ hours_studied&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">sub</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">],</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span>
+                 <span class="n">fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_grid</span><span class="p">,</span>
+                 <span class="n">lw</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;(b) Split everything — one fit per school (noisy!)&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;hours studied&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../LinearMixedModels_files/LinearMixedModels_10_0.png" /></p>
+<p>Approach (a) gives one tidy line but ignores the cluster structure
+entirely — its standard errors will be wrong. Approach (b) lets every
+school speak for itself but produces a noisy fan of lines, with no
+shared population estimate. We want both at once.</p>
+<h2 id="3-the-mixed-model-idea">3. The Mixed-Model Idea<a class="headerlink" href="#3-the-mixed-model-idea" title="Permanent link">&para;</a></h2>
+<p>A linear mixed model splits the linear predictor into two layers:</p>
+<div class="arithmatex">\[\boxed{\;
+y_{ij} \;=\; \underbrace{\beta_0 + \beta_1 x_{ij}}_{\text{fixed effect — population pattern}}
+\;+\; \underbrace{u_j}_{\text{random effect — school }j\text{'s offset}}
+\;+\; \varepsilon_{ij}\;}\]</div>
+<p>with two independent random pieces:</p>
+<ul>
+<li><span class="arithmatex">\(u_j \sim \mathcal{N}(0, \sigma_u^2)\)</span> — every school has its own
+  intercept shift, drawn from a normal centred at zero.</li>
+<li><span class="arithmatex">\(\varepsilon_{ij} \sim \mathcal{N}(0, \sigma^2)\)</span> — student-level
+  residual noise.</li>
+</ul>
+<p>Reading the pieces:</p>
+<ul>
+<li><strong>Fixed effects</strong> — the things we want a single, generalisable
+  estimate of (the population intercept and slope).</li>
+<li><strong>Random effects</strong> — cluster-specific deviations that we <em>don't</em>
+  want to estimate one-by-one. Instead, we estimate the <strong>distribution</strong>
+  they came from (its variance <span class="arithmatex">\(\sigma_u^2\)</span>).</li>
+</ul>
+<p>This way, each school's estimate gets <strong>partially pulled</strong> toward the
+population mean, by an amount that depends on how much data the
+school has and how variable schools are overall. This <em>partial
+pooling</em> is exactly the smart middle path between approaches (a) and
+(b).</p>
+<h2 id="4-random-intercepts-first-worked-example">4. Random Intercepts — First Worked Example<a class="headerlink" href="#4-random-intercepts-first-worked-example" title="Permanent link">&para;</a></h2>
+<p>We fit the model</p>
+<div class="arithmatex">\[\text{score}_{ij} \;=\; \beta_0 + \beta_1 \text{hours}_{ij}
+\;+\; u_j + \varepsilon_{ij}, \qquad u_j \sim \mathcal{N}(0, \sigma_u^2).\]</div>
+<p>In <code>statsmodels</code> this is a one-liner: <code>mixedlm("score ~ hours_studied",
+data, groups="school")</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">ri_model</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">mixedlm</span><span class="p">(</span><span class="s2">&quot;score ~ hours_studied&quot;</span><span class="p">,</span>
+                       <span class="n">data</span><span class="o">=</span><span class="n">students</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="n">students</span><span class="p">[</span><span class="s2">&quot;school&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ri_model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>         Mixed Linear Model Regression Results
+========================================================
+Model:             MixedLM Dependent Variable: score    
+No. Observations:  200     Method:             REML     
+No. Groups:        10      Scale:              13.9569  
+Min. group size:   20      Log-Likelihood:     -562.9300
+Max. group size:   20      Converged:          Yes      
+Mean group size:   20.0                                 
+--------------------------------------------------------
+              Coef.  Std.Err.   z    P&gt;|z| [0.025 0.975]
+--------------------------------------------------------
+Intercept     48.015    1.435 33.457 0.000 45.203 50.828
+hours_studied  4.074    0.095 42.772 0.000  3.887  4.261
+Group Var     17.605    2.364                           
+========================================================
+</code></pre></div>
+<h3 id="reading-the-summary">Reading the summary<a class="headerlink" href="#reading-the-summary" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>Intercept</code></strong> — population baseline score when <code>hours_studied = 0</code>.
+  Compare with our true intercept of 50.</li>
+<li><strong><code>hours_studied</code></strong> — fixed-effect slope. Compare with our true slope
+  of 4.</li>
+<li><strong><code>Group Var</code></strong> — estimated variance <span class="arithmatex">\(\hat\sigma_u^2\)</span> between school
+  intercepts. Its square root is the <em>standard deviation between
+  schools</em> (compare with our true <code>school_sd = 6</code>).</li>
+<li><strong><code>Scale</code></strong> — estimated within-school residual variance <span class="arithmatex">\(\hat\sigma^2\)</span>.
+  Its square root is the within-school SD (compare with <code>noise_sd = 4</code>).</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;True intercept     : </span><span class="si">{</span><span class="n">true_intercept</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">     fitted: </span><span class="si">{</span><span class="n">ri_model</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;True slope         : </span><span class="si">{</span><span class="n">true_slope</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">      fitted: </span><span class="si">{</span><span class="n">ri_model</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s1">&#39;hours_studied&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;True school SD     : </span><span class="si">{</span><span class="n">school_sd</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">      fitted: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ri_model</span><span class="o">.</span><span class="n">cov_re</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;True residual SD   : </span><span class="si">{</span><span class="n">noise_sd</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">      fitted: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ri_model</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>True intercept     : 50.00     fitted: 48.02
+True slope         : 4.00      fitted: 4.07
+True school SD     : 6.00      fitted: 4.20
+True residual SD   : 4.00      fitted: 3.74
+</code></pre></div>
+<p>All four estimates are close to the truth. The mixed model has
+<strong>recovered the data-generating process</strong> — both the population trend
+and how much schools wiggle around it.</p>
+<h3 id="visualising-the-partial-pooling-fit">Visualising the partial-pooling fit<a class="headerlink" href="#visualising-the-partial-pooling-fit" title="Permanent link">&para;</a></h3>
+<p>Each school's predicted line is the <strong>population line shifted by
+that school's random intercept</strong>. The bold black line is the
+population fit (fixed effect alone).</p>
+<div class="highlight"><pre><span></span><code><span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">fixed_intercept</span> <span class="o">=</span> <span class="n">ri_model</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span>
+<span class="n">fixed_slope</span>     <span class="o">=</span> <span class="n">ri_model</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">]</span>
+
+<span class="c1"># Random intercepts per school</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">ri_model</span><span class="o">.</span><span class="n">random_effects</span>   <span class="c1"># dict: school → Series with one entry &#39;Group&#39;</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">school</span><span class="p">,</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">students</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;school&quot;</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">],</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">intercept_j</span> <span class="o">=</span> <span class="n">fixed_intercept</span> <span class="o">+</span> <span class="n">re</span><span class="p">[</span><span class="n">school</span><span class="p">][</span><span class="s2">&quot;Group&quot;</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">intercept_j</span> <span class="o">+</span> <span class="n">fixed_slope</span> <span class="o">*</span> <span class="n">x_grid</span><span class="p">,</span>
+             <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">fixed_intercept</span> <span class="o">+</span> <span class="n">fixed_slope</span> <span class="o">*</span> <span class="n">x_grid</span><span class="p">,</span>
+         <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;population (fixed effect) line&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;hours studied&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Random-intercept mixed model — parallel per-school lines + population line&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../LinearMixedModels_files/LinearMixedModels_18_0.png" /></p>
+<p>Notice the per-school lines are <strong>parallel</strong> — the random-intercept
+model lets each school start at its own height but assumes the
+<em>effect of an extra hour studied</em> is the same everywhere. What if
+that's wrong?</p>
+<h2 id="5-random-slopes-when-the-effect-itself-varies-by-cluster">5. Random Slopes — When the Effect Itself Varies by Cluster<a class="headerlink" href="#5-random-slopes-when-the-effect-itself-varies-by-cluster" title="Permanent link">&para;</a></h2>
+<p>Some schools may amplify the benefit of studying (great study halls,
+supportive teachers) while others dampen it. The model that captures
+this is</p>
+<div class="arithmatex">\[\text{score}_{ij} \;=\; (\beta_0 + u_{0j}) \;+\; (\beta_1 + u_{1j}) \text{hours}_{ij}
+\;+\; \varepsilon_{ij},\]</div>
+<p>where <span class="arithmatex">\((u_{0j}, u_{1j})\)</span> are drawn jointly from a 2-D normal. In
+<code>statsmodels</code> we add <code>re_formula="~ hours_studied"</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># A new dataset where slopes really do vary by school</span>
+<span class="n">n_schools</span><span class="p">,</span> <span class="n">n_per</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">20</span>
+<span class="n">true_intercept</span><span class="p">,</span> <span class="n">true_slope</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">4.0</span>
+<span class="n">intercept_sd</span><span class="p">,</span> <span class="n">slope_sd</span><span class="p">,</span> <span class="n">noise_sd2</span> <span class="o">=</span> <span class="mf">6.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">4.0</span>
+
+<span class="n">u0</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">intercept_sd</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_schools</span><span class="p">)</span>   <span class="c1"># intercept offsets</span>
+<span class="n">u1</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">slope_sd</span><span class="p">,</span>     <span class="n">size</span><span class="o">=</span><span class="n">n_schools</span><span class="p">)</span>   <span class="c1"># slope offsets</span>
+
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_schools</span><span class="p">):</span>
+    <span class="n">hours</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_intercept</span> <span class="o">+</span> <span class="n">u0</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+             <span class="o">+</span> <span class="p">(</span><span class="n">true_slope</span> <span class="o">+</span> <span class="n">u1</span><span class="p">[</span><span class="n">s</span><span class="p">])</span> <span class="o">*</span> <span class="n">hours</span>
+             <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">noise_sd2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per</span><span class="p">))</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;school&quot;</span><span class="p">:</span>        <span class="sa">f</span><span class="s2">&quot;S</span><span class="si">{</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hours_studied&quot;</span><span class="p">:</span> <span class="n">hours</span><span class="p">,</span>
+        <span class="s2">&quot;score&quot;</span><span class="p">:</span>         <span class="n">score</span><span class="p">,</span>
+    <span class="p">}))</span>
+<span class="n">students2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">rs_model</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">mixedlm</span><span class="p">(</span>
+    <span class="s2">&quot;score ~ hours_studied&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">students2</span><span class="p">,</span>
+    <span class="n">groups</span><span class="o">=</span><span class="n">students2</span><span class="p">[</span><span class="s2">&quot;school&quot;</span><span class="p">],</span>
+    <span class="n">re_formula</span><span class="o">=</span><span class="s2">&quot;~ hours_studied&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;lbfgs&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rs_model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>               Mixed Linear Model Regression Results
+====================================================================
+Model:                 MixedLM     Dependent Variable:     score    
+No. Observations:      240         Method:                 REML     
+No. Groups:            12          Scale:                  15.6629  
+Min. group size:       20          Log-Likelihood:         -718.2268
+Max. group size:       20          Converged:              No       
+Mean group size:       20.0                                         
+--------------------------------------------------------------------
+                          Coef.  Std.Err.   z    P&gt;|z| [0.025 0.975]
+--------------------------------------------------------------------
+Intercept                 51.458    2.829 18.188 0.000 45.913 57.004
+hours_studied              3.564    0.590  6.040 0.000  2.407  4.720
+Group Var                 92.775   17.774                           
+Group x hours_studied Cov  3.348    6.793                           
+hours_studied Var          4.071                                    
+====================================================================
+
+
+
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn(&quot;Maximum Likelihood optimization failed to &quot;
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/statsmodels/regression/mixed_linear_model.py:2206: ConvergenceWarning: MixedLM optimization failed, trying a different optimizer may help.
+  warnings.warn(msg, ConvergenceWarning)
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/statsmodels/regression/mixed_linear_model.py:2218: ConvergenceWarning: Gradient optimization failed, |grad| = 13.424993
+  warnings.warn(msg, ConvergenceWarning)
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/statsmodels/regression/mixed_linear_model.py:2261: ConvergenceWarning: The Hessian matrix at the estimated parameter values is not positive definite.
+  warnings.warn(msg, ConvergenceWarning)
+</code></pre></div>
+<p>The summary now shows <strong>two random-effect variances</strong> — one for the
+intercept and one for the slope — plus their covariance. The fixed
+slope (≈ 4) is the <em>average</em> effect of an extra study hour; some
+schools beat that, others fall short.</p>
+<div class="highlight"><pre><span></span><code><span class="n">fixed_intercept</span> <span class="o">=</span> <span class="n">rs_model</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span>
+<span class="n">fixed_slope</span>     <span class="o">=</span> <span class="n">rs_model</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">]</span>
+<span class="n">re</span> <span class="o">=</span> <span class="n">rs_model</span><span class="o">.</span><span class="n">random_effects</span>
+
+<span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">school</span><span class="p">,</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">students2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;school&quot;</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">],</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">int_j</span>   <span class="o">=</span> <span class="n">fixed_intercept</span> <span class="o">+</span> <span class="n">re</span><span class="p">[</span><span class="n">school</span><span class="p">][</span><span class="s2">&quot;Group&quot;</span><span class="p">]</span>
+    <span class="n">slope_j</span> <span class="o">=</span> <span class="n">fixed_slope</span>     <span class="o">+</span> <span class="n">re</span><span class="p">[</span><span class="n">school</span><span class="p">][</span><span class="s2">&quot;hours_studied&quot;</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">int_j</span> <span class="o">+</span> <span class="n">slope_j</span> <span class="o">*</span> <span class="n">x_grid</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">fixed_intercept</span> <span class="o">+</span> <span class="n">fixed_slope</span> <span class="o">*</span> <span class="n">x_grid</span><span class="p">,</span>
+         <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;population (fixed) line&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;hours studied&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Random intercepts + random slopes — lines now fan around the population line&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../LinearMixedModels_files/LinearMixedModels_23_0.png" /></p>
+<p>The lines no longer have to be parallel. Each school is allowed to
+deviate <em>both</em> in baseline and in slope — but they are still pulled
+toward the population trend rather than fitted in isolation.</p>
+<h2 id="6-icc-how-clustered-are-the-data">6. ICC — How Clustered Are the Data?<a class="headerlink" href="#6-icc-how-clustered-are-the-data" title="Permanent link">&para;</a></h2>
+<p>Before reaching for a mixed model, it's worth asking: <em>do my data
+really cluster, or is plain OLS fine?</em> The standard summary number is
+the <strong>Intraclass Correlation Coefficient (ICC)</strong>:</p>
+<div class="arithmatex">\[\boxed{\;
+\text{ICC} \;=\; \frac{\sigma_u^2}{\sigma_u^2 + \sigma^2}.\;
+}\]</div>
+<p>It's the share of total variation that lives <strong>between</strong> clusters
+rather than <strong>within</strong> them. ICC = 0 means "no clustering, OLS is
+fine." ICC = 1 means "all variation is between clusters."
+Rule of thumb: anything above ~0.05 is worth a mixed model.</p>
+<div class="highlight"><pre><span></span><code><span class="n">var_school</span>   <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ri_model</span><span class="o">.</span><span class="n">cov_re</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">var_residual</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ri_model</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span>
+<span class="n">icc</span> <span class="o">=</span> <span class="n">var_school</span> <span class="o">/</span> <span class="p">(</span><span class="n">var_school</span> <span class="o">+</span> <span class="n">var_residual</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Between-school variance: </span><span class="si">{</span><span class="n">var_school</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Within-school variance : </span><span class="si">{</span><span class="n">var_residual</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ICC                    : </span><span class="si">{</span><span class="n">icc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;=&gt; </span><span class="si">{</span><span class="n">icc</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2"> of the variation in scores is between schools — mixed model justified.&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Between-school variance: 17.60
+Within-school variance : 13.96
+ICC                    : 0.558
+=&gt; 56% of the variation in scores is between schools — mixed model justified.
+</code></pre></div>
+<h2 id="7-repeated-measures-example-patient-blood-pressure">7. Repeated-Measures Example — Patient Blood Pressure<a class="headerlink" href="#7-repeated-measures-example-patient-blood-pressure" title="Permanent link">&para;</a></h2>
+<p>Mixed models shine for <strong>repeated measurements</strong> where the same
+subject is observed multiple times. Each subject <em>is</em> a cluster.</p>
+<p>30 patients on a new blood-pressure medication, measured weekly for
+8 weeks. The drug lowers BP on average, but each patient starts at
+their own baseline.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_patients</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">weeks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">true_baseline</span> <span class="o">=</span> <span class="mf">140.0</span>       <span class="c1"># mean starting BP</span>
+<span class="n">true_week_effect</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.5</span>     <span class="c1"># average drop per week</span>
+<span class="n">patient_sd</span> <span class="o">=</span> <span class="mf">8.0</span>            <span class="c1"># how much patients differ in baseline</span>
+<span class="n">noise_sd_bp</span> <span class="o">=</span> <span class="mf">3.0</span>
+
+<span class="n">patient_offsets</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">patient_sd</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_patients</span><span class="p">)</span>
+
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_patients</span><span class="p">):</span>
+    <span class="n">bp</span> <span class="o">=</span> <span class="p">(</span><span class="n">true_baseline</span> <span class="o">+</span> <span class="n">patient_offsets</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+          <span class="o">+</span> <span class="n">true_week_effect</span> <span class="o">*</span> <span class="n">weeks</span>
+          <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">noise_sd_bp</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">weeks</span><span class="p">)))</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;patient&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;P</span><span class="si">{</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;week&quot;</span><span class="p">:</span>    <span class="n">weeks</span><span class="p">,</span>
+        <span class="s2">&quot;bp&quot;</span><span class="p">:</span>      <span class="n">bp</span><span class="p">,</span>
+    <span class="p">}))</span>
+<span class="n">bp_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bp_data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>patient</th>
+      <th>week</th>
+      <th>bp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>P01</td>
+      <td>0</td>
+      <td>137.067279</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>P01</td>
+      <td>1</td>
+      <td>138.391783</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>P01</td>
+      <td>2</td>
+      <td>140.761139</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>P01</td>
+      <td>3</td>
+      <td>140.044204</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>P01</td>
+      <td>4</td>
+      <td>133.686686</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">bp_model</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">mixedlm</span><span class="p">(</span><span class="s2">&quot;bp ~ week&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">bp_data</span><span class="p">,</span>
+                       <span class="n">groups</span><span class="o">=</span><span class="n">bp_data</span><span class="p">[</span><span class="s2">&quot;patient&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bp_model</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>         Mixed Linear Model Regression Results
+========================================================
+Model:             MixedLM Dependent Variable: bp       
+No. Observations:  240     Method:             REML     
+No. Groups:        30      Scale:              8.5064   
+Min. group size:   8       Log-Likelihood:     -655.9125
+Max. group size:   8       Converged:          Yes      
+Mean group size:   8.0                                  
+--------------------------------------------------------
+           Coef.  Std.Err.    z    P&gt;|z|  [0.025  0.975]
+--------------------------------------------------------
+Intercept 140.327    1.381 101.638 0.000 137.621 143.033
+week       -1.383    0.082 -16.830 0.000  -1.544  -1.222
+Group Var  53.642    5.256                              
+========================================================
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Spaghetti plot: 8 random patients + the population trend</span>
+<span class="n">show</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">bp_data</span><span class="p">[</span><span class="s2">&quot;patient&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="n">size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">show</span><span class="p">:</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">bp_data</span><span class="p">[</span><span class="n">bp_data</span><span class="p">[</span><span class="s2">&quot;patient&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">p</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;week&quot;</span><span class="p">],</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;bp&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">)</span>
+
+<span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">fix_b0</span><span class="p">,</span> <span class="n">fix_b1</span> <span class="o">=</span> <span class="n">bp_model</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">],</span> <span class="n">bp_model</span><span class="o">.</span><span class="n">fe_params</span><span class="p">[</span><span class="s2">&quot;week&quot;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">fix_b0</span> <span class="o">+</span> <span class="n">fix_b1</span> <span class="o">*</span> <span class="n">x_grid</span><span class="p">,</span>
+         <span class="n">color</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;population trend&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;week&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;blood pressure (mmHg)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Per-patient trajectories + fitted population trend&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../LinearMixedModels_files/LinearMixedModels_30_0.png" /></p>
+<p>Each patient's trajectory threads through their own typical level,
+but the <strong>overall downward trend</strong> is the fixed effect that the drug
+trial actually cares about. A simple <code>ols("bp ~ week")</code> would have
+treated each weekly measurement as independent — a 30 × 8 = 240-row
+study — and overstated the precision of the slope.</p>
+<h2 id="8-mixed-models-vs-anova-ancova">8. Mixed Models vs. ANOVA / ANCOVA<a class="headerlink" href="#8-mixed-models-vs-anova-ancova" title="Permanent link">&para;</a></h2>
+<p><a href="../ANOVA/">ANOVA</a> treats each group as a <em>fixed</em> category — every
+level of the factor is a hard-coded coefficient in the design matrix.
+That's the right move when you have a small number of groups and you
+want to talk about each one specifically.</p>
+<p>Mixed models treat the grouping variable as a <em>random</em> draw from a
+wider population of possible clusters. That's the right move when:</p>
+<ul>
+<li>The clusters are <strong>not the focus</strong> themselves (you don't really care
+  about "School #07 vs. School #08" — you care about the population
+  trend across <em>some sample of schools</em>).</li>
+<li>The same units are measured <strong>repeatedly</strong> over time.</li>
+<li>You want to <strong>generalise</strong> beyond the specific clusters in your
+  sample.</li>
+</ul>
+<p>Rule of thumb: handful of named groups → ANOVA-style fixed effects.
+Many clusters that are samples from a wider population → random
+effects.</p>
+<h2 id="9-assumptions-gotchas-and-the-glmm-teaser">9. Assumptions, Gotchas, and the GLMM Teaser<a class="headerlink" href="#9-assumptions-gotchas-and-the-glmm-teaser" title="Permanent link">&para;</a></h2>
+<h3 id="assumptions">Assumptions<a class="headerlink" href="#assumptions" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Random effects are normally distributed</strong> with mean zero. Plot a
+   histogram of the estimated <code>random_effects</code> to sanity-check.</li>
+<li><strong>Linearity of the fixed effects.</strong> Same as plain regression.</li>
+<li><strong>Residuals are normal</strong> with constant variance.</li>
+<li><strong>Enough clusters</strong> to estimate the random-effect variance —
+   informal rule of thumb is <strong>at least 5–10 clusters</strong>, more is
+   better. With only 2–3 clusters, treat them as fixed effects instead.</li>
+</ol>
+<h3 id="common-gotchas">Common gotchas<a class="headerlink" href="#common-gotchas" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Convergence warnings</strong> from <code>statsmodels</code> usually mean a random
+   effect has near-zero variance — try dropping it (e.g. fit
+   random-intercept-only instead of intercept + slope).</li>
+<li><strong>Singular fits</strong> (<code>Group Var</code> reported as 0) often show up when the
+   true between-cluster variance really is small. The data is telling
+   you that ordinary regression would also be fine here.</li>
+<li><strong>Random vs. fixed interpretation.</strong> Don't read individual random
+   effects as if they were fixed-effect coefficients — they have been
+   shrunk toward zero by the mixed model. They are <em>predictions</em>, not
+   tests.</li>
+</ul>
+<h3 id="where-to-next-glmms">Where to next — GLMMs<a class="headerlink" href="#where-to-next-glmms" title="Permanent link">&para;</a></h3>
+<p>Everything above assumed a <strong>Normal</strong> outcome. What if your outcome is
+binary (did the patient relapse?), count (how many doctor visits?), or
+skewed positive (waiting time)? You combine the
+<a href="../GLM/">GLM machinery</a> with random effects to get a <strong>Generalized
+Linear Mixed Model (GLMM)</strong>:</p>
+<div class="arithmatex">\[g(\mu_{ij}) \;=\; \beta_0 + \beta_1 x_{ij} + u_j,
+\qquad u_j \sim \mathcal{N}(0, \sigma_u^2),\]</div>
+<p>where <span class="arithmatex">\(g(\cdot)\)</span> is the same link function from the GLM notebook —
+logit for binary outcomes, log for counts. In Python, look at
+<code>statsmodels.genmod.bayes_mixed_glm.BinomialBayesMixedGLM</code> or the
+popular <code>pymer4</code> and <code>bambi</code> packages. The intuition stays the same:
+a population pattern plus cluster-specific random shifts.</p>
+<h2 id="10-key-takeaways">10. Key Takeaways<a class="headerlink" href="#10-key-takeaways" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Plain OLS assumes independent rows.</strong> Clustered, hierarchical, or
+   repeated-measures data violates this and gives p-values that are
+   too small.</li>
+<li>A linear mixed model splits the predictor into <strong>fixed effects</strong>
+   (population pattern) and <strong>random effects</strong> (cluster-specific
+   deviations drawn from a normal distribution).</li>
+<li><strong>Random intercepts</strong> let each cluster sit at its own level;
+   <strong>random slopes</strong> let the predictor's effect itself vary by
+   cluster.</li>
+<li><strong>Partial pooling</strong> is the magic — each cluster's estimate is
+   pulled toward the population mean, smarter than "pool everything"
+   or "split everything."</li>
+<li>The <strong>ICC</strong> quantifies how clustered the data are; above ~0.05 a
+   mixed model is worth it.</li>
+<li>In <code>statsmodels</code>, fitting one is a one-liner:
+   <code>smf.mixedlm(formula, data, groups=cluster_col, re_formula=...).fit()</code>.</li>
+<li>For non-Gaussian outcomes (binary, count, etc.), the same idea
+   extends to <strong>Generalized Linear Mixed Models (GLMMs)</strong>.</li>
+</ol>
+<h2 id="11-practice-exercises">11. Practice Exercises<a class="headerlink" href="#11-practice-exercises" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Random-intercept on farms.</strong> Synthesise a dataset of 8 farms,
+   each with 25 plots. Each farm has its own baseline soil quality
+   (random intercept). The fixed effect of interest is fertilizer
+   amount on yield. Fit the model and report the population slope.</li>
+<li><strong>Add a random slope to the BP example.</strong> Modify the §7
+   simulation so each patient has their own <em>response rate</em> to the
+   medication (some respond more, some less). Fit
+   <code>mixedlm("bp ~ week", data, groups="patient", re_formula="~ week")</code>
+   and compare against the random-intercept-only fit.</li>
+<li><strong>ICC for a third dataset.</strong> Build a synthetic dataset of 15
+   classrooms × 30 students where between-classroom variance is
+   <em>small</em> compared to within. Compute the ICC and decide whether a
+   mixed model is justified.</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../GLM/" class="btn btn-neutral float-left" title="Generalized Linear Models"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../TimeSeries/" class="btn btn-neutral float-right" title="Time Series">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../GLM/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../TimeSeries/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
