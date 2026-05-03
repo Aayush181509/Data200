@@ -59,71 +59,83 @@
               </ul>
               <p class="caption"><span class="caption-text">Applied Statistical Analysis</span></p>
               <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
-                  </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Parameter Estimation</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Regression</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+                <li class="toctree-l2"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Parameter Estimation</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#1-models-dont-learn-by-magic">1. Models Don't Learn by Magic</a>
+    <li class="toctree-l3"><a class="reference internal" href="#1-models-dont-learn-by-magic">1. Models Don't Learn by Magic</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#a-small-numeric-look-at-error">A small numeric look at "error"</a>
+    <li class="toctree-l4"><a class="reference internal" href="#a-small-numeric-look-at-error">A small numeric look at "error"</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2-what-a-model-actually-looks-like">2. What a Model Actually Looks Like</a>
+    <li class="toctree-l3"><a class="reference internal" href="#2-what-a-model-actually-looks-like">2. What a Model Actually Looks Like</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a>
+    <li class="toctree-l4"><a class="reference internal" href="#setup">Setup</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#3-three-roads-to-the-same-destination">3. Three Roads to the Same Destination</a>
+    <li class="toctree-l3"><a class="reference internal" href="#3-three-roads-to-the-same-destination">3. Three Roads to the Same Destination</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#4-ols-when-calculus-hands-you-the-answer">4. OLS — When Calculus Hands You the Answer</a>
+    <li class="toctree-l3"><a class="reference internal" href="#4-ols-when-calculus-hands-you-the-answer">4. OLS — When Calculus Hands You the Answer</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#a-tiny-worked-example">A tiny worked example</a>
+    <li class="toctree-l4"><a class="reference internal" href="#a-tiny-worked-example">A tiny worked example</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#where-ols-gets-stuck">Where OLS gets stuck</a>
+    <li class="toctree-l4"><a class="reference internal" href="#where-ols-gets-stuck">Where OLS gets stuck</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#5-gradient-descent-when-you-have-to-walk-downhill">5. Gradient Descent — When You Have to Walk Downhill</a>
+    <li class="toctree-l3"><a class="reference internal" href="#5-gradient-descent-when-you-have-to-walk-downhill">5. Gradient Descent — When You Have to Walk Downhill</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#what-is-a-gradient">What is a gradient?</a>
+    <li class="toctree-l4"><a class="reference internal" href="#what-is-a-gradient">What is a gradient?</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#a-1-d-toy-minimise-lx-x-32">A 1-D toy: minimise \(L(x) = (x - 3)^2\)</a>
+    <li class="toctree-l4"><a class="reference internal" href="#a-1-d-toy-minimise-lx-x-32">A 1-D toy: minimise \(L(x) = (x - 3)^2\)</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#the-learning-rate-is-everything">The learning rate is everything</a>
+    <li class="toctree-l4"><a class="reference internal" href="#the-learning-rate-is-everything">The learning rate is everything</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#why-gradient-descent-powers-neural-networks">Why Gradient Descent powers neural networks</a>
+    <li class="toctree-l4"><a class="reference internal" href="#why-gradient-descent-powers-neural-networks">Why Gradient Descent powers neural networks</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#6-mle-the-probabilistic-view">6. MLE — The Probabilistic View</a>
+    <li class="toctree-l3"><a class="reference internal" href="#6-mle-the-probabilistic-view">6. MLE — The Probabilistic View</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#the-simplest-possible-example-a-coin">The simplest possible example: a coin</a>
+    <li class="toctree-l4"><a class="reference internal" href="#the-simplest-possible-example-a-coin">The simplest possible example: a coin</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#where-bayes-comes-in">Where Bayes comes in</a>
+    <li class="toctree-l4"><a class="reference internal" href="#where-bayes-comes-in">Where Bayes comes in</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#7-regression-metrics-how-good-is-good">7. Regression Metrics — How Good is "Good"?</a>
+    <li class="toctree-l3"><a class="reference internal" href="#7-regression-metrics-how-good-is-good">7. Regression Metrics — How Good is "Good"?</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#a-5-row-worked-example">A 5-row worked example</a>
+    <li class="toctree-l4"><a class="reference internal" href="#a-5-row-worked-example">A 5-row worked example</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#which-metric-should-i-use">Which metric should I use?</a>
+    <li class="toctree-l4"><a class="reference internal" href="#which-metric-should-i-use">Which metric should I use?</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#8-where-to-next">8. Where to Next</a>
+    <li class="toctree-l3"><a class="reference internal" href="#8-where-to-next">8. Where to Next</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#9-key-takeaways">9. Key Takeaways</a>
+    <li class="toctree-l3"><a class="reference internal" href="#9-key-takeaways">9. Key Takeaways</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#10-practice-exercises">10. Practice Exercises</a>
+    <li class="toctree-l3"><a class="reference internal" href="#10-practice-exercises">10. Practice Exercises</a>
     </li>
     </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                </li>
+    </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                  <li class="toctree-l1"><a class="reference internal" >Anova</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ANOVA/">ANOVA, ANCOVA & MANOVA</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ANCOVA/">ANCOVA — The Tip Money Mystery</a>
+                </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Time Series Analysis</span></p>
@@ -148,6 +160,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Applied Statistical Analysis</li>
+          <li class="breadcrumb-item">Regression</li>
       <li class="breadcrumb-item active">Parameter Estimation</li>
     <li class="wy-breadcrumbs-aside">
     </li>

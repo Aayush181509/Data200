@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>ANCOVA — The Tip Money Mystery - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "ANCOVA \u2014 The Tip Money Mystery";
+        var mkdocs_page_input_path = "lectures/ANCOVA.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../StatisticsFoundations/">Statistical Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../MLConcepts/">ML / AI / DS Concepts</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Applied Statistical Analysis</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Regression</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Anova</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../ANOVA/">ANOVA, ANCOVA & MANOVA</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">ANCOVA — The Tip Money Mystery</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#1-the-mystery-a-month-at-bean-co">1. The Mystery — A Month at Bean &amp; Co.</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-the-naive-verdict-one-way-anova">2. The Naive Verdict — One-Way ANOVA</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-the-plot-twist-customer-count-has-been-hiding-in-plain-sight">3. The Plot Twist — Customer Count Has Been Hiding in Plain Sight</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-ancova-anova-with-a-covariate-sidekick">4. ANCOVA — ANOVA with a Covariate Sidekick</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-the-what-if-they-all-had-the-same-traffic-numbers">5. The "What If They All Had the Same Traffic?" Numbers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#6-the-picture-ancova-draws">6. The Picture ANCOVA Draws</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#7-the-assumption-everyone-forgets-parallel-slopes">7. The Assumption Everyone Forgets — Parallel Slopes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#8-bonus-round-the-gym-membership-showdown">8. Bonus Round — The Gym Membership Showdown</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#9-key-takeaways">9. Key Takeaways</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#10-practice-exercises">10. Practice Exercises</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Time Series Analysis</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeries/">Time Series</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeriesModels/">Time Series Models</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Applied Statistical Analysis</li>
+          <li class="breadcrumb-item">Anova</li>
+      <li class="breadcrumb-item active">ANCOVA — The Tip Money Mystery</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="ancova-the-case-of-the-missing-tip-money">ANCOVA — The Case of the Missing Tip Money<a class="headerlink" href="#ancova-the-case-of-the-missing-tip-money" title="Permanent link">&para;</a></h1>
+<p><em>Data 200 · Applied Statistical Analysis · Instructor: Aayush Regmi</em></p>
+<hr />
+<p>Welcome back to <strong>Bean &amp; Co.</strong>, the cosiest café on the block.</p>
+<p>It's Monday morning. Maria, the manager, is staring at her staff
+spreadsheet with a furrowed brow. She has three baristas — <strong>Alex</strong>,
+<strong>Bea</strong>, and <strong>Chen</strong> — and at the end of every shift each one drops
+their tip jar on the counter. Over the last month she has noticed
+something: <strong>Chen always brings home the most tips</strong>. Should she give
+Chen a raise? Promote them? Make them barista-of-the-month?</p>
+<p>Before she does, our job is to find out: <strong>is Chen actually a better
+barista, or did Chen just happen to work the busiest shifts?</strong></p>
+<p>That "or" is exactly what <strong>ANCOVA</strong> (<em>Analysis of Covariance</em>) was
+invented for. By the end of this notebook, the mystery will be solved
+— and you will have a tool you can use whenever a <em>continuous variable
+you didn't control for</em> is muddying a group comparison.</p>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this notebook you will be able to:</p>
+<ol>
+<li>Recognise when a one-way <strong>ANOVA</strong> is misleading because of a
+   hidden continuous <strong>covariate</strong>.</li>
+<li>Set up an <strong>ANCOVA</strong> in <code>statsmodels</code> with one categorical factor
+   and one (or more) covariates.</li>
+<li>Compute and interpret <strong>adjusted group means</strong> — what each group's
+   outcome would look like if every group had the <em>same</em> level of the
+   covariate.</li>
+<li>Read the ANCOVA assumption that often surprises people: the
+   <strong>parallel-slopes</strong> (or <em>homogeneity-of-regression</em>) assumption.</li>
+<li>Interpret the regression coefficients of an ANCOVA fit and tie them
+   back to the OLS picture from the
+   <a href="../LinearRegression/">Linear Regression</a> and
+   <a href="../ParameterEstimation/">Parameter Estimation</a> notebooks.</li>
+</ol>
+<p><em>Prerequisite: you've seen one-way ANOVA in the
+<a href="../ANOVA/">ANOVA notebook</a>. If not, peek at §3 of that notebook first.</em></p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.formula.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ols</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.stats.anova</span><span class="w"> </span><span class="kn">import</span> <span class="n">anova_lm</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="1-the-mystery-a-month-at-bean-co">1. The Mystery — A Month at Bean &amp; Co.<a class="headerlink" href="#1-the-mystery-a-month-at-bean-co" title="Permanent link">&para;</a></h2>
+<p>Maria pulls 30 shifts per barista from her records. Each row tells us:</p>
+<ul>
+<li>which barista worked the shift,</li>
+<li>how many customers walked in (the <strong>covariate</strong> — a number Maria did
+  <em>not</em> control),</li>
+<li>the total tips collected at the end of the shift (in dollars).</li>
+</ul>
+<p>Here's the catch we will pretend Maria hasn't noticed yet: <strong>Chen
+tends to be scheduled on the busy weekend shifts</strong>. The data we
+synthesise reflects exactly that confound.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_each</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="c1"># Each barista has a *true* tip-earning skill (extra dollars per shift</span>
+<span class="c1"># beyond what the foot traffic explains).</span>
+<span class="n">skill</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Alex&quot;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span> <span class="s2">&quot;Bea&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">&quot;Chen&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">}</span>
+<span class="c1"># But the schedule is unfair — Chen mostly works busy shifts.</span>
+<span class="n">avg_customers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Alex&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span> <span class="s2">&quot;Bea&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> <span class="s2">&quot;Chen&quot;</span><span class="p">:</span> <span class="mi">70</span><span class="p">}</span>
+
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Alex&quot;</span><span class="p">,</span> <span class="s2">&quot;Bea&quot;</span><span class="p">,</span> <span class="s2">&quot;Chen&quot;</span><span class="p">]:</span>
+    <span class="n">customers</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">avg_customers</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># Tips = base + 0.40 per customer + barista skill + noise</span>
+    <span class="n">tips</span> <span class="o">=</span> <span class="mi">5</span> <span class="o">+</span> <span class="mf">0.40</span> <span class="o">*</span> <span class="n">customers</span> <span class="o">+</span> <span class="n">skill</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;barista&quot;</span><span class="p">:</span>   <span class="n">b</span><span class="p">,</span>
+        <span class="s2">&quot;customers&quot;</span><span class="p">:</span> <span class="n">customers</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+        <span class="s2">&quot;tips&quot;</span><span class="p">:</span>      <span class="n">tips</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">}))</span>
+<span class="n">shifts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">shifts</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>barista</th>
+      <th>customers</th>
+      <th>tips</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2</th>
+      <td>Alex</td>
+      <td>33</td>
+      <td>19.19</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Alex</td>
+      <td>28</td>
+      <td>20.25</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>Bea</td>
+      <td>39</td>
+      <td>25.38</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>Bea</td>
+      <td>24</td>
+      <td>16.92</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>Chen</td>
+      <td>53</td>
+      <td>25.05</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>Bea</td>
+      <td>42</td>
+      <td>26.58</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>Bea</td>
+      <td>46</td>
+      <td>26.33</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>Bea</td>
+      <td>39</td>
+      <td>32.42</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># A first look — average tips by barista (the number Maria has been staring at)</span>
+<span class="n">shifts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;barista&quot;</span><span class="p">)[[</span><span class="s2">&quot;tips&quot;</span><span class="p">,</span> <span class="s2">&quot;customers&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>tips</th>
+      <th>customers</th>
+    </tr>
+    <tr>
+      <th>barista</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Alex</th>
+      <td>21.66</td>
+      <td>31.73</td>
+    </tr>
+    <tr>
+      <th>Bea</th>
+      <td>25.49</td>
+      <td>39.40</td>
+    </tr>
+    <tr>
+      <th>Chen</th>
+      <td>34.53</td>
+      <td>68.47</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Chen averages noticeably more tips. <strong>Case closed?</strong> Let's run the
+test Maria would naively reach for first.</p>
+<h2 id="2-the-naive-verdict-one-way-anova">2. The Naive Verdict — One-Way ANOVA<a class="headerlink" href="#2-the-naive-verdict-one-way-anova" title="Permanent link">&para;</a></h2>
+<p>If we ignore the customer counts and just compare tips across
+baristas, this is a textbook one-way ANOVA on <code>tips ~ C(barista)</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">naive</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;tips ~ C(barista)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">shifts</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Naive one-way ANOVA — tips ~ barista</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">anova_lm</span><span class="p">(</span><span class="n">naive</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Group-mean offsets (Alex is the baseline):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">naive</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Naive one-way ANOVA — tips ~ barista
+
+              df       sum_sq      mean_sq          F        PR(&gt;F)
+C(barista)   2.0  2621.491247  1310.745623  84.162407  4.576579e-21
+Residual    87.0  1354.938313    15.574004        NaN           NaN
+
+Group-mean offsets (Alex is the baseline):
+Intercept             21.66
+C(barista)[T.Bea]      3.83
+C(barista)[T.Chen]    12.87
+dtype: float64
+</code></pre></div>
+<p>The p-value for <code>C(barista)</code> is tiny → "the baristas differ". The
+coefficients say Bea earns ~<span class="arithmatex">\(X more than Alex and Chen earns ~\)</span>Y
+more than Alex.</p>
+<p>Maria is about to print Chen a certificate. <strong>Hold on.</strong> Before we
+celebrate, let's look at the picture our naive analysis ignored.</p>
+<h2 id="3-the-plot-twist-customer-count-has-been-hiding-in-plain-sight">3. The Plot Twist — Customer Count Has Been Hiding in Plain Sight<a class="headerlink" href="#3-the-plot-twist-customer-count-has-been-hiding-in-plain-sight" title="Permanent link">&para;</a></h2>
+<p>Plot tips against the number of customers, colouring each point by
+barista, and the truth jumps off the page:</p>
+<div class="highlight"><pre><span></span><code><span class="n">g</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">lmplot</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">shifts</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;customers&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;tips&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;barista&quot;</span><span class="p">,</span>
+    <span class="n">palette</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;#264653&quot;</span><span class="p">,</span> <span class="s2">&quot;#2a9d8f&quot;</span><span class="p">,</span> <span class="s2">&quot;#e76f51&quot;</span><span class="p">],</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span> <span class="n">ci</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scatter_kws</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">g</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Tips vs customers, by barista&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">1.02</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ANCOVA_files/ANCOVA_12_0.png" /></p>
+<p>Three things are now obvious:</p>
+<ol>
+<li><strong>Tips go up with customer count.</strong> Of course they do — busier
+   shifts mean more tippers.</li>
+<li><strong>Chen's points are clustered way to the right.</strong> Chen mostly
+   worked very busy shifts.</li>
+<li><strong>For a given customer count, Chen is not really the highest!</strong>
+   Look at any vertical slice (e.g. customers ≈ 50): Bea's line is
+   the highest, then Alex, then Chen.</li>
+</ol>
+<p>The naive ANOVA didn't see this because it averaged over <em>all</em>
+customer counts. We need a method that <strong>adjusts for customer count
+before comparing baristas</strong>. Enter ANCOVA.</p>
+<h2 id="4-ancova-anova-with-a-covariate-sidekick">4. ANCOVA — ANOVA with a Covariate Sidekick<a class="headerlink" href="#4-ancova-anova-with-a-covariate-sidekick" title="Permanent link">&para;</a></h2>
+<p>An ANCOVA is just an ANOVA with one (or more) <strong>continuous
+covariates</strong> added to the model:</p>
+<div class="arithmatex">\[\text{tips} \;=\; \beta_0
+\;+\; \beta_1 \cdot \text{customers}
+\;+\; \underbrace{\text{barista dummies}}_{\text{Bea, Chen offsets}}
+\;+\; \varepsilon.\]</div>
+<p>What the covariate does is <strong>soak up the variation in <code>tips</code> that
+comes from customer count first</strong>, leaving the barista coefficients to
+explain only what's left over — the part that really <em>is</em> due to who
+was behind the bar.</p>
+<p>Algorithmically, this is the same <code>(X^\top X)^{-1} X^\top y</code> we've been
+using all along — we are just adding a column to the design matrix.</p>
+<div class="highlight"><pre><span></span><code><span class="n">ancova</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;tips ~ customers + C(barista)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">shifts</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ANCOVA — tips ~ customers + C(barista)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">anova_lm</span><span class="p">(</span><span class="n">ancova</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>ANCOVA — tips ~ customers + C(barista)
+
+                sum_sq    df           F        PR(&gt;F)
+C(barista)   44.670593   2.0    3.216638  4.495878e-02
+customers   757.782079   1.0  109.132678  5.689204e-17
+Residual    597.156234  86.0         NaN           NaN
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ANCOVA coefficients:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ancova</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>ANCOVA coefficients:
+Intercept             8.46
+C(barista)[T.Bea]     0.64
+C(barista)[T.Chen]   -2.41
+customers             0.42
+dtype: float64
+</code></pre></div>
+<p>Compare with the naive verdict. Now read the barista coefficients
+<strong>holding <code>customers</code> constant</strong>:</p>
+<ul>
+<li><code>Intercept</code> — Alex's expected tips when <code>customers = 0</code> (a
+  hypothetical empty café — useful as a reference, not as a
+  prediction).</li>
+<li><code>customers</code> — every extra customer adds about $0.40 in tips,
+  <em>whoever</em> is working.</li>
+<li><code>C(barista)[T.Bea]</code> — Bea earns this much <strong>more than Alex</strong> at the
+  same customer count.</li>
+<li><code>C(barista)[T.Chen]</code> — Chen's bonus relative to Alex at the same
+  customer count.</li>
+</ul>
+<p>The picture has flipped: <strong>Bea is the most efficient tipper-per-shift,
+Alex is in the middle, and Chen is at the bottom</strong> — once you put them
+all on the same playing field.</p>
+<h2 id="5-the-what-if-they-all-had-the-same-traffic-numbers">5. The "What If They All Had the Same Traffic?" Numbers<a class="headerlink" href="#5-the-what-if-they-all-had-the-same-traffic-numbers" title="Permanent link">&para;</a></h2>
+<p>ANCOVA gives us a clean way to ask: <em>if every barista had worked
+shifts with the same average number of customers, what would each one
+have earned?</em> These are called <strong>adjusted means</strong> (or <em>estimated
+marginal means</em>, EMMs).</p>
+<p>They're computed by plugging the <strong>overall mean</strong> of <code>customers</code> into
+the fitted regression for each barista.</p>
+<div class="highlight"><pre><span></span><code><span class="n">mean_customers</span> <span class="o">=</span> <span class="n">shifts</span><span class="p">[</span><span class="s2">&quot;customers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overall average customers per shift: </span><span class="si">{</span><span class="n">mean_customers</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Predict tips for each barista at the average customer count</span>
+<span class="n">predict_at</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;customers&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">mean_customers</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;barista&quot;</span><span class="p">:</span>   <span class="p">[</span><span class="s2">&quot;Alex&quot;</span><span class="p">,</span> <span class="s2">&quot;Bea&quot;</span><span class="p">,</span> <span class="s2">&quot;Chen&quot;</span><span class="p">],</span>
+<span class="p">})</span>
+<span class="n">predict_at</span><span class="p">[</span><span class="s2">&quot;adjusted_tips&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ancova</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_at</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">predict_at</span><span class="p">[</span><span class="s2">&quot;raw_mean_tips&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">shifts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;barista&quot;</span><span class="p">)[</span><span class="s2">&quot;tips&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">predict_at</span><span class="p">[</span><span class="s2">&quot;barista&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">predict_at</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Overall average customers per shift: 46.5
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>customers</th>
+      <th>barista</th>
+      <th>adjusted_tips</th>
+      <th>raw_mean_tips</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>46.533333</td>
+      <td>Alex</td>
+      <td>27.82</td>
+      <td>21.66</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>46.533333</td>
+      <td>Bea</td>
+      <td>28.45</td>
+      <td>25.49</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>46.533333</td>
+      <td>Chen</td>
+      <td>25.41</td>
+      <td>34.53</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>The <strong>raw mean tips</strong> column is what Maria saw in her spreadsheet.
+The <strong>adjusted_tips</strong> column is what each barista would earn on a
+shift of <em>typical</em> busyness. Bea wins on the level playing field, by
+a comfortable margin.</p>
+<p><strong>Promotion goes to Bea.</strong> Mystery solved.</p>
+<h2 id="6-the-picture-ancova-draws">6. The Picture ANCOVA Draws<a class="headerlink" href="#6-the-picture-ancova-draws" title="Permanent link">&para;</a></h2>
+<p>ANCOVA fits <strong>one regression line per group, all sharing the same
+slope, but with different intercepts</strong>. The vertical gap between the
+lines <em>is</em> the adjusted group difference.</p>
+<div class="highlight"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">))</span>
+
+<span class="n">colors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Alex&quot;</span><span class="p">:</span> <span class="s2">&quot;#264653&quot;</span><span class="p">,</span> <span class="s2">&quot;Bea&quot;</span><span class="p">:</span> <span class="s2">&quot;#2a9d8f&quot;</span><span class="p">,</span> <span class="s2">&quot;Chen&quot;</span><span class="p">:</span> <span class="s2">&quot;#e76f51&quot;</span><span class="p">}</span>
+<span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">shifts</span><span class="p">[</span><span class="s2">&quot;customers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                     <span class="n">shifts</span><span class="p">[</span><span class="s2">&quot;customers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Alex&quot;</span><span class="p">,</span> <span class="s2">&quot;Bea&quot;</span><span class="p">,</span> <span class="s2">&quot;Chen&quot;</span><span class="p">]:</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">shifts</span><span class="p">[</span><span class="n">shifts</span><span class="p">[</span><span class="s2">&quot;barista&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">sub</span><span class="p">[</span><span class="s2">&quot;customers&quot;</span><span class="p">],</span> <span class="n">sub</span><span class="p">[</span><span class="s2">&quot;tips&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+               <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2"> (data)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># ANCOVA line for this barista — same slope, different intercept</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">ancova</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;customers&quot;</span><span class="p">:</span> <span class="n">x_grid</span><span class="p">,</span>
+                                        <span class="s2">&quot;barista&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_grid</span><span class="p">)}))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">mean_customers</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+           <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;average customers ≈ </span><span class="si">{</span><span class="n">mean_customers</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;customers per shift&quot;</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;tips ($)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;ANCOVA: parallel lines, one per barista&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ANCOVA_files/ANCOVA_22_0.png" /></p>
+<p>Notice the three lines are <strong>parallel</strong>. That parallelism is not a
+coincidence — it is <em>baked into</em> ANCOVA. The model assumes the
+covariate has the same effect (<code>customers → tips</code> slope ≈ $0.40 per
+customer) for every group.</p>
+<p>If that assumption is wrong, ANCOVA is the wrong tool. Let's check it.</p>
+<h2 id="7-the-assumption-everyone-forgets-parallel-slopes">7. The Assumption Everyone Forgets — Parallel Slopes<a class="headerlink" href="#7-the-assumption-everyone-forgets-parallel-slopes" title="Permanent link">&para;</a></h2>
+<p>ANCOVA inherits the assumptions of ANOVA (independence, residual
+normality, homogeneity of variance) <strong>plus one extra</strong>:</p>
+<blockquote>
+<p><strong>Homogeneity of regression slopes.</strong> The relationship between the
+covariate and the outcome must be the <em>same</em> for every group.</p>
+</blockquote>
+<p>If, say, Chen's tips climb $0.80 per extra customer while Alex's only
+climb $0.20, the lines are not parallel and ANCOVA's adjusted means
+are misleading.</p>
+<p><strong>The check:</strong> add an interaction term <code>covariate × group</code> to the
+model. If the interaction is <strong>not significant</strong>, the slopes are close
+enough to parallel and ANCOVA is justified. If it <em>is</em> significant,
+you need a richer model (with the interaction kept in).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Fit the model WITH the interaction and check whether it&#39;s significant</span>
+<span class="n">interaction_model</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;tips ~ customers * C(barista)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">shifts</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Test for parallel slopes — does customers × barista matter?</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">anova_lm</span><span class="p">(</span><span class="n">interaction_model</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Test for parallel slopes — does customers × barista matter?
+
+                          sum_sq    df           F        PR(&gt;F)
+C(barista)             44.670593   2.0    3.185042  4.641874e-02
+customers             757.782079   1.0  108.060686  9.437667e-17
+customers:C(barista)    8.101167   2.0    0.577618  5.634467e-01
+Residual              589.055067  84.0         NaN           NaN
+</code></pre></div>
+<p>Look at the row <code>customers:C(barista)</code>. The p-value is large → no
+evidence the slopes differ. We can keep the simpler ANCOVA model.</p>
+<p>(If that p-value were small, we'd report results from the interaction
+model and not pretend the slopes are parallel.)</p>
+<h2 id="8-bonus-round-the-gym-membership-showdown">8. Bonus Round — The Gym Membership Showdown<a class="headerlink" href="#8-bonus-round-the-gym-membership-showdown" title="Permanent link">&para;</a></h2>
+<p>Three personal trainers — <strong>T1, T2, T3</strong> — claim their training plan
+produces the most weight loss after 8 weeks. The catch: clients pick
+their own trainer, and the more motivated clients (who already work
+out a lot) tend to gravitate to T3. So <strong>starting fitness</strong> confounds
+the comparison.</p>
+<p>We'll re-run the same ANCOVA pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_each</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">trainer_skill</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;T1&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="s2">&quot;T3&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>      <span class="c1"># true effect on weight loss (kg)</span>
+<span class="n">trainer_fitness_pull</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;T1&quot;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">&quot;T3&quot;</span><span class="p">:</span> <span class="mf">7.5</span><span class="p">}</span>  <span class="c1"># confound</span>
+
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">,</span> <span class="s2">&quot;T3&quot;</span><span class="p">]:</span>
+    <span class="n">fitness</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">trainer_fitness_pull</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="n">weight_loss</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">fitness</span> <span class="o">+</span> <span class="n">trainer_skill</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;trainer&quot;</span><span class="p">:</span>          <span class="n">t</span><span class="p">,</span>
+        <span class="s2">&quot;starting_fitness&quot;</span><span class="p">:</span> <span class="n">fitness</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+        <span class="s2">&quot;weight_loss&quot;</span><span class="p">:</span>      <span class="n">weight_loss</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">}))</span>
+<span class="n">gym</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Naive one-way ANOVA — ignoring fitness:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">anova_lm</span><span class="p">(</span><span class="n">ols</span><span class="p">(</span><span class="s2">&quot;weight_loss ~ C(trainer)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gym</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Naive group means (raw):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">)[</span><span class="s2">&quot;weight_loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Naive one-way ANOVA — ignoring fitness:
+              df     sum_sq    mean_sq          F        PR(&gt;F)
+C(trainer)   2.0  36.817224  18.408612  53.492725  5.788041e-15
+Residual    72.0  24.777576   0.344133        NaN           NaN
+
+Naive group means (raw):
+trainer
+T1    3.37
+T2    4.87
+T3    4.85
+Name: weight_loss, dtype: float64
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ANCOVA — controlling for starting fitness:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">gym_anc</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;weight_loss ~ starting_fitness + C(trainer)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">gym</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">anova_lm</span><span class="p">(</span><span class="n">gym_anc</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># Adjusted means at average starting fitness</span>
+<span class="n">mean_fit</span> <span class="o">=</span> <span class="n">gym</span><span class="p">[</span><span class="s2">&quot;starting_fitness&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">adjusted</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;starting_fitness&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">mean_fit</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;trainer&quot;</span><span class="p">:</span>          <span class="p">[</span><span class="s2">&quot;T1&quot;</span><span class="p">,</span> <span class="s2">&quot;T2&quot;</span><span class="p">,</span> <span class="s2">&quot;T3&quot;</span><span class="p">],</span>
+<span class="p">})</span>
+<span class="n">adjusted</span><span class="p">[</span><span class="s2">&quot;adjusted_loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gym_anc</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">adjusted</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">adjusted</span><span class="p">[</span><span class="s2">&quot;raw_mean_loss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">gym</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;trainer&quot;</span><span class="p">)[</span><span class="s2">&quot;weight_loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">adjusted</span><span class="p">[</span><span class="s2">&quot;trainer&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Adjusted vs raw means at average starting fitness:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">adjusted</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>ANCOVA — controlling for starting fitness:
+
+                     sum_sq    df          F        PR(&gt;F)
+C(trainer)        24.549103   2.0  45.504849  1.909701e-13
+starting_fitness   5.625921   1.0  20.856704  2.030481e-05
+Residual          19.151655  71.0        NaN           NaN
+
+Adjusted vs raw means at average starting fitness:
+
+   starting_fitness trainer  adjusted_loss  raw_mean_loss
+0              5.56      T1           3.73           3.37
+1              5.56      T2           5.12           4.87
+2              5.56      T3           4.24           4.85
+</code></pre></div>
+<p>Same plot twist as the café: the trainer who <em>looked</em> best in the
+raw means isn't the one who actually adds the most weight loss once
+you put every client on equal footing. Fitness was doing the heavy
+lifting.</p>
+<h2 id="9-key-takeaways">9. Key Takeaways<a class="headerlink" href="#9-key-takeaways" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>One-way ANOVA can lie when groups differ on a hidden continuous
+   variable.</strong> Whoever drew the lucky shifts will look best.</li>
+<li><strong>ANCOVA fixes this</strong> by adding the covariate to the model:
+   <code>outcome ~ covariate + C(group)</code>. Same <code>(X^\top X)^{-1} X^\top y</code>,
+   one extra column.</li>
+<li><strong>Adjusted means</strong> are the punchline — <em>what would each group's
+   outcome be if every group had the same level of the covariate?</em></li>
+<li><strong>Geometrically, ANCOVA fits parallel lines</strong> — one per group, all
+   sharing the covariate's slope, differing only in their intercepts.</li>
+<li>The <strong>parallel-slopes assumption</strong> is what makes the picture work.
+   Always test it by adding <code>covariate × group</code> and checking the
+   interaction is not significant.</li>
+<li><strong>Use ANCOVA whenever</strong> an obvious confounder is contaminating an
+   ANOVA — randomised assignment, observational comparisons, A/B tests
+   with imbalanced exposure, anywhere groups didn't start equal.</li>
+</ol>
+<h2 id="10-practice-exercises">10. Practice Exercises<a class="headerlink" href="#10-practice-exercises" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Promote Chen anyway?</strong> Imagine Maria <em>halves</em> Chen's average
+   customer count (set <code>avg_customers["Chen"] = 35</code>) and re-runs the
+   data generation. Re-fit naive ANOVA and ANCOVA. How does the
+   ranking of baristas change between the two? Explain in plain words
+   what happened.</li>
+<li><strong>The slopes really differ.</strong> Modify the café simulation so that
+   Chen earns $0.80 per customer (instead of $0.40) but Alex still
+   earns $0.40. Run the parallel-slopes test from §7. What does the
+   p-value tell you, and what should you report instead of plain
+   ANCOVA?</li>
+<li><strong>Two covariates at once.</strong> ANCOVA isn't limited to one covariate.
+   Add a second one to the gym dataset — say <code>weeks_since_last_workout</code>
+   — and fit `weight_loss ~ starting_fitness + weeks_since_last_workout</li>
+<li>C(trainer)`. Do the trainer effects shrink further?</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ANOVA/" class="btn btn-neutral float-left" title="ANOVA, ANCOVA & MANOVA"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../TimeSeries/" class="btn btn-neutral float-right" title="Time Series">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ANOVA/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../TimeSeries/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

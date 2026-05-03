@@ -59,105 +59,117 @@
               </ul>
               <p class="caption"><span class="caption-text">Applied Statistical Analysis</span></p>
               <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Linear Regression</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Regression</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Linear Regression</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#1-what-is-a-regression-problem">1. What is a Regression Problem?</a>
+    <li class="toctree-l3"><a class="reference internal" href="#1-what-is-a-regression-problem">1. What is a Regression Problem?</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#simple-vs-multiple-linear-regression">Simple vs. Multiple Linear Regression</a>
+    <li class="toctree-l4"><a class="reference internal" href="#simple-vs-multiple-linear-regression">Simple vs. Multiple Linear Regression</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2-setting-up-importing-libraries">2. Setting Up — Importing Libraries</a>
+    <li class="toctree-l3"><a class="reference internal" href="#2-setting-up-importing-libraries">2. Setting Up — Importing Libraries</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#3-building-intuition-the-best-fit-line">3. Building Intuition — "The Best Fit Line"</a>
+    <li class="toctree-l3"><a class="reference internal" href="#3-building-intuition-the-best-fit-line">3. Building Intuition — "The Best Fit Line"</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#what-is-a-residual">What is a residual?</a>
+    <li class="toctree-l4"><a class="reference internal" href="#what-is-a-residual">What is a residual?</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#measuring-how-bad-a-line-is-sum-of-squared-errors-sse">Measuring how bad a line is — Sum of Squared Errors (SSE)</a>
+    <li class="toctree-l4"><a class="reference internal" href="#measuring-how-bad-a-line-is-sum-of-squared-errors-sse">Measuring how bad a line is — Sum of Squared Errors (SSE)</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#4-deriving-ols-why-the-derivative-equals-zero-at-the-minimum">4. Deriving OLS — Why the Derivative Equals Zero at the Minimum</a>
+    <li class="toctree-l3"><a class="reference internal" href="#4-deriving-ols-why-the-derivative-equals-zero-at-the-minimum">4. Deriving OLS — Why the Derivative Equals Zero at the Minimum</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#the-core-calculus-idea">The core calculus idea</a>
+    <li class="toctree-l4"><a class="reference internal" href="#the-core-calculus-idea">The core calculus idea</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#doing-the-calculus">Doing the calculus</a>
+    <li class="toctree-l4"><a class="reference internal" href="#doing-the-calculus">Doing the calculus</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#multiple-linear-regression-matrix-form">Multiple linear regression (matrix form)</a>
+    <li class="toctree-l4"><a class="reference internal" href="#multiple-linear-regression-matrix-form">Multiple linear regression (matrix form)</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#5-a-real-dataset-advertising-spend-vs-sales">5. A Real Dataset — Advertising Spend vs. Sales</a>
+    <li class="toctree-l3"><a class="reference internal" href="#5-a-real-dataset-advertising-spend-vs-sales">5. A Real Dataset — Advertising Spend vs. Sales</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#6-exploratory-data-analysis">6. Exploratory Data Analysis</a>
+    <li class="toctree-l3"><a class="reference internal" href="#6-exploratory-data-analysis">6. Exploratory Data Analysis</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#7-the-assumptions-of-linear-regression">7. The Assumptions of Linear Regression</a>
+    <li class="toctree-l3"><a class="reference internal" href="#7-the-assumptions-of-linear-regression">7. The Assumptions of Linear Regression</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#8-fitting-multiple-linear-regression-with-statsmodels">8. Fitting Multiple Linear Regression with statsmodels</a>
+    <li class="toctree-l3"><a class="reference internal" href="#8-fitting-multiple-linear-regression-with-statsmodels">8. Fitting Multiple Linear Regression with statsmodels</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#9-reading-the-ols-summary-block-by-block">9. Reading the OLS Summary — Block by Block</a>
+    <li class="toctree-l3"><a class="reference internal" href="#9-reading-the-ols-summary-block-by-block">9. Reading the OLS Summary — Block by Block</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#top-block-model-level-statistics">Top block — model-level statistics</a>
+    <li class="toctree-l4"><a class="reference internal" href="#top-block-model-level-statistics">Top block — model-level statistics</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#middle-block-per-coefficient-table">Middle block — per-coefficient table</a>
+    <li class="toctree-l4"><a class="reference internal" href="#middle-block-per-coefficient-table">Middle block — per-coefficient table</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#bottom-block-diagnostics-baked-into-the-summary">Bottom block — diagnostics baked into the summary</a>
+    <li class="toctree-l4"><a class="reference internal" href="#bottom-block-diagnostics-baked-into-the-summary">Bottom block — diagnostics baked into the summary</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#what-does-our-model-say">What does our model say?</a>
+    <li class="toctree-l4"><a class="reference internal" href="#what-does-our-model-say">What does our model say?</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#10-regression-diagnostics">10. Regression Diagnostics</a>
+    <li class="toctree-l3"><a class="reference internal" href="#10-regression-diagnostics">10. Regression Diagnostics</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#101-residuals-vs-fitted-linearity-and-homoscedasticity">10.1 Residuals vs. Fitted — Linearity and Homoscedasticity</a>
+    <li class="toctree-l4"><a class="reference internal" href="#101-residuals-vs-fitted-linearity-and-homoscedasticity">10.1 Residuals vs. Fitted — Linearity and Homoscedasticity</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#102-qq-plot-normality-of-residuals">10.2 Q–Q Plot — Normality of residuals</a>
+    <li class="toctree-l4"><a class="reference internal" href="#102-qq-plot-normality-of-residuals">10.2 Q–Q Plot — Normality of residuals</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#103-histogram-density-of-residuals">10.3 Histogram / density of residuals</a>
+    <li class="toctree-l4"><a class="reference internal" href="#103-histogram-density-of-residuals">10.3 Histogram / density of residuals</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#104-scalelocation-plot-equal-variance-another-angle">10.4 Scale–Location plot — equal variance, another angle</a>
+    <li class="toctree-l4"><a class="reference internal" href="#104-scalelocation-plot-equal-variance-another-angle">10.4 Scale–Location plot — equal variance, another angle</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#105-variance-inflation-factor-vif-multicollinearity">10.5 Variance Inflation Factor (VIF) — multicollinearity</a>
+    <li class="toctree-l4"><a class="reference internal" href="#105-variance-inflation-factor-vif-multicollinearity">10.5 Variance Inflation Factor (VIF) — multicollinearity</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#106-cooks-distance-influential-observations">10.6 Cook's Distance — influential observations</a>
+    <li class="toctree-l4"><a class="reference internal" href="#106-cooks-distance-influential-observations">10.6 Cook's Distance — influential observations</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#107-formal-statistical-tests">10.7 Formal statistical tests</a>
+    <li class="toctree-l4"><a class="reference internal" href="#107-formal-statistical-tests">10.7 Formal statistical tests</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#108-a-diagnostic-summary">10.8 A diagnostic summary</a>
+    <li class="toctree-l4"><a class="reference internal" href="#108-a-diagnostic-summary">10.8 A diagnostic summary</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#11-remedial-measures-what-to-do-when-assumptions-fail">11. Remedial Measures — What to Do When Assumptions Fail</a>
+    <li class="toctree-l3"><a class="reference internal" href="#11-remedial-measures-what-to-do-when-assumptions-fail">11. Remedial Measures — What to Do When Assumptions Fail</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#111-transforming-the-response-log-y-for-heteroscedasticity">11.1 Transforming the Response — \(\log y\) for Heteroscedasticity</a>
+    <li class="toctree-l4"><a class="reference internal" href="#111-transforming-the-response-log-y-for-heteroscedasticity">11.1 Transforming the Response — \(\log y\) for Heteroscedasticity</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#112-polynomial-features-when-the-true-shape-is-curved">11.2 Polynomial Features — When the True Shape is Curved</a>
+    <li class="toctree-l4"><a class="reference internal" href="#112-polynomial-features-when-the-true-shape-is-curved">11.2 Polynomial Features — When the True Shape is Curved</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#113-interaction-terms-hidden-non-linearity-on-the-advertising-data">11.3 Interaction Terms — Hidden Non-linearity on the Advertising Data</a>
+    <li class="toctree-l4"><a class="reference internal" href="#113-interaction-terms-hidden-non-linearity-on-the-advertising-data">11.3 Interaction Terms — Hidden Non-linearity on the Advertising Data</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#114-weighted-least-squares-a-formal-fix-for-heteroscedasticity">11.4 Weighted Least Squares — A Formal Fix for Heteroscedasticity</a>
+    <li class="toctree-l4"><a class="reference internal" href="#114-weighted-least-squares-a-formal-fix-for-heteroscedasticity">11.4 Weighted Least Squares — A Formal Fix for Heteroscedasticity</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#115-heteroscedasticity-robust-standard-errors-the-one-line-fix">11.5 Heteroscedasticity-Robust Standard Errors — The One-Line Fix</a>
+    <li class="toctree-l4"><a class="reference internal" href="#115-heteroscedasticity-robust-standard-errors-the-one-line-fix">11.5 Heteroscedasticity-Robust Standard Errors — The One-Line Fix</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#116-dropping-redundant-predictors-simplest-multicollinearity-fix">11.6 Dropping Redundant Predictors — Simplest Multicollinearity Fix</a>
+    <li class="toctree-l4"><a class="reference internal" href="#116-dropping-redundant-predictors-simplest-multicollinearity-fix">11.6 Dropping Redundant Predictors — Simplest Multicollinearity Fix</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#117-ridge-regression-multicollinearity-via-regularization">11.7 Ridge Regression — Multicollinearity via Regularization</a>
+    <li class="toctree-l4"><a class="reference internal" href="#117-ridge-regression-multicollinearity-via-regularization">11.7 Ridge Regression — Multicollinearity via Regularization</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#118-picking-a-remedy-a-decision-flow">11.8 Picking a Remedy — A Decision Flow</a>
+    <li class="toctree-l4"><a class="reference internal" href="#118-picking-a-remedy-a-decision-flow">11.8 Picking a Remedy — A Decision Flow</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#12-key-takeaways">12. Key Takeaways</a>
+    <li class="toctree-l3"><a class="reference internal" href="#12-key-takeaways">12. Key Takeaways</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#13-practice-exercises">13. Practice Exercises</a>
+    <li class="toctree-l3"><a class="reference internal" href="#13-practice-exercises">13. Practice Exercises</a>
     </li>
     </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                </li>
+    </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                  <li class="toctree-l1"><a class="reference internal" >Anova</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ANOVA/">ANOVA, ANCOVA & MANOVA</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ANCOVA/">ANCOVA — The Tip Money Mystery</a>
+                </li>
+    </ul>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Time Series Analysis</span></p>
@@ -182,6 +194,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Applied Statistical Analysis</li>
+          <li class="breadcrumb-item">Regression</li>
       <li class="breadcrumb-item active">Linear Regression</li>
     <li class="wy-breadcrumbs-aside">
     </li>

@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>ANOVA, ANCOVA & MANOVA - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "ANOVA, ANCOVA \u0026 MANOVA";
+        var mkdocs_page_input_path = "lectures/ANOVA.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../StatisticsFoundations/">Statistical Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../MLConcepts/">ML / AI / DS Concepts</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Applied Statistical Analysis</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Regression</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Anova</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">ANOVA, ANCOVA & MANOVA</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#1-from-t-tests-to-anova">1. From t-Tests to ANOVA</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#quick-recap-the-two-sample-t-test">Quick recap: the two-sample t-test</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#the-problem-what-if-there-are-three-classes">The problem: what if there are three classes?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-where-anova-shows-up-in-the-real-world">2. Where ANOVA Shows Up in the Real World</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-one-way-anova-intuition-and-math">3. One-Way ANOVA — Intuition and Math</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#the-core-idea-split-the-variation">The core idea: split the variation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#the-fertilizer-experiment-synthetic">The fertilizer experiment (synthetic)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#quick-and-dirty-anova-scipystatsf_oneway">Quick-and-dirty ANOVA — scipy.stats.f_oneway</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-anova-is-ols-regression">4. ANOVA Is OLS Regression</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#the-anova-table-from-the-same-ols-fit">The ANOVA table from the same OLS fit</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#what-the-design-matrix-looks-like">What the design matrix looks like</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-anova-assumptions">5. ANOVA Assumptions</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#6-two-way-anova-two-factors-at-once">6. Two-Way ANOVA — Two Factors at Once</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#example-medicine-gender-on-recovery-time">Example: medicine × gender on recovery time</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#a-second-two-way-example-fertilizer-watering-frequency">A second two-way example: fertilizer × watering frequency</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#7-ancova-when-a-continuous-covariate-muddies-the-picture">7. ANCOVA — When a Continuous Covariate Muddies the Picture</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#why-one-way-anova-can-mislead">Why one-way ANOVA can mislead</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#synthetic-student-dataset">Synthetic student dataset</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#8-manova-multiple-outcomes-at-once-briefly">8. MANOVA — Multiple Outcomes at Once (briefly)</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#tiny-example">Tiny example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#9-key-takeaways">9. Key Takeaways</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#10-practice-exercises">10. Practice Exercises</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ANCOVA/">ANCOVA — The Tip Money Mystery</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Time Series Analysis</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeries/">Time Series</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeriesModels/">Time Series Models</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Applied Statistical Analysis</li>
+          <li class="breadcrumb-item">Anova</li>
+      <li class="breadcrumb-item active">ANOVA, ANCOVA & MANOVA</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="anova-ancova-manova-comparing-group-means-at-scale">ANOVA, ANCOVA &amp; MANOVA — Comparing Group Means at Scale<a class="headerlink" href="#anova-ancova-manova-comparing-group-means-at-scale" title="Permanent link">&para;</a></h1>
+<p><em>Data 200 · Applied Statistical Analysis · Instructor: Aayush Regmi</em></p>
+<hr />
+<p>In the <a href="../StatisticsFoundations/">Statistics Foundations notebook</a> we
+used a <strong>t-test</strong> to ask: <em>do these two groups have different means?</em>
+That works beautifully when there are exactly <strong>two</strong> groups. The
+moment a third group joins the party, the t-test starts to creak.</p>
+<p>This notebook walks the natural progression:</p>
+<p><strong>t-test → one-way ANOVA → two-way ANOVA → ANCOVA → MANOVA.</strong></p>
+<p>Along the way we'll see one of the most useful identities in applied
+statistics: <strong>ANOVA is just OLS regression with categorical inputs.</strong>
+The same <code>(X^T X)^{-1} X^T y</code> machinery from the
+<a href="../LinearRegression/">Linear Regression notebook</a> is doing the work.</p>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this notebook you should be able to:</p>
+<ol>
+<li>Recall what a <strong>two-sample t-test</strong> does and why it breaks down for
+   three or more groups (the multiple-comparisons problem).</li>
+<li>Run a <strong>one-way ANOVA</strong> by hand using the SST = SSB + SSW
+   decomposition, and interpret the F-statistic.</li>
+<li>See that ANOVA is <strong>OLS regression with dummy-coded categorical
+   variables</strong> — same algorithm, different names.</li>
+<li>State the <strong>assumptions</strong> of ANOVA and check them in code.</li>
+<li>Extend to <strong>two-way ANOVA</strong> with two factors and an <strong>interaction
+   effect</strong>.</li>
+<li>Use <strong>ANCOVA</strong> when a continuous covariate (like prior GPA) muddies
+   the comparison.</li>
+<li>Recognise when a <strong>MANOVA</strong> (multiple dependent variables) is
+   appropriate — at a conceptual level.</li>
+</ol>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.formula.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">ols</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.stats.anova</span><span class="w"> </span><span class="kn">import</span> <span class="n">anova_lm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.graphics.factorplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">interaction_plot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.multivariate.manova</span><span class="w"> </span><span class="kn">import</span> <span class="n">MANOVA</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="1-from-t-tests-to-anova">1. From t-Tests to ANOVA<a class="headerlink" href="#1-from-t-tests-to-anova" title="Permanent link">&para;</a></h2>
+<h3 id="quick-recap-the-two-sample-t-test">Quick recap: the two-sample t-test<a class="headerlink" href="#quick-recap-the-two-sample-t-test" title="Permanent link">&para;</a></h3>
+<p>Suppose two classrooms write the same exam. Are their average scores
+<em>really</em> different, or did the gap appear by chance? An <strong>independent
+samples t-test</strong> answers exactly that.</p>
+<div class="highlight"><pre><span></span><code><span class="n">class_a</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>   <span class="c1"># mean ≈ 72</span>
+<span class="n">class_b</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">78</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>   <span class="c1"># mean ≈ 78</span>
+
+<span class="n">t_stat</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">class_a</span><span class="p">,</span> <span class="n">class_b</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Class A mean: </span><span class="si">{</span><span class="n">class_a</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Class B mean: </span><span class="si">{</span><span class="n">class_b</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;t = </span><span class="si">{</span><span class="n">t_stat</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">,  p = </span><span class="si">{</span><span class="n">p_val</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Class A mean: 72.13
+Class B mean: 78.91
+t = -4.148,  p = 0.0001
+</code></pre></div>
+<p>Small p → the means are statistically distinguishable. So far so
+good.</p>
+<h3 id="the-problem-what-if-there-are-three-classes">The problem: what if there are <em>three</em> classes?<a class="headerlink" href="#the-problem-what-if-there-are-three-classes" title="Permanent link">&para;</a></h3>
+<p>A natural reflex is to run <strong>all pairwise t-tests</strong> — A vs B, A vs C,
+B vs C. With one t-test at <span class="arithmatex">\(\alpha = 0.05\)</span>, the chance of a false
+alarm is 5%. With three independent tests, the chance that <strong>at least
+one</strong> of them is a false alarm is</p>
+<div class="arithmatex">\[1 - (1 - 0.05)^3 \;\approx\; 14.3\%.\]</div>
+<p>With six pairwise tests (four groups), it climbs to <strong>26%</strong>. This is
+the <strong>multiple-comparisons problem</strong>: the more tests we run, the more
+false discoveries we expect just by luck.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Show the family-wise error rate exploding as we add comparisons</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">]:</span>
+    <span class="n">fwer</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">**</span> <span class="n">k</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&gt;2</span><span class="si">}</span><span class="s2"> independent tests at alpha=0.05  →  family-wise error ≈ </span><span class="si">{</span><span class="n">fwer</span><span class="si">:</span><span class="s2">.1%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code> 1 independent tests at alpha=0.05  →  family-wise error ≈ 5.0%
+ 2 independent tests at alpha=0.05  →  family-wise error ≈ 9.8%
+ 3 independent tests at alpha=0.05  →  family-wise error ≈ 14.3%
+ 6 independent tests at alpha=0.05  →  family-wise error ≈ 26.5%
+10 independent tests at alpha=0.05  →  family-wise error ≈ 40.1%
+</code></pre></div>
+<p>We need <strong>one</strong> test that compares all groups simultaneously, with
+the false-positive rate held at 5% overall. That test is <strong>ANOVA</strong>
+(<em>Analysis of Variance</em>).</p>
+<h2 id="2-where-anova-shows-up-in-the-real-world">2. Where ANOVA Shows Up in the Real World<a class="headerlink" href="#2-where-anova-shows-up-in-the-real-world" title="Permanent link">&para;</a></h2>
+<p>ANOVA is the right tool whenever you want to compare a <strong>numeric
+outcome</strong> across <strong>three or more groups</strong>. A few familiar scenes:</p>
+<ul>
+<li><strong>The farmer.</strong> A farmer tries three fertilizers — A, B, and C — on
+  similar plots of land and measures the crop yield from each plot.
+  <em>Does fertilizer choice change average yield, or are the differences
+  just luck?</em></li>
+<li><strong>The doctor.</strong> A clinical trial gives three different medicines to
+  groups of patients with the same illness and records recovery time
+  in days. <em>Do the medicines actually differ, or could the same gap
+  appear from random patient variation?</em></li>
+<li><strong>The educator.</strong> A school tests four teaching methods on different
+  classrooms and looks at end-of-term test scores. <em>Is one method
+  reliably better, or just lucky this term?</em></li>
+</ul>
+<p>Every one of these problems has the same shape: <strong>one numeric outcome,
+one categorical "group" variable with several levels.</strong> That is exactly
+what one-way ANOVA was designed for.</p>
+<h2 id="3-one-way-anova-intuition-and-math">3. One-Way ANOVA — Intuition and Math<a class="headerlink" href="#3-one-way-anova-intuition-and-math" title="Permanent link">&para;</a></h2>
+<h3 id="the-core-idea-split-the-variation">The core idea: split the variation<a class="headerlink" href="#the-core-idea-split-the-variation" title="Permanent link">&para;</a></h3>
+<p>Take all the yield numbers from the farmer's experiment and forget for
+a moment which fertilizer they came from. There is some <strong>total
+variation</strong> in those numbers. ANOVA splits that total variation into
+two parts:</p>
+<ul>
+<li><strong>Between-group variation (SSB)</strong> — how far each group's mean is
+  from the overall mean. This is the <em>signal</em> — variation that the
+  group label seems to explain.</li>
+<li><strong>Within-group variation (SSW)</strong> — how far individual observations
+  are from their own group's mean. This is the <em>noise</em> — variation
+  that has nothing to do with which group you're in.</li>
+</ul>
+<div class="arithmatex">\[\underbrace{\text{SST}}_{\text{total variation}} \;=\;
+\underbrace{\text{SSB}}_{\text{signal: between groups}} \;+\;
+\underbrace{\text{SSW}}_{\text{noise: within groups}}\]</div>
+<p>If the signal is large compared to the noise, the groups really are
+different. ANOVA puts that ratio into a single number — the
+<strong>F-statistic</strong>:</p>
+<div class="arithmatex">\[F \;=\; \frac{\text{SSB} / (k-1)}{\text{SSW} / (n-k)}
+\;=\; \frac{\text{between-group variance}}{\text{within-group variance}},\]</div>
+<p>where <span class="arithmatex">\(k\)</span> is the number of groups and <span class="arithmatex">\(n\)</span> is the total sample size.
+Big <span class="arithmatex">\(F\)</span> → real differences; small <span class="arithmatex">\(F\)</span> → just noise.</p>
+<h3 id="the-fertilizer-experiment-synthetic">The fertilizer experiment (synthetic)<a class="headerlink" href="#the-fertilizer-experiment-synthetic" title="Permanent link">&para;</a></h3>
+<p>Three fertilizers, 20 plots each. Yields are in tons per hectare.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_per_group</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">fert_a</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_group</span><span class="p">)</span>   <span class="c1"># baseline</span>
+<span class="n">fert_b</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">5.8</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_group</span><span class="p">)</span>   <span class="c1"># a bit better</span>
+<span class="n">fert_c</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">6.2</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_per_group</span><span class="p">)</span>   <span class="c1"># best</span>
+
+<span class="n">fert</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;yield&quot;</span><span class="p">:</span>      <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">fert_a</span><span class="p">,</span> <span class="n">fert_b</span><span class="p">,</span> <span class="n">fert_c</span><span class="p">]),</span>
+    <span class="s2">&quot;fertilizer&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">([</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">],</span> <span class="n">n_per_group</span><span class="p">),</span>
+<span class="p">})</span>
+<span class="n">fert</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>yield</th>
+      <th>fertilizer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3.990278</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.799069</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5.097652</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5.351733</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5.426736</td>
+      <td>A</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">fert</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;fertilizer&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;yield&quot;</span><span class="p">,</span>
+            <span class="n">palette</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;#264653&quot;</span><span class="p">,</span> <span class="s2">&quot;#2a9d8f&quot;</span><span class="p">,</span> <span class="s2">&quot;#e76f51&quot;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Crop yield by fertilizer&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;yield (tons/ha)&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>/var/folders/kp/mytrwq8157q9s1tmw7r79fkm0000gn/T/ipykernel_17973/561516898.py:1: FutureWarning:
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.
+
+  sns.boxplot(data=fert, x=&quot;fertilizer&quot;, y=&quot;yield&quot;,
+</code></pre></div>
+<p><img alt="png" src="../ANOVA_files/ANOVA_13_1.png" /></p>
+<h3 id="quick-and-dirty-anova-scipystatsf_oneway">Quick-and-dirty ANOVA — <code>scipy.stats.f_oneway</code><a class="headerlink" href="#quick-and-dirty-anova-scipystatsf_oneway" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">f_stat</span><span class="p">,</span> <span class="n">p_val</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">f_oneway</span><span class="p">(</span><span class="n">fert_a</span><span class="p">,</span> <span class="n">fert_b</span><span class="p">,</span> <span class="n">fert_c</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;F-statistic : </span><span class="si">{</span><span class="n">f_stat</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;p-value     : </span><span class="si">{</span><span class="n">p_val</span><span class="si">:</span><span class="s2">.4g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>F-statistic : 32.859
+p-value     : 3.226e-10
+</code></pre></div>
+<p>A large F and a tiny p — fertilizer choice <strong>does</strong> explain variation
+in yield. But the bare numbers don't show <em>how</em> ANOVA arrived at this
+answer. Let's compute the same F by hand from the SSB / SSW formulas.</p>
+<div class="highlight"><pre><span></span><code><span class="n">grand_mean</span> <span class="o">=</span> <span class="n">fert</span><span class="p">[</span><span class="s2">&quot;yield&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">k</span> <span class="o">=</span> <span class="n">fert</span><span class="p">[</span><span class="s2">&quot;fertilizer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fert</span><span class="p">)</span>
+
+<span class="n">group_means</span> <span class="o">=</span> <span class="n">fert</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;fertilizer&quot;</span><span class="p">)[</span><span class="s2">&quot;yield&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">group_sizes</span> <span class="o">=</span> <span class="n">fert</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;fertilizer&quot;</span><span class="p">)[</span><span class="s2">&quot;yield&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+
+<span class="c1"># Between-group sum of squares</span>
+<span class="n">ssb</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_sizes</span> <span class="o">*</span> <span class="p">(</span><span class="n">group_means</span> <span class="o">-</span> <span class="n">grand_mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="c1"># Within-group sum of squares</span>
+<span class="n">ssw</span> <span class="o">=</span> <span class="p">((</span><span class="n">fert</span><span class="p">[</span><span class="s2">&quot;yield&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">fert</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;fertilizer&quot;</span><span class="p">)[</span><span class="s2">&quot;yield&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">sst</span> <span class="o">=</span> <span class="p">((</span><span class="n">fert</span><span class="p">[</span><span class="s2">&quot;yield&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">grand_mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="n">f_manual</span> <span class="o">=</span> <span class="p">(</span><span class="n">ssb</span> <span class="o">/</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">ssw</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="n">k</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SSB (between groups): </span><span class="si">{</span><span class="n">ssb</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SSW (within groups) : </span><span class="si">{</span><span class="n">ssw</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SST (total)         : </span><span class="si">{</span><span class="n">sst</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sanity check: SSB + SSW = </span><span class="si">{</span><span class="n">ssb</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">ssw</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  (should equal SST)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Manual F-statistic  : </span><span class="si">{</span><span class="n">f_manual</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  (matches scipy)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>SSB (between groups): 14.172
+SSW (within groups) : 12.292
+SST (total)         : 26.465
+Sanity check: SSB + SSW = 26.465  (should equal SST)
+
+Manual F-statistic  : 32.859  (matches scipy)
+</code></pre></div>
+<h2 id="4-anova-is-ols-regression">4. ANOVA <em>Is</em> OLS Regression<a class="headerlink" href="#4-anova-is-ols-regression" title="Permanent link">&para;</a></h2>
+<p>Here's the punchline that often surprises students:</p>
+<blockquote>
+<p><strong>One-way ANOVA is exactly an OLS regression with the categorical
+group encoded as dummy variables.</strong></p>
+</blockquote>
+<p>In the <a href="../LinearRegression/">Linear Regression notebook</a> OLS estimated
+<span class="arithmatex">\((\beta_0, \beta_1, \ldots)\)</span> for <strong>continuous</strong> predictors. With a
+categorical predictor, the same OLS estimates the <strong>mean of each
+group</strong>. Same machine, different inputs.</p>
+<p>Let's see it. statsmodels' <code>ols</code> with the formula
+<code>yield ~ C(fertilizer)</code> automatically dummy-encodes fertilizer and
+fits the regression.</p>
+<div class="highlight"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;Q(&#39;yield&#39;) ~ C(fertilizer)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">fert</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>======================================================================================
+                         coef    std err          t      P&gt;|t|      [0.025      0.975]
+--------------------------------------------------------------------------------------
+Intercept              4.9442      0.104     47.614      0.000       4.736       5.152
+C(fertilizer)[T.B]     0.6432      0.147      4.380      0.000       0.349       0.937
+C(fertilizer)[T.C]     1.1891      0.147      8.098      0.000       0.895       1.483
+======================================================================================
+</code></pre></div>
+<p>Read the coefficient table:</p>
+<ul>
+<li><code>Intercept</code> ≈ mean of fertilizer <strong>A</strong> (the baseline).</li>
+<li><code>C(fertilizer)[T.B]</code> = mean(B) − mean(A).</li>
+<li><code>C(fertilizer)[T.C]</code> = mean(C) − mean(A).</li>
+</ul>
+<p>Compare those numbers to the group means we computed earlier:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Group means:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">group_means</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Fitted intercept (should equal mean A): </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;B - A   from coefficient: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;C(fertilizer)[T.B]&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;B - A   from means      : </span><span class="si">{</span><span class="n">group_means</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">group_means</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Group means:
+fertilizer
+A    4.944217
+B    5.587460
+C    6.133362
+Name: yield, dtype: float64
+
+Fitted intercept (should equal mean A): 4.944
+B - A   from coefficient: 0.643
+B - A   from means      : 0.643
+</code></pre></div>
+<h3 id="the-anova-table-from-the-same-ols-fit">The ANOVA table from the same OLS fit<a class="headerlink" href="#the-anova-table-from-the-same-ols-fit" title="Permanent link">&para;</a></h3>
+<p><code>anova_lm</code> re-summarises the same fit as the classic ANOVA
+decomposition (SSB, SSW, F, p):</p>
+<div class="highlight"><pre><span></span><code><span class="n">anova_lm</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>df</th>
+      <th>sum_sq</th>
+      <th>mean_sq</th>
+      <th>F</th>
+      <th>PR(&gt;F)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>C(fertilizer)</th>
+      <td>2.0</td>
+      <td>14.172244</td>
+      <td>7.086122</td>
+      <td>32.858521</td>
+      <td>3.225851e-10</td>
+    </tr>
+    <tr>
+      <th>Residual</th>
+      <td>57.0</td>
+      <td>12.292366</td>
+      <td>0.215656</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>The F-statistic and p-value are <em>identical</em> to the ones from
+<code>scipy.stats.f_oneway</code> and our hand calculation. ANOVA and OLS are
+two readouts of the same underlying fit.</p>
+<h3 id="what-the-design-matrix-looks-like">What the design matrix looks like<a class="headerlink" href="#what-the-design-matrix-looks-like" title="Permanent link">&para;</a></h3>
+<p>To make the dummy encoding visible, here are the first few rows of
+the design matrix <code>X</code> that statsmodels actually solved
+<span class="arithmatex">\(\hat\beta = (X^\top X)^{-1} X^\top y\)</span> for:</p>
+<div class="highlight"><pre><span></span><code><span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">exog</span><span class="p">,</span>
+                 <span class="n">columns</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">exog_names</span><span class="p">)</span>
+<span class="n">X</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">fertilizer</span><span class="o">=</span><span class="n">fert</span><span class="p">[</span><span class="s2">&quot;fertilizer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Intercept</th>
+      <th>C(fertilizer)[T.B]</th>
+      <th>C(fertilizer)[T.C]</th>
+      <th>fertilizer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>A</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Fertilizer A → both dummies are 0 → only the intercept fires →
+predicted yield = mean(A). Fertilizer B → dummy B is 1 → predicted
+yield = mean(A) + (mean(B) − mean(A)) = mean(B). And so on. The
+regression coefficients <strong>are</strong> the group means in disguise.</p>
+<h2 id="5-anova-assumptions">5. ANOVA Assumptions<a class="headerlink" href="#5-anova-assumptions" title="Permanent link">&para;</a></h2>
+<p>Like every statistical test, ANOVA is built on assumptions. The
+p-value is only trustworthy if these hold:</p>
+<ol>
+<li><strong>Independence</strong> — observations are unrelated. (Same plot measured
+   twice would violate this; so would students copying answers.)</li>
+<li><strong>Normality of residuals</strong> — the residuals from the fit should be
+   approximately normally distributed.</li>
+<li><strong>Homogeneity of variance</strong> ("homoscedasticity") — all groups
+   should have similar spread.</li>
+</ol>
+<p>Two quick code checks below.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># (a) Normality of residuals — Shapiro-Wilk</span>
+<span class="n">residuals</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">resid</span>
+<span class="n">shapiro_W</span><span class="p">,</span> <span class="n">shapiro_p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">shapiro</span><span class="p">(</span><span class="n">residuals</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shapiro-Wilk : W = </span><span class="si">{</span><span class="n">shapiro_W</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">shapiro_p</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  (large p → looks normal)&quot;</span><span class="p">)</span>
+
+<span class="c1"># (b) Equal variances across groups — Levene&#39;s test</span>
+<span class="n">levene_W</span><span class="p">,</span> <span class="n">levene_p</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">levene</span><span class="p">(</span><span class="n">fert_a</span><span class="p">,</span> <span class="n">fert_b</span><span class="p">,</span> <span class="n">fert_c</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Levene       : W = </span><span class="si">{</span><span class="n">levene_W</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, p = </span><span class="si">{</span><span class="n">levene_p</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">  (large p → variances look equal)&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Shapiro-Wilk : W = 0.979, p = 0.391  (large p → looks normal)
+Levene       : W = 0.046, p = 0.955  (large p → variances look equal)
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># A QQ plot of residuals — points close to the line ⇒ approximately normal</span>
+<span class="n">sm</span><span class="o">.</span><span class="n">qqplot</span><span class="p">(</span><span class="n">residuals</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="s2">&quot;45&quot;</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;QQ plot of ANOVA residuals&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ANOVA_files/ANOVA_29_0.png" /></p>
+<p><strong>If assumptions are violated:</strong></p>
+<ul>
+<li>Variances clearly unequal? Use <strong>Welch's ANOVA</strong>
+  (<code>scipy.stats.f_oneway</code> has a Welch variant via
+  <code>pingouin.welch_anova</code>).</li>
+<li>Residuals strongly non-normal? Try the non-parametric
+  <strong>Kruskal-Wallis test</strong> (<code>scipy.stats.kruskal</code>).</li>
+</ul>
+<h2 id="6-two-way-anova-two-factors-at-once">6. Two-Way ANOVA — Two Factors at Once<a class="headerlink" href="#6-two-way-anova-two-factors-at-once" title="Permanent link">&para;</a></h2>
+<p>One-way ANOVA had <strong>one</strong> grouping variable. Real experiments often
+vary <strong>two</strong> things at once. Two-way ANOVA lets us ask three questions
+from a single fit:</p>
+<ol>
+<li>Is there a main effect of factor A?</li>
+<li>Is there a main effect of factor B?</li>
+<li>Is there an <strong>interaction</strong> — does the effect of A depend on B?</li>
+</ol>
+<h3 id="example-medicine-gender-on-recovery-time">Example: medicine × gender on recovery time<a class="headerlink" href="#example-medicine-gender-on-recovery-time" title="Permanent link">&para;</a></h3>
+<p>Three medicines, two genders. We synthesise data where medicine C
+works particularly well for one gender — i.e. there is an interaction.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_each</span> <span class="o">=</span> <span class="mi">25</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="c1"># Mean recovery time (days) for each (medicine, gender) cell</span>
+<span class="n">cell_means</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">):</span> <span class="mf">9.0</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;M&quot;</span><span class="p">):</span> <span class="mf">9.2</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">):</span> <span class="mf">7.5</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;M&quot;</span><span class="p">):</span> <span class="mf">7.7</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">):</span> <span class="mf">5.5</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;M&quot;</span><span class="p">):</span> <span class="mf">7.0</span><span class="p">,</span>    <span class="c1"># interaction lives here</span>
+<span class="p">}</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">med</span><span class="p">,</span> <span class="n">gen</span><span class="p">),</span> <span class="n">mu</span> <span class="ow">in</span> <span class="n">cell_means</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;recovery&quot;</span><span class="p">:</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">),</span>
+        <span class="s2">&quot;medicine&quot;</span><span class="p">:</span> <span class="n">med</span><span class="p">,</span>
+        <span class="s2">&quot;gender&quot;</span><span class="p">:</span>   <span class="n">gen</span><span class="p">,</span>
+    <span class="p">}))</span>
+<span class="n">med</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">med</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>recovery</th>
+      <th>medicine</th>
+      <th>gender</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>7.771803</td>
+      <td>A</td>
+      <td>F</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9.215131</td>
+      <td>A</td>
+      <td>F</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>9.263996</td>
+      <td>A</td>
+      <td>F</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10.631025</td>
+      <td>A</td>
+      <td>F</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10.002133</td>
+      <td>A</td>
+      <td>F</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Two-way ANOVA with interaction term</span>
+<span class="n">model2</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;recovery ~ C(medicine) + C(gender) + C(medicine):C(gender)&quot;</span><span class="p">,</span>
+             <span class="n">data</span><span class="o">=</span><span class="n">med</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">anova_lm</span><span class="p">(</span><span class="n">model2</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sum_sq</th>
+      <th>df</th>
+      <th>F</th>
+      <th>PR(&gt;F)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>C(medicine)</th>
+      <td>206.911857</td>
+      <td>2.0</td>
+      <td>67.194064</td>
+      <td>2.439205e-21</td>
+    </tr>
+    <tr>
+      <th>C(gender)</th>
+      <td>14.727458</td>
+      <td>1.0</td>
+      <td>9.565404</td>
+      <td>2.381881e-03</td>
+    </tr>
+    <tr>
+      <th>C(medicine):C(gender)</th>
+      <td>28.758802</td>
+      <td>2.0</td>
+      <td>9.339343</td>
+      <td>1.535650e-04</td>
+    </tr>
+    <tr>
+      <th>Residual</th>
+      <td>221.710860</td>
+      <td>144.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Read the table:</p>
+<ul>
+<li><strong>C(medicine)</strong> — significant main effect: medicines differ on
+  average.</li>
+<li><strong>C(gender)</strong> — main effect of gender (small here).</li>
+<li><strong>C(medicine):C(gender)</strong> — <em>interaction</em>: the <em>gap between medicines
+  is not the same for both genders</em>. The interaction plot makes this
+  visible.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">interaction_plot</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">med</span><span class="p">[</span><span class="s2">&quot;medicine&quot;</span><span class="p">],</span> <span class="n">trace</span><span class="o">=</span><span class="n">med</span><span class="p">[</span><span class="s2">&quot;gender&quot;</span><span class="p">],</span> <span class="n">response</span><span class="o">=</span><span class="n">med</span><span class="p">[</span><span class="s2">&quot;recovery&quot;</span><span class="p">],</span>
+    <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;#e76f51&quot;</span><span class="p">,</span> <span class="s2">&quot;#264653&quot;</span><span class="p">],</span> <span class="n">markers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;recovery time (days)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Interaction: medicine × gender on recovery time&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ANOVA_files/ANOVA_35_0.png" /></p>
+<p>Non-parallel lines ⇒ interaction. Medicine C works dramatically
+better for one gender than the other.</p>
+<h3 id="a-second-two-way-example-fertilizer-watering-frequency">A second two-way example: fertilizer × watering frequency<a class="headerlink" href="#a-second-two-way-example-fertilizer-watering-frequency" title="Permanent link">&para;</a></h3>
+<p>Two fertilizers, two watering schedules — does one combination beat
+the rest?</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_each</span> <span class="o">=</span> <span class="mi">18</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="n">mu</span> <span class="ow">in</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;daily&quot;</span><span class="p">):</span>  <span class="mf">5.5</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;weekly&quot;</span><span class="p">):</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;daily&quot;</span><span class="p">):</span>  <span class="mf">6.4</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;weekly&quot;</span><span class="p">):</span> <span class="mf">5.4</span><span class="p">,</span>
+<span class="p">}</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;yield&quot;</span><span class="p">:</span>      <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">),</span>
+        <span class="s2">&quot;fertilizer&quot;</span><span class="p">:</span> <span class="n">f</span><span class="p">,</span>
+        <span class="s2">&quot;watering&quot;</span><span class="p">:</span>   <span class="n">w</span><span class="p">,</span>
+    <span class="p">}))</span>
+<span class="n">farm</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">model_farm</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;Q(&#39;yield&#39;) ~ C(fertilizer) + C(watering) + C(fertilizer):C(watering)&quot;</span><span class="p">,</span>
+                 <span class="n">data</span><span class="o">=</span><span class="n">farm</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">anova_lm</span><span class="p">(</span><span class="n">model_farm</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sum_sq</th>
+      <th>df</th>
+      <th>F</th>
+      <th>PR(&gt;F)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>C(fertilizer)</th>
+      <td>10.717942</td>
+      <td>1.0</td>
+      <td>42.867108</td>
+      <td>9.185158e-09</td>
+    </tr>
+    <tr>
+      <th>C(watering)</th>
+      <td>17.470879</td>
+      <td>1.0</td>
+      <td>69.875921</td>
+      <td>4.881116e-12</td>
+    </tr>
+    <tr>
+      <th>C(fertilizer):C(watering)</th>
+      <td>1.982103</td>
+      <td>1.0</td>
+      <td>7.927550</td>
+      <td>6.364605e-03</td>
+    </tr>
+    <tr>
+      <th>Residual</th>
+      <td>17.001847</td>
+      <td>68.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Significant interaction ⇒ the <em>best</em> fertilizer depends on watering
+schedule. That is a finding pure one-way ANOVA could never have
+surfaced.</p>
+<h2 id="7-ancova-when-a-continuous-covariate-muddies-the-picture">7. ANCOVA — When a Continuous Covariate Muddies the Picture<a class="headerlink" href="#7-ancova-when-a-continuous-covariate-muddies-the-picture" title="Permanent link">&para;</a></h2>
+<h3 id="why-one-way-anova-can-mislead">Why one-way ANOVA can mislead<a class="headerlink" href="#why-one-way-anova-can-mislead" title="Permanent link">&para;</a></h3>
+<p>Suppose we want to compare <strong>three teaching methods</strong> on end-of-term
+test scores. We run a one-way ANOVA on <code>score ~ C(method)</code> and find
+that the methods differ.</p>
+<p>But there's a confounder: students assigned to different methods may
+have started with different <strong>prior GPAs</strong>. A method that happened to
+get the stronger students looks better than it really is.</p>
+<p><strong>ANCOVA</strong> (Analysis of <em>Covariance</em>) handles this by adding the
+covariate to the model:</p>
+<div class="arithmatex">\[\text{score} \;=\; \beta_0 \;+\; \beta_1 \,\text{prior\_gpa}
+\;+\; \text{group dummies} \;+\; \varepsilon.\]</div>
+<p>The continuous covariate is "regressed out" of the score before group
+means are compared. We end up asking the cleaner question: <em>holding
+prior GPA constant, do the methods differ?</em></p>
+<h3 id="synthetic-student-dataset">Synthetic student dataset<a class="headerlink" href="#synthetic-student-dataset" title="Permanent link">&para;</a></h3>
+<p>We deliberately introduce a confound: method C tends to be assigned to
+students with higher prior GPA. So a naive one-way ANOVA will
+<strong>overstate</strong> how good method C is.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_each</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">method_effect</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
+<span class="n">method_gpa</span>    <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">2.8</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mf">3.4</span><span class="p">}</span>    <span class="c1"># confounded with method</span>
+
+<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">]:</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">method_gpa</span><span class="p">[</span><span class="n">m</span><span class="p">],</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">score</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">prior</span> <span class="o">+</span> <span class="n">method_effect</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span> <span class="s2">&quot;prior_gpa&quot;</span><span class="p">:</span> <span class="n">prior</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="n">m</span><span class="p">}))</span>
+<span class="n">students</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">students</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>score</th>
+      <th>prior_gpa</th>
+      <th>method</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>85.143263</td>
+      <td>2.821610</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>85.918797</td>
+      <td>2.924167</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>87.941253</td>
+      <td>3.284863</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>84.431187</td>
+      <td>2.181029</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>80.365867</td>
+      <td>2.622669</td>
+      <td>A</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><strong>Step 1 — Naive one-way ANOVA (ignoring prior GPA):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">naive</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;score ~ C(method)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">students</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Naive one-way ANOVA (no covariate):</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">anova_lm</span><span class="p">(</span><span class="n">naive</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Method-effect coefficients:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">naive</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Naive one-way ANOVA (no covariate):
+
+             df       sum_sq     mean_sq          F        PR(&gt;F)
+C(method)   2.0   478.315700  239.157850  18.393294  2.176639e-07
+Residual   87.0  1131.213011   13.002448        NaN           NaN
+
+Method-effect coefficients:
+Intercept         82.654636
+C(method)[T.B]     2.261608
+C(method)[T.C]     5.611834
+dtype: float64
+</code></pre></div>
+<p><strong>Step 2 — ANCOVA (adding prior GPA as a covariate):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">ancova</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="s2">&quot;score ~ prior_gpa + C(method)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">students</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ANCOVA (covariate-adjusted):</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">anova_lm</span><span class="p">(</span><span class="n">ancova</span><span class="p">,</span> <span class="n">typ</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Method-effect coefficients (controlling for prior GPA):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ancova</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>ANCOVA (covariate-adjusted):
+
+               sum_sq    df          F        PR(&gt;F)
+C(method)   54.356163   2.0   2.733619  7.063404e-02
+prior_gpa  276.187150   1.0  27.779388  9.957508e-07
+Residual   855.025861  86.0        NaN           NaN
+
+Method-effect coefficients (controlling for prior GPA):
+Intercept         65.308069
+C(method)[T.B]     1.631168
+C(method)[T.C]     2.131906
+prior_gpa          6.096443
+dtype: float64
+</code></pre></div>
+<p>Compare the two <code>C(method)[T.C]</code> coefficients. The naive ANOVA
+reports a much bigger gap between methods A and C than ANCOVA does —
+because the naive version is partly measuring the prior-GPA
+advantage, not the method itself. ANCOVA strips that out.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Visualise: regression lines per method, after adjusting for prior GPA</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">lmplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">students</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;prior_gpa&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;method&quot;</span><span class="p">,</span>
+           <span class="n">palette</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;#264653&quot;</span><span class="p">,</span> <span class="s2">&quot;#2a9d8f&quot;</span><span class="p">,</span> <span class="s2">&quot;#e76f51&quot;</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span>
+           <span class="n">ci</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;ANCOVA picture: parallel lines, one per method&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../ANOVA_files/ANOVA_47_0.png" /></p>
+<p>Three roughly parallel lines, slightly shifted vertically. The
+vertical shift between lines = the <em>true</em> method effect, after the
+shared slope (prior GPA) has been accounted for.</p>
+<h2 id="8-manova-multiple-outcomes-at-once-briefly">8. MANOVA — Multiple Outcomes at Once (briefly)<a class="headerlink" href="#8-manova-multiple-outcomes-at-once-briefly" title="Permanent link">&para;</a></h2>
+<p>ANOVA / ANCOVA test how groups differ on <strong>one</strong> dependent variable.
+<strong>MANOVA</strong> (<em>Multivariate ANOVA</em>) tests how groups differ on <strong>two or
+more dependent variables simultaneously</strong>.</p>
+<p>Why bother? Because two outcomes might <em>individually</em> look unaffected
+but show a clear group difference <em>together</em> (or vice versa). MANOVA
+uses the joint distribution.</p>
+<h3 id="tiny-example">Tiny example<a class="headerlink" href="#tiny-example" title="Permanent link">&para;</a></h3>
+<p>Three teaching methods, two outcomes per student: <strong>test score</strong> and
+<strong>homework completion %</strong>. We ask: <em>does the choice of method affect
+this pair of outcomes jointly?</em></p>
+<div class="highlight"><pre><span></span><code><span class="n">n_each</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">cells</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">72</span><span class="p">,</span>  <span class="mi">60</span><span class="p">),</span>
+    <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">78</span><span class="p">,</span>  <span class="mi">75</span><span class="p">),</span>
+    <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">80</span><span class="p">,</span>  <span class="mi">85</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="p">(</span><span class="n">score_mu</span><span class="p">,</span> <span class="n">hw_mu</span><span class="p">)</span> <span class="ow">in</span> <span class="n">cells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;score&quot;</span><span class="p">:</span>     <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">score_mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">),</span>
+        <span class="s2">&quot;homework&quot;</span><span class="p">:</span>  <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">hw_mu</span><span class="p">,</span>    <span class="n">scale</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_each</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span>    <span class="n">m</span><span class="p">,</span>
+    <span class="p">}))</span>
+<span class="n">df_m</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">manova</span> <span class="o">=</span> <span class="n">MANOVA</span><span class="o">.</span><span class="n">from_formula</span><span class="p">(</span><span class="s2">&quot;score + homework ~ method&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df_m</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">manova</span><span class="o">.</span><span class="n">mv_test</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>                   Multivariate linear model
+===============================================================
+
+---------------------------------------------------------------
+       Intercept         Value  Num DF  Den DF  F Value  Pr &gt; F
+---------------------------------------------------------------
+          Wilks&#39; lambda  0.0163 2.0000 86.0000 2599.1085 0.0000
+         Pillai&#39;s trace  0.9837 2.0000 86.0000 2599.1085 0.0000
+ Hotelling-Lawley trace 60.4444 2.0000 86.0000 2599.1085 0.0000
+    Roy&#39;s greatest root 60.4444 2.0000 86.0000 2599.1085 0.0000
+---------------------------------------------------------------
+
+---------------------------------------------------------------
+           method         Value  Num DF  Den DF  F Value Pr &gt; F
+---------------------------------------------------------------
+            Wilks&#39; lambda 0.3386 4.0000 172.0000 30.8931 0.0000
+           Pillai&#39;s trace 0.6670 4.0000 174.0000 21.7652 0.0000
+   Hotelling-Lawley trace 1.9365 4.0000 102.1690 41.4781 0.0000
+      Roy&#39;s greatest root 1.9279 2.0000  87.0000 83.8632 0.0000
+===============================================================
+</code></pre></div>
+<p>MANOVA reports four classical test statistics — <strong>Wilks' Lambda</strong>,
+<strong>Pillai's Trace</strong>, <strong>Hotelling-Lawley Trace</strong>, <strong>Roy's Greatest
+Root</strong>. They each summarise the same underlying question ("do the
+groups differ across all outcomes jointly?") in a slightly different
+way. For a beginner the only thing to read is the <strong>p-value column</strong>:
+if it's small for the <code>method</code> row, the groups differ on the
+score-homework pair taken together.</p>
+<p>We won't go further than this — full multivariate analysis is its own
+course. Just remember: <strong>MANOVA is the natural next step when you have
+more than one dependent variable</strong>.</p>
+<h2 id="9-key-takeaways">9. Key Takeaways<a class="headerlink" href="#9-key-takeaways" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Pairwise t-tests don't scale.</strong> With <span class="arithmatex">\(k\)</span> groups you'd run
+   <span class="arithmatex">\(\binom{k}{2}\)</span> tests, and the false-positive rate inflates fast.
+   ANOVA is the single, well-calibrated alternative.</li>
+<li><strong>One-way ANOVA splits variance</strong> into between-group (signal) and
+   within-group (noise) and reports their ratio as the F-statistic.</li>
+<li><strong>ANOVA is OLS in disguise.</strong> statsmodels' <code>ols("y ~ C(group)")</code>
+   gives the same answer — the group label becomes dummy variables
+   and the same <span class="arithmatex">\((X^\top X)^{-1} X^\top y\)</span> does the work.</li>
+<li><strong>Two-way ANOVA</strong> adds a second factor and surfaces <strong>interaction
+   effects</strong> — situations where the influence of one factor depends
+   on the other.</li>
+<li><strong>ANCOVA</strong> keeps a continuous <strong>covariate</strong> in the model so group
+   comparisons are fair. "Holding prior GPA constant, do methods
+   differ?"</li>
+<li><strong>MANOVA</strong> is for <strong>multiple dependent variables</strong> at once. Use
+   when the outcomes are correlated and you want a joint test.</li>
+<li><strong>Always check the assumptions</strong>: independence, residual normality,
+   and equal variances — and know the fallback tests when they fail.</li>
+</ol>
+<h2 id="10-practice-exercises">10. Practice Exercises<a class="headerlink" href="#10-practice-exercises" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Pairwise vs. ANOVA.</strong> Generate four groups with means
+   <span class="arithmatex">\(\mu = (10, 10, 10, 10)\)</span> (i.e. <em>no real difference</em>). Run all six
+   pairwise t-tests at <span class="arithmatex">\(\alpha = 0.05\)</span>. Repeat the whole simulation
+   1000 times and report the fraction of simulations where <strong>at least
+   one</strong> pairwise test was significant. Compare with a single ANOVA
+   on the same data.</li>
+<li><strong>Two-way ANOVA on fertilizer × watering.</strong> Extend the §6 farm
+   dataset with a <em>third</em> fertilizer (C) and re-fit. Is the
+   interaction still significant? Plot it.</li>
+<li><strong>ANCOVA on a different covariate.</strong> Re-do the §7 student
+   experiment but let <code>hours_studied</code> be the covariate (instead of
+   prior GPA). Confound the methods with study hours, then show how
+   ANCOVA separates the true method effect from the study-hours
+   effect.</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../Regularization/" class="btn btn-neutral float-left" title="Bias, Variance & Regularization"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ANCOVA/" class="btn btn-neutral float-right" title="ANCOVA — The Tip Money Mystery">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../Regularization/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ANCOVA/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
