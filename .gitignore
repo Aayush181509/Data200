@@ -1,2 +1,5 @@
 env
 site
+lightning_logs
+docs/lectures
+.claude
