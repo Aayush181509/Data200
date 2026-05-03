@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Generalized Linear Models - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Generalized Linear Models";
+        var mkdocs_page_input_path = "lectures/GLM.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../StatisticsFoundations/">Statistical Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../MLConcepts/">ML / AI / DS Concepts</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Applied Statistical Analysis</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Regression</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Anova</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ANOVA/">ANOVA, ANCOVA & MANOVA</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ANCOVA/">ANCOVA — The Tip Money Mystery</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >GLM</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Generalized Linear Models</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#1-what-glm-solves">1. What GLM Solves</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-the-three-components-of-a-glm">2. The Three Components of a GLM</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-three-distributions-glms-love-a-refresher">3. Three Distributions GLMs Love — A Refresher</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#31-binomial-counting-successes-in-n-trials">3.1 Binomial — counting successes in \(n\) trials</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#coin-toss-numerical-example">Coin-toss numerical example</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#a-second-binomial-example-the-basketball-free-throw-shooter">A second binomial example — the basketball free-throw shooter</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#32-poisson-counting-events-per-interval">3.2 Poisson — counting events per interval</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#example-1-call-center">Example 1 — call center</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#example-2-traffic-police-outside-kings-college-babarmahal">Example 2 — traffic police outside Kings College Babarmahal</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#33-exponential-waiting-time-between-events">3.3 Exponential — waiting time between events</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-the-exponential-family-one-umbrella">4. The Exponential Family — One Umbrella</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-deriving-the-canonical-link-binomial">5. Deriving the Canonical Link — Binomial</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#6-deriving-the-canonical-link-poisson">6. Deriving the Canonical Link — Poisson</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#7-the-sigmoid-function">7. The Sigmoid Function</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#8-glm-in-action-logistic-regression-on-a-delivery-app">8. GLM in Action — Logistic Regression on a Delivery App</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#fit-the-logistic-glm">Fit the logistic GLM</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#reading-the-coefficients">Reading the coefficients</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#visualise-sigmoid-fit-vs-the-data-and-why-ols-fails">Visualise — sigmoid fit vs. the data (and why OLS fails)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#9-glm-in-action-poisson-regression-on-bike-fine-tickets">9. GLM in Action — Poisson Regression on Bike-Fine Tickets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#10-key-takeaways">10. Key Takeaways</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#11-practice-exercises">11. Practice Exercises</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Time Series Analysis</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeries/">Time Series</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeriesModels/">Time Series Models</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Applied Statistical Analysis</li>
+          <li class="breadcrumb-item">GLM</li>
+      <li class="breadcrumb-item active">Generalized Linear Models</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="generalized-linear-models-glm">Generalized Linear Models (GLM)<a class="headerlink" href="#generalized-linear-models-glm" title="Permanent link">&para;</a></h1>
+<p><em>Data 200 · Applied Statistical Analysis · Instructor: Aayush Regmi</em></p>
+<hr />
+<p>Plain linear regression is wonderful when the outcome you're trying
+to predict is a <strong>real-valued, unbounded number</strong> (sales, exam score,
+house price). The moment your outcome looks different — <em>yes/no</em>,
+<em>counts of events</em>, <em>waiting time</em> — the assumptions of OLS quietly
+fall apart.</p>
+<p><strong>Generalized Linear Models (GLMs)</strong> are the principled fix. They
+keep the familiar linear predictor <span class="arithmatex">\(X\boldsymbol\beta\)</span> but allow:</p>
+<ul>
+<li>the outcome <span class="arithmatex">\(y\)</span> to come from a <strong>wider family of distributions</strong>
+  (not just Normal — also Binomial, Poisson, Gamma, Exponential, …),</li>
+<li>a <strong>link function</strong> to bridge the linear predictor and the outcome's
+  natural scale.</li>
+</ul>
+<p>By the end of this notebook you'll see that ordinary linear regression
+is <em>one special case</em> of GLM, and you'll fit two more (<strong>logistic</strong>
+and <strong>Poisson</strong>) on synthetic but believable data.</p>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>By the end of this notebook you will be able to:</p>
+<ol>
+<li>Explain the three components of a GLM — <strong>random component</strong>,
+   <strong>systematic component</strong>, <strong>link function</strong> — and recognise that
+   <span class="arithmatex">\(y = mx + c\)</span> is just GLM with a Normal random component and an
+   identity link.</li>
+<li>Compute probabilities for the <strong>Binomial</strong>, <strong>Poisson</strong>, and
+   <strong>Exponential</strong> distributions both by formula and with <code>scipy.stats</code>.</li>
+<li>State the general formula of the <strong>exponential family</strong> and identify
+   its pieces.</li>
+<li>Derive the <strong>canonical link</strong> for the Binomial (<span class="arithmatex">\(\ln\frac{p}{1-p}\)</span>,
+   the <em>logit</em>) and for the Poisson (<span class="arithmatex">\(\ln\lambda\)</span>).</li>
+<li>Explain the <strong>sigmoid function</strong> and how it serves as the inverse
+   link for a Binomial GLM.</li>
+<li>Fit and interpret a <strong>logistic GLM</strong> and a <strong>Poisson GLM</strong> in
+   <code>statsmodels</code>, and visualise their fitted curves.</li>
+</ol>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">comb</span><span class="p">,</span> <span class="n">factorial</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.formula.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">smf</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="1-what-glm-solves">1. What GLM Solves<a class="headerlink" href="#1-what-glm-solves" title="Permanent link">&para;</a></h2>
+<p>Plain linear regression assumes</p>
+<div class="arithmatex">\[y \;=\; \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \cdots + \varepsilon,
+\qquad \varepsilon \sim \mathcal{N}(0, \sigma^2).\]</div>
+<p>It expects <span class="arithmatex">\(y\)</span> to be a <strong>real, continuous, unbounded</strong> number with
+<strong>Normally distributed errors</strong>. That's a great fit for sales, exam
+scores, or house prices, but it falls apart for outcomes like:</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Outcome looks like…</th>
+<th>OLS problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Will this customer churn?</td>
+<td>0 / 1 (yes / no)</td>
+<td>A line through 0/1 data goes below 0 and above 1 — meaningless probabilities.</td>
+</tr>
+<tr>
+<td>How many calls will arrive in the next hour?</td>
+<td>non-negative integer</td>
+<td>A line can predict <span class="arithmatex">\(-3\)</span> calls.</td>
+</tr>
+<tr>
+<td>How long until the next bus?</td>
+<td>positive real number</td>
+<td>Same — predictions can go negative.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>GLM's pitch in one sentence:</strong> keep the linear predictor
+<span class="arithmatex">\(X\boldsymbol\beta\)</span> — but let <span class="arithmatex">\(y\)</span> come from a <em>suitable</em> distribution
+and put a <strong>link function</strong> in between to keep the prediction on the
+right scale.</p>
+<p>Linear regression said <span class="arithmatex">\(y = mx + c\)</span>. GLM says <strong><span class="arithmatex">\(f(\mu) = mx + c\)</span></strong>
+where <span class="arithmatex">\(\mu\)</span> is the mean of <span class="arithmatex">\(y\)</span> and <span class="arithmatex">\(f\)</span> is the link function. That's
+the whole generalisation in a single line.</p>
+<h2 id="2-the-three-components-of-a-glm">2. The Three Components of a GLM<a class="headerlink" href="#2-the-three-components-of-a-glm" title="Permanent link">&para;</a></h2>
+<p>Every GLM is built from three pieces.</p>
+<ol>
+<li><strong>Random component — what kind of <span class="arithmatex">\(y\)</span> is it?</strong>
+   Pick a distribution from the <strong>exponential family</strong> that matches
+   your outcome:</li>
+<li>Continuous &amp; unbounded → <strong>Normal</strong></li>
+<li>Binary or counts of successes → <strong>Binomial</strong></li>
+<li>Counts of events per interval → <strong>Poisson</strong></li>
+<li>
+<p>Waiting times → <strong>Exponential</strong> (or Gamma)</p>
+</li>
+<li>
+<p><strong>Systematic component — the linear predictor.</strong>
+   The same workhorse from OLS:
+   <span class="arithmatex">\(<span class="arithmatex">\(\eta \;=\; X\boldsymbol\beta \;=\; \beta_0 + \beta_1 x_1 + \cdots.\)</span>\)</span></p>
+</li>
+<li>
+<p><strong>Link function <span class="arithmatex">\(g(\cdot)\)</span> — the bridge.</strong>
+   Connects the mean <span class="arithmatex">\(\mu = \mathbb{E}[y]\)</span> to the linear predictor
+   <span class="arithmatex">\(\eta\)</span>:
+   <span class="arithmatex">\(<span class="arithmatex">\(g(\mu) \;=\; \eta \;=\; X\boldsymbol\beta.\)</span>\)</span></p>
+</li>
+</ol>
+<p>And the punchline: <strong>ordinary linear regression is GLM with a Normal
+random component and the <em>identity</em> link</strong> <span class="arithmatex">\(g(\mu) = \mu\)</span>. Everything
+we are about to do is just changing the first and third pieces.</p>
+<table>
+<thead>
+<tr>
+<th>Outcome type</th>
+<th>Distribution</th>
+<th>Canonical link <span class="arithmatex">\(g(\mu)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Continuous unbounded</td>
+<td>Normal</td>
+<td>identity: <span class="arithmatex">\(\mu\)</span></td>
+</tr>
+<tr>
+<td>Binary / proportion</td>
+<td>Binomial</td>
+<td><strong>logit</strong>: <span class="arithmatex">\(\ln\!\frac{p}{1-p}\)</span></td>
+</tr>
+<tr>
+<td>Counts</td>
+<td>Poisson</td>
+<td><strong>log</strong>: <span class="arithmatex">\(\ln \lambda\)</span></td>
+</tr>
+<tr>
+<td>Positive continuous</td>
+<td>Gamma / Exponential</td>
+<td>reciprocal or log</td>
+</tr>
+</tbody>
+</table>
+<p>We'll meet the second and third rows in detail.</p>
+<h2 id="3-three-distributions-glms-love-a-refresher">3. Three Distributions GLMs Love — A Refresher<a class="headerlink" href="#3-three-distributions-glms-love-a-refresher" title="Permanent link">&para;</a></h2>
+<h3 id="31-binomial-counting-successes-in-n-trials">3.1 Binomial — counting successes in <span class="arithmatex">\(n\)</span> trials<a class="headerlink" href="#31-binomial-counting-successes-in-n-trials" title="Permanent link">&para;</a></h3>
+<p>If you flip a coin <span class="arithmatex">\(n\)</span> times and each flip is independently a
+<em>success</em> with probability <span class="arithmatex">\(p\)</span>, the number of successes <span class="arithmatex">\(X\)</span> follows a
+<strong>Binomial distribution</strong>:</p>
+<div class="arithmatex">\[P(X = k) \;=\; \binom{n}{k} p^k (1-p)^{n-k},
+\qquad k = 0, 1, \ldots, n.\]</div>
+<h3 id="coin-toss-numerical-example">Coin-toss numerical example<a class="headerlink" href="#coin-toss-numerical-example" title="Permanent link">&para;</a></h3>
+<p>A fair coin (<span class="arithmatex">\(p = 0.5\)</span>) is flipped <strong>10 times</strong>. Let's compute three
+probabilities, both by formula and with <code>scipy.stats.binom</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.5</span>
+
+<span class="c1"># (a) P(X = 5) — exactly five heads</span>
+<span class="n">p_eq_5</span>    <span class="o">=</span> <span class="n">comb</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="n">p</span><span class="o">**</span><span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">p_eq_5_sp</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">binom</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(X = 5)   formula:  </span><span class="si">{</span><span class="n">p_eq_5</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">     scipy: </span><span class="si">{</span><span class="n">p_eq_5_sp</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># (b) P(X &gt;= 1) — at least one head = 1 - P(no heads at all)</span>
+<span class="n">p_ge_1</span>    <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="o">**</span><span class="mi">0</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span><span class="o">**</span><span class="n">n</span>
+<span class="n">p_ge_1_sp</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">binom</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(X &gt;= 1)  formula:  </span><span class="si">{</span><span class="n">p_ge_1</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">     scipy: </span><span class="si">{</span><span class="n">p_ge_1_sp</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># (c) P(X &lt;= 1) — at most one head</span>
+<span class="n">p_le_1</span>    <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span><span class="o">**</span><span class="n">n</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">p_le_1_sp</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">binom</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(X &lt;= 1)  formula:  </span><span class="si">{</span><span class="n">p_le_1</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">     scipy: </span><span class="si">{</span><span class="n">p_le_1_sp</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>P(X = 5)   formula:  0.2461     scipy: 0.2461
+P(X &gt;= 1)  formula:  0.9990     scipy: 0.9990
+P(X &lt;= 1)  formula:  0.0107     scipy: 0.0107
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">ks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">binom</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;k (number of heads)&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;P(X = k)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Binomial(n=10, p=0.5) — coin-toss PMF&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ks</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../GLM_files/GLM_8_0.png" /></p>
+<h3 id="a-second-binomial-example-the-basketball-free-throw-shooter">A second binomial example — the basketball free-throw shooter<a class="headerlink" href="#a-second-binomial-example-the-basketball-free-throw-shooter" title="Permanent link">&para;</a></h3>
+<p>A player makes 70% of their free throws (<span class="arithmatex">\(p = 0.7\)</span>). They shoot
+<strong>8 free throws</strong>. What's the probability they make <strong>at least 6</strong>?</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_ft</span><span class="p">,</span> <span class="n">p_ft</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">0.7</span>
+
+<span class="c1"># By formula</span>
+<span class="n">p_ge_6_formula</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">comb</span><span class="p">(</span><span class="n">n_ft</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">p_ft</span><span class="o">**</span><span class="n">k</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p_ft</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">n_ft</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">n_ft</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">p_ge_6_sp</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">binom</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_ft</span><span class="p">,</span> <span class="n">p_ft</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(makes &gt;= 6 of 8) formula: </span><span class="si">{</span><span class="n">p_ge_6_formula</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(makes &gt;= 6 of 8) scipy:   </span><span class="si">{</span><span class="n">p_ge_6_sp</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>P(makes &gt;= 6 of 8) formula: 0.5518
+P(makes &gt;= 6 of 8) scipy:   0.5518
+</code></pre></div>
+<h3 id="32-poisson-counting-events-per-interval">3.2 Poisson — counting events per interval<a class="headerlink" href="#32-poisson-counting-events-per-interval" title="Permanent link">&para;</a></h3>
+<p>Use Poisson when you're counting <strong>how many events</strong> occur in a fixed
+interval of time (or space), at a roughly steady average rate
+<span class="arithmatex">\(\lambda\)</span>:</p>
+<div class="arithmatex">\[P(X = k) \;=\; \frac{\lambda^k e^{-\lambda}}{k!},
+\qquad k = 0, 1, 2, \ldots\]</div>
+<p>Both the <strong>mean and variance</strong> equal <span class="arithmatex">\(\lambda\)</span> — that's the Poisson's
+signature.</p>
+<h3 id="example-1-call-center">Example 1 — call center<a class="headerlink" href="#example-1-call-center" title="Permanent link">&para;</a></h3>
+<p>A small call center receives an <strong>average of 5 calls per hour</strong>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">lam</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># average calls per hour</span>
+
+<span class="c1"># (a) P(X = 7) — exactly seven calls in an hour</span>
+<span class="n">p_7_formula</span> <span class="o">=</span> <span class="p">(</span><span class="n">lam</span><span class="o">**</span><span class="mi">7</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lam</span><span class="p">))</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">p_7_sp</span>      <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(exactly 7 calls)   formula: </span><span class="si">{</span><span class="n">p_7_formula</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">     scipy: </span><span class="si">{</span><span class="n">p_7_sp</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># (b) P(X &gt;= 10) — overload — at least ten calls</span>
+<span class="n">p_ge_10</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(at least 10 calls):                                   </span><span class="si">{</span><span class="n">p_ge_10</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>P(exactly 7 calls)   formula: 0.1044     scipy: 0.1044
+P(at least 10 calls):                                   0.0318
+</code></pre></div>
+<h3 id="example-2-traffic-police-outside-kings-college-babarmahal">Example 2 — traffic police outside Kings College Babarmahal<a class="headerlink" href="#example-2-traffic-police-outside-kings-college-babarmahal" title="Permanent link">&para;</a></h3>
+<p>A traffic officer issues fines for wrongly parked bikes outside the
+college gate. On a typical morning, fines arrive at the rate of <strong>3
+per hour</strong>.</p>
+<ul>
+<li>What's the probability the officer issues <strong>exactly 5 fines</strong> in
+  one hour?</li>
+<li>What's the probability of <strong>at least 1 fine</strong> in a 20-minute window?
+  (For a 20-minute window the rate is <span class="arithmatex">\(\lambda = 3 \times \frac{20}{60}
+  = 1\)</span>.)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">lam_hour</span> <span class="o">=</span> <span class="mi">3</span>       <span class="c1"># fines per hour</span>
+<span class="n">p_5_hour</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">lam_hour</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(exactly 5 fines in 1 hour, lambda=3): </span><span class="si">{</span><span class="n">p_5_hour</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">lam_20min</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">/</span> <span class="mi">60</span>   <span class="c1"># rate scales with the interval — 1 fine / 20 min</span>
+<span class="n">p_ge_1_20min</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lam_20min</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(at least 1 fine in 20 minutes, lambda=1): </span><span class="si">{</span><span class="n">p_ge_1_20min</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>P(exactly 5 fines in 1 hour, lambda=3): 0.1008
+P(at least 1 fine in 20 minutes, lambda=1): 0.6321
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">ks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">stats</span><span class="o">.</span><span class="n">poisson</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">lam_hour</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#e76f51&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;k (number of fines in 1 hour)&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;P(X = k)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Poisson(lambda=3) — fines outside Kings College Babarmahal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ks</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../GLM_files/GLM_15_0.png" /></p>
+<h3 id="33-exponential-waiting-time-between-events">3.3 Exponential — waiting time between events<a class="headerlink" href="#33-exponential-waiting-time-between-events" title="Permanent link">&para;</a></h3>
+<p>If events arrive <em>Poisson-style</em> at rate <span class="arithmatex">\(\lambda\)</span>, the <strong>waiting
+time</strong> between two consecutive events follows an <strong>Exponential
+distribution</strong>:</p>
+<div class="arithmatex">\[f(t) \;=\; \lambda e^{-\lambda t}, \qquad t \geq 0.\]</div>
+<p>Mean wait <span class="arithmatex">\(= 1/\lambda\)</span>.</p>
+<p><strong>Example.</strong> If fines arrive at <span class="arithmatex">\(\lambda = 3\)</span> per hour, the average
+gap between two consecutive fines is <span class="arithmatex">\(1/3\)</span> hour = 20 min. What's the
+probability of waiting <strong>more than 30 minutes</strong> (= 0.5 h)?</p>
+<div class="highlight"><pre><span></span><code><span class="n">lam</span> <span class="o">=</span> <span class="mi">3</span>                          <span class="c1"># rate per hour</span>
+<span class="n">wait</span> <span class="o">=</span> <span class="mf">0.5</span>                       <span class="c1"># 30 minutes in hours</span>
+<span class="n">p_wait</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lam</span> <span class="o">*</span> <span class="n">wait</span><span class="p">)</span>     <span class="c1"># P(T &gt; wait) = exp(-lambda * wait)</span>
+<span class="n">p_wait_sp</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">expon</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">wait</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">lam</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P(wait &gt; 30 min)  formula: </span><span class="si">{</span><span class="n">p_wait</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">     scipy: </span><span class="si">{</span><span class="n">p_wait_sp</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>P(wait &gt; 30 min)  formula: 0.2231     scipy: 0.2231
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">lam</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lam</span> <span class="o">*</span> <span class="n">ts</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#2a9d8f&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="n">ts</span> <span class="o">&gt;</span> <span class="n">wait</span><span class="p">],</span> <span class="p">(</span><span class="n">lam</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">lam</span> <span class="o">*</span> <span class="n">ts</span><span class="p">))[</span><span class="n">ts</span> <span class="o">&gt;</span> <span class="n">wait</span><span class="p">],</span>
+                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#2a9d8f&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;P(wait &gt; 30 min)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;time between fines (hours)&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Exponential(lambda=3) — waiting time between fines&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../GLM_files/GLM_18_0.png" /></p>
+<h2 id="4-the-exponential-family-one-umbrella">4. The Exponential Family — One Umbrella<a class="headerlink" href="#4-the-exponential-family-one-umbrella" title="Permanent link">&para;</a></h2>
+<p>All four distributions above (Normal, Binomial, Poisson, Exponential
+/ Gamma) belong to a single mathematical family — the <strong>exponential
+family</strong>. A distribution is in the exponential family if its density
+or PMF can be written as</p>
+<div class="arithmatex">\[\boxed{\;
+f(y; \theta, \phi) \;=\; \exp\!\left(
+\frac{y\theta - b(\theta)}{a(\phi)} \;+\; c(y, \phi)
+\right)\;}\]</div>
+<p>Reading the pieces:</p>
+<ul>
+<li><strong><span class="arithmatex">\(\theta\)</span></strong> — the <strong>natural (canonical) parameter</strong>. The whole game
+  is to express the distribution so that this <span class="arithmatex">\(\theta\)</span> pops out, because
+  the <strong>canonical link</strong> is exactly the function that turns the mean
+  <span class="arithmatex">\(\mu\)</span> into <span class="arithmatex">\(\theta\)</span>.</li>
+<li><strong><span class="arithmatex">\(b(\theta)\)</span></strong> — the <strong>cumulant function</strong>. Its derivative
+  <span class="arithmatex">\(b'(\theta)\)</span> equals the mean <span class="arithmatex">\(\mu\)</span>.</li>
+<li><strong><span class="arithmatex">\(a(\phi)\)</span></strong> — a <strong>scale (dispersion)</strong> factor; for Binomial and
+  Poisson it's just 1.</li>
+<li><strong><span class="arithmatex">\(c(y, \phi)\)</span></strong> — a normalising term that doesn't involve <span class="arithmatex">\(\theta\)</span>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Distribution</th>
+<th><span class="arithmatex">\(\theta\)</span> (natural param)</th>
+<th>Mean <span class="arithmatex">\(\mu\)</span></th>
+<th>Canonical link <span class="arithmatex">\(g(\mu) = \theta\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Normal</td>
+<td><span class="arithmatex">\(\mu\)</span></td>
+<td><span class="arithmatex">\(\mu\)</span></td>
+<td>identity: <span class="arithmatex">\(g(\mu) = \mu\)</span></td>
+</tr>
+<tr>
+<td>Binomial</td>
+<td><span class="arithmatex">\(\ln\frac{p}{1-p}\)</span></td>
+<td><span class="arithmatex">\(p\)</span></td>
+<td><strong>logit</strong>: <span class="arithmatex">\(g(p) = \ln\frac{p}{1-p}\)</span></td>
+</tr>
+<tr>
+<td>Poisson</td>
+<td><span class="arithmatex">\(\ln\lambda\)</span></td>
+<td><span class="arithmatex">\(\lambda\)</span></td>
+<td><strong>log</strong>: <span class="arithmatex">\(g(\lambda) = \ln\lambda\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>We will now derive the middle and bottom rows.</p>
+<h2 id="5-deriving-the-canonical-link-binomial">5. Deriving the Canonical Link — Binomial<a class="headerlink" href="#5-deriving-the-canonical-link-binomial" title="Permanent link">&para;</a></h2>
+<p>Take a single Bernoulli trial (<span class="arithmatex">\(n = 1\)</span>). The PMF is</p>
+<div class="arithmatex">\[P(Y = y) \;=\; p^y (1-p)^{1-y}, \qquad y \in \{0, 1\}.\]</div>
+<p>Re-write it inside an exponential by taking the log:</p>
+<div class="arithmatex">\[P(Y = y) \;=\; \exp\!\Big(y \ln p \;+\; (1 - y) \ln(1 - p)\Big).\]</div>
+<p>Group the <span class="arithmatex">\(y\)</span> terms:</p>
+<div class="arithmatex">\[= \exp\!\Big(y \big[\ln p - \ln(1 - p)\big] \;+\; \ln(1 - p)\Big)
+\;=\; \exp\!\Big(y \,\underbrace{\ln\!\tfrac{p}{1-p}}_{\theta}
+\;+\; \underbrace{\ln(1-p)}_{-b(\theta)}\Big).\]</div>
+<p>Compare with the exponential-family template — the natural parameter is</p>
+<div class="arithmatex">\[\boxed{\;\theta \;=\; \ln\!\frac{p}{1-p}.\;}\]</div>
+<p>This quantity is called the <strong>log-odds</strong> or <strong>logit</strong> of <span class="arithmatex">\(p\)</span>. The
+canonical link for the Binomial is therefore</p>
+<div class="arithmatex">\[g(p) \;=\; \ln\!\frac{p}{1-p},\]</div>
+<p>and a GLM with <strong>Binomial random + logit link</strong> is exactly <strong>logistic
+regression</strong>. The model says</p>
+<div class="arithmatex">\[\ln\!\frac{p}{1-p} \;=\; \beta_0 + \beta_1 x_1 + \cdots.\]</div>
+<h2 id="6-deriving-the-canonical-link-poisson">6. Deriving the Canonical Link — Poisson<a class="headerlink" href="#6-deriving-the-canonical-link-poisson" title="Permanent link">&para;</a></h2>
+<p>The Poisson PMF is</p>
+<div class="arithmatex">\[P(Y = y) \;=\; \frac{\lambda^y e^{-\lambda}}{y!}.\]</div>
+<p>Take the log inside an exponential:</p>
+<div class="arithmatex">\[P(Y = y) \;=\; \exp\!\Big(y \ln \lambda \;-\; \lambda \;-\; \ln(y!)\Big).\]</div>
+<p>Match against the template:</p>
+<ul>
+<li><span class="arithmatex">\(\theta \;=\; \ln \lambda\)</span> (the natural parameter)</li>
+<li><span class="arithmatex">\(b(\theta) \;=\; \lambda \;=\; e^{\theta}\)</span></li>
+<li><span class="arithmatex">\(c(y, \phi) \;=\; -\ln(y!)\)</span></li>
+</ul>
+<p>So</p>
+<div class="arithmatex">\[\boxed{\;\theta \;=\; \ln\lambda\;}\]</div>
+<p>and the canonical link for the Poisson is the <strong>log link</strong>:</p>
+<div class="arithmatex">\[g(\lambda) \;=\; \ln \lambda.\]</div>
+<p>A GLM with <strong>Poisson random + log link</strong> is <strong>Poisson regression</strong>:</p>
+<div class="arithmatex">\[\ln \lambda \;=\; \beta_0 + \beta_1 x_1 + \cdots
+\quad\Longleftrightarrow\quad
+\lambda \;=\; e^{\beta_0 + \beta_1 x_1 + \cdots}.\]</div>
+<p>The exponential on the right is what guarantees <span class="arithmatex">\(\lambda &gt; 0\)</span> no matter
+what the linear predictor returns.</p>
+<h2 id="7-the-sigmoid-function">7. The Sigmoid Function<a class="headerlink" href="#7-the-sigmoid-function" title="Permanent link">&para;</a></h2>
+<p>We just established that for a Binomial GLM</p>
+<div class="arithmatex">\[\eta \;=\; \ln\!\frac{p}{1-p}.\]</div>
+<p>But we don't predict <span class="arithmatex">\(\eta\)</span> for users — we predict the <strong>probability</strong>
+<span class="arithmatex">\(p\)</span>. Solving the equation above for <span class="arithmatex">\(p\)</span> gives the <strong>sigmoid</strong> (also
+called the <strong>logistic function</strong>):</p>
+<div class="arithmatex">\[\boxed{\;
+p \;=\; \sigma(\eta) \;=\; \frac{1}{1 + e^{-\eta}}.
+\;}\]</div>
+<p>The sigmoid is the <strong>inverse link</strong> for the Binomial GLM. Its job is
+to <strong>squash</strong> any real number <span class="arithmatex">\(\eta \in (-\infty, \infty)\)</span> into the
+interval <span class="arithmatex">\((0, 1)\)</span> — exactly where probabilities live.</p>
+<div class="highlight"><pre><span></span><code><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">sig</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">z</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>   <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;linear predictor $\eta = X\beta$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;probability $p = \sigma(\eta)$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;The sigmoid: any real number → a probability in (0, 1)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../GLM_files/GLM_23_0.png" /></p>
+<p>Three properties to remember:</p>
+<ol>
+<li><span class="arithmatex">\(\sigma(0) = 0.5\)</span> — the natural decision threshold.</li>
+<li><span class="arithmatex">\(\sigma(\eta) \to 0\)</span> as <span class="arithmatex">\(\eta \to -\infty\)</span>, <span class="arithmatex">\(\sigma(\eta) \to 1\)</span>
+   as <span class="arithmatex">\(\eta \to +\infty\)</span>.</li>
+<li>The S-shape is <strong>smooth and differentiable</strong> — which is why
+   gradient descent (see the Parameter Estimation notebook) can train
+   models that use it.</li>
+</ol>
+<p><strong>Putting it together</strong> for the Binomial GLM:</p>
+<div class="arithmatex">\[\underbrace{X\boldsymbol\beta}_{\text{linear predictor }\eta}
+\;\;\xrightarrow{\;\sigma(\cdot)\;}\;\;
+\underbrace{p}_{\text{predicted probability}}
+\;\;\xrightarrow{\;\text{Bernoulli draw}\;}\;\;
+\underbrace{y \in \{0, 1\}}_{\text{observed outcome}}.\]</div>
+<h2 id="8-glm-in-action-logistic-regression-on-a-delivery-app">8. GLM in Action — Logistic Regression on a Delivery App<a class="headerlink" href="#8-glm-in-action-logistic-regression-on-a-delivery-app" title="Permanent link">&para;</a></h2>
+<p><strong>Scenario.</strong> A food-delivery app wants to predict whether a delivery
+earns a <strong>5-star rating</strong> (yes / no) based on <strong>delivery time in
+minutes</strong>. Faster deliveries should get more 5-star ratings.</p>
+<p>We synthesise 200 deliveries where the <em>true</em> probability of a 5-star
+rating is</p>
+<div class="arithmatex">\[p(\text{5\textbackslash star}) \;=\; \sigma(4 - 0.10 \cdot \text{delivery\_time}).\]</div>
+<div class="highlight"><pre><span></span><code><span class="n">n</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">delivery_time</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>              <span class="c1"># minutes</span>
+<span class="n">true_eta</span>      <span class="o">=</span> <span class="mi">4</span> <span class="o">-</span> <span class="mf">0.10</span> <span class="o">*</span> <span class="n">delivery_time</span>                 <span class="c1"># log-odds</span>
+<span class="n">true_p</span>        <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">true_eta</span><span class="p">))</span>
+<span class="n">five_star</span>     <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">true_p</span><span class="p">)</span>              <span class="c1"># observed 0/1</span>
+
+<span class="n">deliveries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;delivery_time&quot;</span><span class="p">:</span> <span class="n">delivery_time</span><span class="p">,</span>
+    <span class="s2">&quot;five_star&quot;</span><span class="p">:</span>     <span class="n">five_star</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="n">deliveries</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>delivery_time</th>
+      <th>five_star</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>41.848084</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>23.489336</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>12.048676</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10.826382</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>50.663512</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="fit-the-logistic-glm">Fit the logistic GLM<a class="headerlink" href="#fit-the-logistic-glm" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">X</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">deliveries</span><span class="p">[</span><span class="s2">&quot;delivery_time&quot;</span><span class="p">])</span>      <span class="c1"># adds the intercept column</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">deliveries</span><span class="p">[</span><span class="s2">&quot;five_star&quot;</span><span class="p">]</span>
+
+<span class="n">logit_glm</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">GLM</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">sm</span><span class="o">.</span><span class="n">families</span><span class="o">.</span><span class="n">Binomial</span><span class="p">())</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">logit_glm</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:              five_star   No. Observations:                  200
+Model:                            GLM   Df Residuals:                      198
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  Logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -98.782
+Date:                Sun, 03 May 2026   Deviance:                       197.56
+Time:                        15:19:06   Pearson chi2:                     195.
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.3243
+Covariance Type:            nonrobust                                         
+=================================================================================
+                    coef    std err          z      P&gt;|z|      [0.025      0.975]
+---------------------------------------------------------------------------------
+const             4.1342      0.599      6.903      0.000       2.960       5.308
+delivery_time    -0.1041      0.015     -7.150      0.000      -0.133      -0.076
+=================================================================================
+</code></pre></div>
+<h3 id="reading-the-coefficients">Reading the coefficients<a class="headerlink" href="#reading-the-coefficients" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The intercept <span class="arithmatex">\(\hat\beta_0\)</span> is the log-odds of a 5★ rating when
+  delivery time is 0 (a useful reference, not a real prediction).</li>
+<li><span class="arithmatex">\(\hat\beta_1\)</span> for <code>delivery_time</code> is the change in <strong>log-odds</strong> per
+  extra minute. Negative means slower deliveries are <em>less</em> likely to
+  earn 5★.</li>
+<li>Exponentiating gives the <strong>odds ratio</strong> — "each extra minute
+  multiplies the odds of 5★ by <span class="arithmatex">\(e^{\hat\beta_1}\)</span>."</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">b0</span><span class="p">,</span> <span class="n">b1</span> <span class="o">=</span> <span class="n">logit_glm</span><span class="o">.</span><span class="n">params</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Coefficient on delivery_time:   </span><span class="si">{</span><span class="n">b1</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  (log-odds per minute)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Odds ratio per extra minute:    </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;=&gt; each extra minute multiplies the odds of 5★ by ≈ </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">b1</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Coefficient on delivery_time:   -0.1041  (log-odds per minute)
+Odds ratio per extra minute:    0.9012
+=&gt; each extra minute multiplies the odds of 5★ by ≈ 0.901
+</code></pre></div>
+<h3 id="visualise-sigmoid-fit-vs-the-data-and-why-ols-fails">Visualise — sigmoid fit vs. the data (and why OLS fails)<a class="headerlink" href="#visualise-sigmoid-fit-vs-the-data-and-why-ols-fails" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">X_grid</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_grid</span><span class="p">)</span>
+<span class="n">p_pred</span> <span class="o">=</span> <span class="n">logit_glm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_grid</span><span class="p">)</span>
+
+<span class="c1"># A naive OLS line through the same 0/1 outcomes — to show why we *need* GLM</span>
+<span class="n">ols_line</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">p_ols</span>    <span class="o">=</span> <span class="n">ols_line</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_grid</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mf">5.5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">deliveries</span><span class="p">[</span><span class="s2">&quot;delivery_time&quot;</span><span class="p">],</span> <span class="n">deliveries</span><span class="p">[</span><span class="s2">&quot;five_star&quot;</span><span class="p">],</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;observed (0/1)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">p_pred</span><span class="p">,</span>  <span class="n">color</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;GLM (logistic) fit&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">p_ols</span><span class="p">,</span>   <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>    <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>   <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;plain OLS fit&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>   <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>   <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+
+<span class="c1"># Decision threshold: where the GLM curve crosses 0.5 → eta = 0 → x = -b0/b1</span>
+<span class="n">x_thresh</span> <span class="o">=</span> <span class="o">-</span><span class="n">b0</span> <span class="o">/</span> <span class="n">b1</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x_thresh</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#e76f51&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;decision threshold ≈ </span><span class="si">{</span><span class="n">x_thresh</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> min&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;delivery time (minutes)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;P(5★)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Logistic GLM vs. plain OLS on a 0/1 outcome&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;center right&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/IPython/core/pylabtools.py:170: UserWarning: Glyph 9733 (\N{BLACK STAR}) missing from font(s) Arial.
+  fig.canvas.print_figure(bytes_io, **kw)
+</code></pre></div>
+<p><img alt="png" src="../GLM_files/GLM_32_1.png" /></p>
+<p>Two things to notice:</p>
+<ol>
+<li>The <strong>dashed grey OLS line</strong> wanders <strong>below 0</strong> for fast
+   deliveries and <strong>above 1</strong> for slow ones — those are not valid
+   probabilities. This is the failure mode that motivated GLM in §1.</li>
+<li>The <strong>red logistic curve</strong> is the sigmoid we derived in §7,
+   evaluated at the fitted <span class="arithmatex">\((\hat\beta_0, \hat\beta_1)\)</span>. It always
+   stays in <span class="arithmatex">\((0, 1)\)</span> and crosses the 0.5 threshold at
+   <span class="arithmatex">\(x = -\hat\beta_0 / \hat\beta_1\)</span> — a meaningful <strong>cut-off</strong> the
+   business can act on.</li>
+</ol>
+<h2 id="9-glm-in-action-poisson-regression-on-bike-fine-tickets">9. GLM in Action — Poisson Regression on Bike-Fine Tickets<a class="headerlink" href="#9-glm-in-action-poisson-regression-on-bike-fine-tickets" title="Permanent link">&para;</a></h2>
+<p>Back to the traffic officer outside Kings College Babarmahal. The
+fine-issuing rate is <strong>not constant through the day</strong> — it spikes
+during morning and evening rush hours. We'll model:</p>
+<div class="arithmatex">\[\ln \lambda(\text{hour}) \;=\; \beta_0 + \beta_1 \cdot \text{hour}
+\;+\; \beta_2 \cdot \text{hour}^2.\]</div>
+<p>(A quadratic gives the curve a peak somewhere in the middle of the
+day — exactly the rush-hour pattern.)</p>
+<div class="highlight"><pre><span></span><code><span class="n">n_hours</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">hour</span>       <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_hours</span><span class="p">)</span>            <span class="c1"># 6 AM to 8 PM</span>
+<span class="n">true_log_lam</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.5</span> <span class="o">+</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">hour</span> <span class="o">-</span> <span class="mf">0.035</span> <span class="o">*</span> <span class="n">hour</span><span class="o">**</span><span class="mi">2</span>       <span class="c1"># peaks around midday</span>
+<span class="n">true_lam</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">true_log_lam</span><span class="p">)</span>
+<span class="n">tickets</span>    <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">lam</span><span class="o">=</span><span class="n">true_lam</span><span class="p">)</span>                   <span class="c1"># observed counts</span>
+
+<span class="n">fines</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;hour&quot;</span><span class="p">:</span> <span class="n">hour</span><span class="p">,</span> <span class="s2">&quot;tickets&quot;</span><span class="p">:</span> <span class="n">tickets</span><span class="p">})</span>
+<span class="n">fines</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>hour</th>
+      <th>tickets</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>8.830353</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>19.130672</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7.326873</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>6.068592</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>10.520891</td>
+      <td>24</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="n">X</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">fines</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">],</span> <span class="n">fines</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">]))</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;const&quot;</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">,</span> <span class="s2">&quot;hour_sq&quot;</span><span class="p">])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">fines</span><span class="p">[</span><span class="s2">&quot;tickets&quot;</span><span class="p">]</span>
+
+<span class="n">poisson_glm</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">GLM</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">sm</span><span class="o">.</span><span class="n">families</span><span class="o">.</span><span class="n">Poisson</span><span class="p">())</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">poisson_glm</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                tickets   No. Observations:                  200
+Model:                            GLM   Df Residuals:                      197
+Model Family:                 Poisson   Df Model:                            2
+Link Function:                    Log   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -543.88
+Date:                Sun, 03 May 2026   Deviance:                       168.49
+Time:                        15:19:06   Pearson chi2:                     167.
+No. Iterations:                     5   Pseudo R-squ. (CS):             0.9713
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -2.9648      0.269    -11.028      0.000      -3.492      -2.438
+hour           0.9843      0.042     23.206      0.000       0.901       1.067
+hour_sq       -0.0385      0.002    -23.707      0.000      -0.042      -0.035
+==============================================================================
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Visualise: scatter of observed counts + fitted rate curve lambda(hour)</span>
+<span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">X_grid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;const&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">:</span> <span class="n">x_grid</span><span class="p">,</span> <span class="s2">&quot;hour_sq&quot;</span><span class="p">:</span> <span class="n">x_grid</span> <span class="o">**</span> <span class="mi">2</span><span class="p">})</span>
+<span class="n">lam_pred</span> <span class="o">=</span> <span class="n">poisson_glm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_grid</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">fines</span><span class="p">[</span><span class="s2">&quot;hour&quot;</span><span class="p">],</span> <span class="n">fines</span><span class="p">[</span><span class="s2">&quot;tickets&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;observed ticket counts&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">lam_pred</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+         <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;fitted rate $\hat\lambda(\mathrm</span><span class="si">{hour}</span><span class="s2">)$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;hour of day&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;tickets issued&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Poisson GLM — fines outside Kings College Babarmahal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../GLM_files/GLM_37_0.png" /></p>
+<p>The fitted curve never goes negative — guaranteed by the
+<span class="arithmatex">\(\lambda = e^{X\boldsymbol\beta}\)</span> form — and its peak corresponds to
+the busiest hour for fines. A plain linear regression here would
+happily predict <span class="arithmatex">\(-2\)</span> tickets in the early morning, which is nonsense.</p>
+<p><strong>Interpreting Poisson GLM coefficients.</strong> Because of the log link,
+<span class="arithmatex">\(\hat\beta_j\)</span> is the change in <strong>log-rate</strong> per unit increase of
+<span class="arithmatex">\(x_j\)</span>. Exponentiating gives a <strong>rate multiplier</strong>: <span class="arithmatex">\(e^{\hat\beta_j}\)</span>
+is the factor by which the expected count is multiplied when <span class="arithmatex">\(x_j\)</span>
+increases by one.</p>
+<h2 id="10-key-takeaways">10. Key Takeaways<a class="headerlink" href="#10-key-takeaways" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>GLM = pick a distribution + pick a link function.</strong> The linear
+   predictor <span class="arithmatex">\(X\boldsymbol\beta\)</span> stays the same; only the random
+   component and the link change.</li>
+<li>Plain linear regression is the <strong>identity-link Normal GLM</strong> —
+   one row of a much larger table.</li>
+<li><strong>Binomial outcomes</strong> (0/1, proportions) get the <strong>logit link</strong>.
+   The natural parameter is the log-odds <span class="arithmatex">\(\ln\frac{p}{1-p}\)</span>. The
+   inverse link is the <strong>sigmoid</strong>, which keeps predictions inside
+   <span class="arithmatex">\((0, 1)\)</span>.</li>
+<li><strong>Count outcomes</strong> get the <strong>log link</strong>: <span class="arithmatex">\(\ln \lambda = X\beta\)</span>.
+   The inverse link is the <strong>exponential</strong>, which keeps the rate
+   positive.</li>
+<li><strong>All of these</strong> sit inside the <strong>exponential family</strong>
+   <span class="arithmatex">\(f(y) = \exp\!\big(\frac{y\theta - b(\theta)}{a(\phi)} + c(y,\phi)\big)\)</span>.
+   The <strong>canonical link</strong> is the function that maps the mean to the
+   natural parameter <span class="arithmatex">\(\theta\)</span>.</li>
+<li>In <code>statsmodels</code> it's a one-liner — <code>sm.GLM(y, X, family=...)</code> —
+   and the same coefficient-reading habits transfer, except you
+   interpret <span class="arithmatex">\(\hat\beta_j\)</span> on the <strong>link scale</strong> (log-odds for
+   logistic, log-rate for Poisson) and exponentiate for an intuitive
+   factor.</li>
+</ol>
+<h2 id="11-practice-exercises">11. Practice Exercises<a class="headerlink" href="#11-practice-exercises" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Coin probabilities by hand.</strong> A biased coin lands heads with
+   <span class="arithmatex">\(p = 0.3\)</span>. It is flipped 12 times. Compute (a) <span class="arithmatex">\(P(X = 4)\)</span>,
+   (b) <span class="arithmatex">\(P(X \geq 6)\)</span>, (c) <span class="arithmatex">\(P(X \leq 2)\)</span>. First by formula, then check
+   each one with <code>scipy.stats.binom</code>.</li>
+<li><strong>Logistic GLM on a new dataset.</strong> Generate 300 students whose
+   probability of passing an exam is
+   <span class="arithmatex">\(\sigma(-3 + 0.6 \cdot \text{hours\_studied})\)</span>. Fit a logistic GLM
+   and report the hours-studied threshold above which $P(\text{pass})<blockquote>
+<p>0.5$.</p>
+</blockquote>
+</li>
+<li><strong>Poisson GLM on monthly bug reports.</strong> Suppose a software team
+   averages <span class="arithmatex">\(\lambda = e^{0.5 + 0.05 \cdot \text{users}}\)</span> bug reports
+   per week, where <code>users</code> is in thousands of active users (range
+   1–30). Simulate 150 weeks of data, fit a Poisson GLM, and verify
+   the recovered <span class="arithmatex">\(\hat\beta\)</span> are close to the true values.</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ANCOVA/" class="btn btn-neutral float-left" title="ANCOVA — The Tip Money Mystery"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../TimeSeries/" class="btn btn-neutral float-right" title="Time Series">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ANCOVA/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../TimeSeries/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
