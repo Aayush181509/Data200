@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Logistic Regression - Data 200</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Logistic Regression";
+        var mkdocs_page_input_path = "lectures/Classification.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Data 200
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Welcome</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../InstallationGuide/">Installation Guide</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Introduction</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../Introduction/">Introduction</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../StatisticsFoundations/">Statistical Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../MLConcepts/">ML / AI / DS Concepts</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Applied Statistical Analysis</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Regression</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../LinearRegression/">Linear Regression</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ParameterEstimation/">Parameter Estimation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../Regularization/">Bias, Variance & Regularization</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Anova</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ANOVA/">ANOVA, ANCOVA & MANOVA</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ANCOVA/">ANCOVA — The Tip Money Mystery</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >GLM</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../GLM/">Generalized Linear Models</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Classification</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Logistic Regression</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#learning-objectives">Learning Objectives</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#setup">Setup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#1-why-not-linear-regression-for-01-outcomes">1. Why not linear regression for 0/1 outcomes?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-bernoulli-binomial-a-quick-refresher">2. Bernoulli &amp; Binomial — a quick refresher</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-from-probability-to-log-odds-and-back">3. From probability to log-odds (and back)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-the-logistic-regression-model">4. The logistic regression model</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-where-does-the-loss-come-from-maximum-likelihood">5. Where does the loss come from? Maximum likelihood</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#6-the-gradient-of-cross-entropy">6. The gradient of cross-entropy</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#7-gradient-descent-from-scratch">7. Gradient descent from scratch</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#8-sanity-check-compare-with-statsmodelslogit">8. Sanity check — compare with statsmodels.Logit</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#9-two-features-a-decision-boundary-you-can-see">9. Two features → a decision boundary you can see</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#10-classification-metrics-beyond-accuracy">10. Classification metrics — beyond accuracy</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#11-threshold-tuning-roc-and-auc">11. Threshold tuning, ROC, and AUC</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#12-beyond-binary-a-softmax-teaser">12. Beyond binary — a softmax teaser</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#13-key-takeaways">13. Key takeaways</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#14-practice-exercises">14. Practice exercises</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Mixed Models</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../LinearMixedModels/">Linear Mixed Models</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Time Series Analysis</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeries/">Time Series</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../TimeSeriesModels/">Time Series Models</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Data 200</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Applied Statistical Analysis</li>
+          <li class="breadcrumb-item">Classification</li>
+      <li class="breadcrumb-item active">Logistic Regression</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="classification-logistic-regression-from-scratch">Classification — Logistic Regression from Scratch<a class="headerlink" href="#classification-logistic-regression-from-scratch" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><em>"You can't predict football, Bill."</em> — Sir Alex Ferguson</p>
+<p>Maybe not perfectly. But with a little probability theory, a sigmoid, and
+some gradient descent, we can do <strong>a lot</strong> better than a coin flip.</p>
+</blockquote>
+<p>This notebook is the deep dive on <strong>binary classification</strong> that complements
+our earlier work on regression. We start by asking why ordinary linear
+regression breaks for 0/1 outcomes, build the logistic model from the
+<strong>Bernoulli</strong> distribution, derive the <strong>cross-entropy loss</strong> as a maximum
+likelihood estimator, and then <em>implement gradient descent from scratch</em> to
+fit it. Finally, we look at what "good" actually means for a classifier:
+confusion matrices, precision, recall, F1, ROC, and AUC.</p>
+<p>Throughout we will be predicting whether <strong>Arsenal wins a Premier League
+match</strong> — first from a single feature (expected goals difference), then
+from two features so we can draw a decision boundary.</p>
+<h2 id="learning-objectives">Learning Objectives<a class="headerlink" href="#learning-objectives" title="Permanent link">&para;</a></h2>
+<p>After working through this notebook, you should be able to:</p>
+<ol>
+<li>Explain <strong>why linear regression fails for binary outcomes</strong> and why we need
+   a probability-bounded model instead.</li>
+<li>Recognise the <strong>Bernoulli</strong> and <strong>Binomial</strong> distributions as the natural
+   model for a 0/1 outcome and an aggregated count of successes.</li>
+<li>Move fluently between <strong>probability</strong>, <strong>odds</strong>, and <strong>log-odds (logit)</strong>,
+   and recover the <strong>sigmoid</strong> by inverting the logit.</li>
+<li>Derive the <strong>binary cross-entropy loss</strong> as the negative log-likelihood of
+   the Bernoulli model.</li>
+<li>Derive the gradient of cross-entropy and recognise the elegant form
+   <span class="arithmatex">\(\nabla_w L = X^\top(\hat{p} - y)\)</span>.</li>
+<li><strong>Implement vanilla batch gradient descent from scratch</strong> for logistic
+   regression and verify your weights match <code>statsmodels.Logit</code>.</li>
+<li>Visualise the <strong>decision boundary</strong> of a fitted classifier in 2D.</li>
+<li>Read a <strong>confusion matrix</strong> and compute <strong>precision</strong>, <strong>recall</strong>,
+   <strong>F1-score</strong>, <strong>ROC curve</strong>, and <strong>AUC</strong>.</li>
+<li>Explain when <strong>accuracy is misleading</strong> and how to pick a useful
+   classification threshold.</li>
+<li>Sketch how the binary case generalises to <strong>multiclass classification</strong>
+    via the softmax function.</li>
+</ol>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>A standard scientific stack. We pin the seed so every plot in this notebook
+is reproducible — change the seed at home and rerun to see how the story
+holds up under fresh randomness.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">statsmodels.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">confusion_matrix</span><span class="p">,</span>
+    <span class="n">precision_score</span><span class="p">,</span>
+    <span class="n">recall_score</span><span class="p">,</span>
+    <span class="n">f1_score</span><span class="p">,</span>
+    <span class="n">accuracy_score</span><span class="p">,</span>
+    <span class="n">roc_curve</span><span class="p">,</span>
+    <span class="n">auc</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;grid.alpha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.3</span>
+</code></pre></div>
+<h2 id="1-why-not-linear-regression-for-01-outcomes">1. Why not linear regression for 0/1 outcomes?<a class="headerlink" href="#1-why-not-linear-regression-for-01-outcomes" title="Permanent link">&para;</a></h2>
+<p>Imagine you're an Arsenal data analyst. For each Premier League match this
+season you have:</p>
+<ul>
+<li><span class="arithmatex">\(x\)</span> = <strong>expected goals difference</strong> (Arsenal's xG minus the opponent's xG).
+  Positive means Arsenal generated better chances; negative means the
+  opponent did.</li>
+<li><span class="arithmatex">\(y\)</span> = <strong>outcome</strong> — 1 if Arsenal won, 0 otherwise.</li>
+</ul>
+<p>Let's simulate one season of matches and try the obvious thing first:
+fit a straight line.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Simulate one season of matches</span>
+<span class="n">n_matches</span> <span class="o">=</span> <span class="mi">80</span>
+<span class="n">xg_diff</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_matches</span><span class="p">)</span>            <span class="c1"># xG advantage per match</span>
+
+<span class="c1"># True data-generating process — wins follow a logistic relationship</span>
+<span class="n">true_w</span><span class="p">,</span> <span class="n">true_b</span> <span class="o">=</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">0.4</span>
+<span class="n">true_p</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">true_w</span> <span class="o">*</span> <span class="n">xg_diff</span> <span class="o">+</span> <span class="n">true_b</span><span class="p">)))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">true_p</span><span class="p">)</span>
+
+<span class="n">matches</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">:</span> <span class="n">xg_diff</span><span class="p">,</span> <span class="s2">&quot;won&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">})</span>
+<span class="n">matches</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>xg_diff</th>
+      <th>won</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.665660</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-0.947981</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.200541</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.428678</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-2.041242</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Fit OLS — pretend the binary outcome is just a real number</span>
+<span class="n">X_ols</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">])</span>
+<span class="n">ols_fit</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="s2">&quot;won&quot;</span><span class="p">],</span> <span class="n">X_ols</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">matches</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">ols_pred</span> <span class="o">=</span> <span class="n">ols_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;const&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">ols_fit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_grid</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">],</span> <span class="n">matches</span><span class="p">[</span><span class="s2">&quot;won&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;matches&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">ols_pred</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;OLS fit&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;xG difference (Arsenal − opponent)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;won (0/1)  /  predicted probability&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Linear regression on a binary outcome — what could possibly go wrong?&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../Classification_files/Classification_6_0.png" /></p>
+<p>Three problems jump out:</p>
+<ol>
+<li><strong>Predictions escape <span class="arithmatex">\([0, 1]\)</span>.</strong> For matches with a very large positive xG
+   difference the fitted line predicts probabilities <strong>above 1</strong>; for very
+   negative xG it predicts <strong>below 0</strong>. Probabilities don't do that.</li>
+<li><strong>Linearity is wrong.</strong> Going from xG diff <span class="arithmatex">\(-2 \to -1\)</span> probably matters a
+   lot more for win probability than going from <span class="arithmatex">\(+3 \to +4\)</span> (a thrashing is
+   still a thrashing). A straight line treats them as equal.</li>
+<li><strong>Residuals are weird.</strong> OLS assumes normal residuals. With a 0/1
+   response, the residuals can only take two values for any given <span class="arithmatex">\(x\)</span>, so
+   the Gaussian assumption is badly violated.</li>
+</ol>
+<p>We need a model that produces a number between 0 and 1 <em>by construction</em>.
+That's where the <strong>sigmoid</strong> comes in — but to motivate it properly we first
+need a quick refresher on the right probability distribution for a binary
+outcome.</p>
+<h2 id="2-bernoulli-binomial-a-quick-refresher">2. Bernoulli &amp; Binomial — a quick refresher<a class="headerlink" href="#2-bernoulli-binomial-a-quick-refresher" title="Permanent link">&para;</a></h2>
+<p>A <strong>Bernoulli</strong> random variable models a single yes/no event:</p>
+<div class="arithmatex">\[ Y \sim \text{Bernoulli}(p) \quad\Longleftrightarrow\quad P(Y = 1) = p,\ \ P(Y = 0) = 1 - p. \]</div>
+<p>Mean <span class="arithmatex">\(\mathbb{E}[Y] = p\)</span>, variance <span class="arithmatex">\(\text{Var}(Y) = p(1-p)\)</span>.</p>
+<p>A <strong>Binomial</strong> is what you get if you sum <span class="arithmatex">\(n\)</span> independent Bernoullis with the
+same <span class="arithmatex">\(p\)</span> — for example, "how many of Arsenal's next 38 matches do they win?"</p>
+<div class="arithmatex">\[ S = \sum_{i=1}^{n} Y_i \sim \text{Binomial}(n, p), \qquad P(S=k) = \binom{n}{k} p^k (1-p)^{n-k}. \]</div>
+<p>For <em>modelling a single match outcome</em>, the Bernoulli is exactly the right
+distribution. The whole task of logistic regression is: <strong>let <span class="arithmatex">\(p\)</span> depend on
+features <span class="arithmatex">\(x\)</span></strong>, and then estimate that dependence from data.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Visualise: how the Bernoulli mass shifts as p changes</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">ps</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lightcoral&quot;</span><span class="p">,</span> <span class="s2">&quot;seagreen&quot;</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s2">&quot;loss/draw&quot;</span><span class="p">,</span> <span class="s2">&quot;win&quot;</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bernoulli(p = </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;probability&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../Classification_files/Classification_9_0.png" /></p>
+<h2 id="3-from-probability-to-log-odds-and-back">3. From probability to log-odds (and back)<a class="headerlink" href="#3-from-probability-to-log-odds-and-back" title="Permanent link">&para;</a></h2>
+<p>We want a model that maps a real-valued linear combination
+<span class="arithmatex">\(z = w x + b\)</span> — which can be anything in <span class="arithmatex">\((-\infty, \infty)\)</span> — to a
+probability in <span class="arithmatex">\((0, 1)\)</span>. The trick is to do it in two steps via the
+<strong>odds</strong> and the <strong>log-odds</strong>.</p>
+<p><strong>Odds</strong> are the ratio of "yes" to "no" probability:</p>
+<div class="arithmatex">\[ \text{odds}(p) = \frac{p}{1 - p} \in (0, \infty). \]</div>
+<p><strong>Log-odds</strong> (or <strong>logit</strong>) take the log to stretch the odds onto the whole
+real line:</p>
+<div class="arithmatex">\[ \text{logit}(p) = \log \frac{p}{1 - p} \in (-\infty, \infty). \]</div>
+<p>Now we can comfortably <em>equate</em> the logit to a linear function of features:</p>
+<div class="arithmatex">\[ \log \frac{p}{1 - p} = w x + b. \]</div>
+<p>Inverting this gives back <span class="arithmatex">\(p\)</span> — and the inverse is the <strong>sigmoid</strong> (also
+called the <em>logistic function</em>):</p>
+<div class="arithmatex">\[ p = \sigma(z) = \frac{1}{1 + e^{-z}}, \qquad z = wx + b. \]</div>
+<p>The sigmoid is the bridge between unbounded "score" <span class="arithmatex">\(z\)</span> and bounded
+probability <span class="arithmatex">\(p\)</span>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">z</span><span class="p">))</span>
+
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;navy&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;z = w·x + b  (log-odds)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;σ(z) = probability of class 1&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;The sigmoid function — squashes real numbers into (0, 1)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../Classification_files/Classification_11_0.png" /></p>
+<p>Three things to remember:</p>
+<ul>
+<li><span class="arithmatex">\(\sigma(0) = 0.5\)</span> — the decision boundary is at <span class="arithmatex">\(z = 0\)</span>.</li>
+<li><span class="arithmatex">\(\sigma(z) \to 1\)</span> as <span class="arithmatex">\(z \to +\infty\)</span> and <span class="arithmatex">\(\sigma(z) \to 0\)</span> as <span class="arithmatex">\(z \to -\infty\)</span>.</li>
+<li><span class="arithmatex">\(\sigma'(z) = \sigma(z)\,(1 - \sigma(z))\)</span>. We will use this when we derive
+  the gradient — it is what makes the algebra collapse so neatly.</li>
+</ul>
+<h2 id="4-the-logistic-regression-model">4. The logistic regression model<a class="headerlink" href="#4-the-logistic-regression-model" title="Permanent link">&para;</a></h2>
+<p>Putting it all together, <strong>logistic regression</strong> is the model</p>
+<div class="arithmatex">\[ P(y = 1 \mid x) = \sigma(w^\top x + b). \]</div>
+<p>Equivalently:</p>
+<div class="arithmatex">\[ \log \frac{P(y=1\mid x)}{P(y=0\mid x)} = w^\top x + b. \]</div>
+<p>Two language points worth nailing down:</p>
+<ul>
+<li>The <strong>score</strong> <span class="arithmatex">\(z = w^\top x + b\)</span> is the <em>log-odds</em> of class 1.</li>
+<li>The <strong>decision boundary</strong> is the set of <span class="arithmatex">\(x\)</span> where <span class="arithmatex">\(z = 0\)</span> (equivalently
+  <span class="arithmatex">\(P(y=1\mid x) = 0.5\)</span>). For one feature, that's a single threshold; for
+  two features, it's a straight line; for <span class="arithmatex">\(d\)</span> features, a <span class="arithmatex">\((d-1)\)</span>-dim
+  hyperplane.</li>
+</ul>
+<p>Despite being called "regression", this is a <strong>classification</strong> model — the
+output is a probability, and we usually convert it to a 0/1 prediction by
+thresholding at 0.5 (though we'll see later this threshold is a knob you
+can tune).</p>
+<h2 id="5-where-does-the-loss-come-from-maximum-likelihood">5. Where does the loss come from? Maximum likelihood<a class="headerlink" href="#5-where-does-the-loss-come-from-maximum-likelihood" title="Permanent link">&para;</a></h2>
+<p>We have a parametric model <span class="arithmatex">\(P(y=1\mid x) = \sigma(w^\top x + b)\)</span>. To fit it
+to data we need a <em>loss function</em> — a single number that says "how badly is
+the model doing on this dataset?". For logistic regression, that loss is
+<strong>not</strong> chosen arbitrarily. It falls out of <strong>maximum likelihood
+estimation</strong> of the Bernoulli model.</p>
+<p>Suppose we have <span class="arithmatex">\(n\)</span> matches <span class="arithmatex">\((x_i, y_i)\)</span> with <span class="arithmatex">\(y_i \in \{0, 1\}\)</span>, and write
+<span class="arithmatex">\(\hat{p}_i = \sigma(w^\top x_i + b)\)</span>. Treating each match as an independent
+Bernoulli trial, the <strong>likelihood</strong> of the whole dataset is</p>
+<div class="arithmatex">\[ \mathcal{L}(w, b) = \prod_{i=1}^{n} \hat{p}_i^{\,y_i} (1 - \hat{p}_i)^{1 - y_i}. \]</div>
+<p>That clever-looking product is just "use <span class="arithmatex">\(\hat{p}_i\)</span> when <span class="arithmatex">\(y_i = 1\)</span>, use
+<span class="arithmatex">\(1 - \hat{p}_i\)</span> when <span class="arithmatex">\(y_i = 0\)</span>" written compactly. Taking <span class="arithmatex">\(-\log\)</span> to turn
+the product into a sum (and a maximisation into a minimisation) gives the
+<strong>negative log-likelihood</strong>:</p>
+<div class="arithmatex">\[ -\log \mathcal{L}(w, b) = -\sum_{i=1}^{n}\Big[y_i \log \hat{p}_i + (1 - y_i)\log(1 - \hat{p}_i)\Big]. \]</div>
+<p>This expression has a name in machine learning: <strong>binary cross-entropy
+loss</strong>. So the "loss function" of logistic regression is not an arbitrary
+choice — it is <em>exactly</em> the negative log-likelihood of the Bernoulli model.</p>
+<blockquote>
+<p><strong>The bridge:</strong> Bernoulli distribution + maximum likelihood = binary
+cross-entropy loss. This is <em>the</em> connection the notebook is built around.</p>
+</blockquote>
+<p>Conventionally we average over <span class="arithmatex">\(n\)</span> to get a per-sample loss:</p>
+<div class="arithmatex">\[ L(w, b) = -\frac{1}{n}\sum_{i=1}^{n}\Big[y_i \log \hat{p}_i + (1 - y_i)\log(1 - \hat{p}_i)\Big]. \]</div>
+<h2 id="6-the-gradient-of-cross-entropy">6. The gradient of cross-entropy<a class="headerlink" href="#6-the-gradient-of-cross-entropy" title="Permanent link">&para;</a></h2>
+<p>To run gradient descent we need <span class="arithmatex">\(\nabla_w L\)</span>. Using <span class="arithmatex">\(\hat{p}_i = \sigma(z_i)\)</span>
+with <span class="arithmatex">\(z_i = w^\top x_i + b\)</span>, and the identity
+<span class="arithmatex">\(\sigma'(z) = \sigma(z)(1 - \sigma(z))\)</span>, the chain rule gives (after a small
+amount of algebra that <em>every</em> ML student should do once by hand):</p>
+<div class="arithmatex">\[ \frac{\partial L}{\partial w_j} = \frac{1}{n}\sum_{i=1}^{n}(\hat{p}_i - y_i)\,x_{ij}. \]</div>
+<p>In matrix form, with <span class="arithmatex">\(X \in \mathbb{R}^{n \times d}\)</span> stacking the features:</p>
+<div class="arithmatex">\[ \boxed{\ \nabla_w L = \frac{1}{n} X^\top (\hat{p} - y)\ } \]</div>
+<p>That is the punchline. The gradient is just <strong>"predicted minus actual",
+weighted by the inputs</strong> — exactly the same shape as the gradient of squared
+error in linear regression. Different probabilistic story, same
+algorithmic move.</p>
+<p>The bias gradient is the analogous scalar:</p>
+<div class="arithmatex">\[ \frac{\partial L}{\partial b} = \frac{1}{n}\sum_{i=1}^{n}(\hat{p}_i - y_i). \]</div>
+<h2 id="7-gradient-descent-from-scratch">7. Gradient descent from scratch<a class="headerlink" href="#7-gradient-descent-from-scratch" title="Permanent link">&para;</a></h2>
+<p>We now turn the maths into code. The recipe is short:</p>
+<ol>
+<li>Start with <span class="arithmatex">\(w = 0\)</span>, <span class="arithmatex">\(b = 0\)</span>.</li>
+<li>Compute <span class="arithmatex">\(\hat{p} = \sigma(Xw + b)\)</span>.</li>
+<li>Compute the gradient <span class="arithmatex">\(g_w = \tfrac{1}{n} X^\top (\hat{p} - y)\)</span> and
+   <span class="arithmatex">\(g_b = \tfrac{1}{n} \mathbf{1}^\top (\hat{p} - y)\)</span>.</li>
+<li>Step: <span class="arithmatex">\(w \gets w - \eta\, g_w\)</span>, <span class="arithmatex">\(b \gets b - \eta\, g_b\)</span>.</li>
+<li>Repeat for many epochs and watch the loss go down.</li>
+</ol>
+<p>We'll use the single-feature Arsenal data we already simulated, plus a
+small numerical-stability trick: we clip <span class="arithmatex">\(\hat{p}\)</span> away from exactly 0 and
+1 before taking logs.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">bce_loss</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-12</span><span class="p">):</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">eps</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fit_logistic_gd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">2000</span><span class="p">):</span>
+    <span class="c1"># Vanilla batch gradient descent for binary logistic regression.</span>
+    <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="c1"># gradients</span>
+        <span class="n">g_w</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span> <span class="o">/</span> <span class="n">n</span>
+        <span class="n">g_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">p</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span>
+        <span class="c1"># update</span>
+        <span class="n">w</span> <span class="o">-=</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">g_w</span>
+        <span class="n">b</span> <span class="o">-=</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">g_b</span>
+        <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bce_loss</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">w</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+
+
+<span class="n">X1</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>      <span class="c1"># shape (n, 1)</span>
+<span class="n">y_arr</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="s2">&quot;won&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="n">w_hat</span><span class="p">,</span> <span class="n">b_hat</span><span class="p">,</span> <span class="n">losses</span> <span class="o">=</span> <span class="n">fit_logistic_gd</span><span class="p">(</span><span class="n">X1</span><span class="p">,</span> <span class="n">y_arr</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">4000</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;learned weight w  = </span><span class="si">{</span><span class="n">w_hat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> .4f</span><span class="si">}</span><span class="s2">    (true </span><span class="si">{</span><span class="n">true_w</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;learned bias   b  = </span><span class="si">{</span><span class="n">b_hat</span><span class="si">:</span><span class="s2"> .4f</span><span class="si">}</span><span class="s2">    (true </span><span class="si">{</span><span class="n">true_b</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;final loss       = </span><span class="si">{</span><span class="n">losses</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>learned weight w  =  2.3022    (true 1.8)
+learned bias   b  =  0.4690    (true 0.4)
+final loss       = 0.3918
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Loss curve — the classic monotone descent</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;navy&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;epoch&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;binary cross-entropy&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Loss curve — gradient descent on logistic regression&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../Classification_files/Classification_18_0.png" /></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Plot the fitted sigmoid against the data</span>
+<span class="n">x_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">matches</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">p_grid</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">w_hat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x_grid</span> <span class="o">+</span> <span class="n">b_hat</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">],</span> <span class="n">matches</span><span class="p">[</span><span class="s2">&quot;won&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;matches&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_grid</span><span class="p">,</span> <span class="n">p_grid</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;navy&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;logistic fit (GD)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;threshold = 0.5&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;xG difference (Arsenal − opponent)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;P(win | xG diff)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Logistic regression — fitted from scratch with batch GD&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../Classification_files/Classification_19_0.png" /></p>
+<h2 id="8-sanity-check-compare-with-statsmodelslogit">8. Sanity check — compare with <code>statsmodels.Logit</code><a class="headerlink" href="#8-sanity-check-compare-with-statsmodelslogit" title="Permanent link">&para;</a></h2>
+<p>A from-scratch implementation is only useful if we can verify it against a
+trusted library. <code>statsmodels.Logit</code> fits the same model using a
+Newton-Raphson solver, so its coefficients should match ours within a
+small tolerance.</p>
+<div class="highlight"><pre><span></span><code><span class="n">X_sm</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="s2">&quot;xg_diff&quot;</span><span class="p">])</span>
+<span class="n">sm_logit</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">Logit</span><span class="p">(</span><span class="n">matches</span><span class="p">[</span><span class="s2">&quot;won&quot;</span><span class="p">],</span> <span class="n">X_sm</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">disp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sm_logit</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;statsmodels  intercept = </span><span class="si">{</span><span class="n">sm_logit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;const&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2"> .4f</span><span class="si">}</span><span class="s2">,  slope = </span><span class="si">{</span><span class="n">sm_logit</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;xg_diff&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2"> .4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;our GD       intercept = </span><span class="si">{</span><span class="n">b_hat</span><span class="si">:</span><span class="s2"> .4f</span><span class="si">}</span><span class="s2">,  slope = </span><span class="si">{</span><span class="n">w_hat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2"> .4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.4690      0.317      1.482      0.138      -0.151       1.089
+xg_diff        2.3022      0.520      4.428      0.000       1.283       3.321
+==============================================================================
+
+statsmodels  intercept =  0.4690,  slope =  2.3022
+our GD       intercept =  0.4690,  slope =  2.3022
+</code></pre></div>
+<p>The two sets of coefficients agree to a couple of decimal places — a small
+gap remains because batch GD with a fixed learning rate hasn't fully
+converged, while <code>statsmodels</code> uses a second-order solver. Crank the
+epochs or the learning rate up and they'll match more tightly.</p>
+<p>This is exactly the same comparison we did for Ridge regression in the
+<em>Regularization</em> notebook — implementing the algorithm by hand and then
+checking against a reference is one of the best habits you can build as a
+data scientist.</p>
+<h2 id="9-two-features-a-decision-boundary-you-can-see">9. Two features → a decision boundary you can see<a class="headerlink" href="#9-two-features-a-decision-boundary-you-can-see" title="Permanent link">&para;</a></h2>
+<p>With one feature the "boundary" is just a threshold on the x-axis. With
+<strong>two features</strong> we can finally <em>see</em> what the classifier is doing — the
+boundary becomes a straight line in feature space.</p>
+<p>We'll add a second feature, <strong>possession percentage</strong>, and refit.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add possession as a second feature</span>
+<span class="n">possession</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">55</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_matches</span><span class="p">)</span>        <span class="c1"># Arsenal possession %</span>
+
+<span class="c1"># Underlying truth: both features matter</span>
+<span class="n">z_true</span> <span class="o">=</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">xg_diff</span> <span class="o">+</span> <span class="mf">0.07</span> <span class="o">*</span> <span class="p">(</span><span class="n">possession</span> <span class="o">-</span> <span class="mi">50</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.2</span>
+<span class="n">p_true</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">z_true</span><span class="p">)</span>
+<span class="n">y2</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">binomial</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_true</span><span class="p">)</span>
+
+<span class="n">X2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">xg_diff</span><span class="p">,</span> <span class="n">possession</span><span class="p">])</span>
+<span class="n">w2</span><span class="p">,</span> <span class="n">b2</span><span class="p">,</span> <span class="n">losses2</span> <span class="o">=</span> <span class="n">fit_logistic_gd</span><span class="p">(</span><span class="n">X2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">8000</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;weights = </span><span class="si">{</span><span class="n">w2</span><span class="si">}</span><span class="s2">,   bias = </span><span class="si">{</span><span class="n">b2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>weights = [15.04475554 -0.15072324],   bias = -8.003
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># Plot points, colour by class, overlay decision boundary</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">xg_diff</span><span class="p">[</span><span class="n">y2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">],</span> <span class="n">possession</span><span class="p">[</span><span class="n">y2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;seagreen&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;win&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">xg_diff</span><span class="p">[</span><span class="n">y2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">],</span> <span class="n">possession</span><span class="p">[</span><span class="n">y2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightcoral&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;loss/draw&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+<span class="c1"># Decision boundary: w1*x1 + w2*x2 + b = 0  ⇒  x2 = -(w1*x1 + b) / w2</span>
+<span class="n">x1_line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xg_diff</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">xg_diff</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">x2_line</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">w2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x1_line</span> <span class="o">+</span> <span class="n">b2</span><span class="p">)</span> <span class="o">/</span> <span class="n">w2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x1_line</span><span class="p">,</span> <span class="n">x2_line</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;navy&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;decision boundary&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;xG difference&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;possession %&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Decision boundary in 2D feature space&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">possession</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">possession</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../Classification_files/Classification_25_0.png" /></p>
+<p>Logistic regression draws a <strong>linear</strong> boundary. Points above the line are
+predicted as "win", points below as "loss/draw". The further a point is from
+the line, the more confident the model is in its prediction (because the
+log-odds <span class="arithmatex">\(z\)</span> is further from zero). That's why logistic regression is
+sometimes called a <em>linear classifier</em>: even though the sigmoid is curved,
+the decision surface is flat.</p>
+<h2 id="10-classification-metrics-beyond-accuracy">10. Classification metrics — beyond accuracy<a class="headerlink" href="#10-classification-metrics-beyond-accuracy" title="Permanent link">&para;</a></h2>
+<p>Once we have predicted probabilities <span class="arithmatex">\(\hat{p}_i\)</span>, we can convert them to
+predicted classes by thresholding (default: <span class="arithmatex">\(\hat{y} = 1\)</span> if <span class="arithmatex">\(\hat{p} \ge
+0.5\)</span>). But how do we measure how good the predictions are?</p>
+<p>The <strong>confusion matrix</strong> tabulates predictions against truth:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Predicted 0</th>
+<th>Predicted 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Actual 0</strong></td>
+<td>TN</td>
+<td>FP</td>
+</tr>
+<tr>
+<td><strong>Actual 1</strong></td>
+<td>FN</td>
+<td>TP</td>
+</tr>
+</tbody>
+</table>
+<p>From it we get four standard metrics:</p>
+<ul>
+<li><strong>Accuracy</strong> <span class="arithmatex">\(= \dfrac{TP + TN}{TP + TN + FP + FN}\)</span> — overall hit rate.</li>
+<li><strong>Precision</strong> <span class="arithmatex">\(= \dfrac{TP}{TP + FP}\)</span> — <em>of the matches I predicted Arsenal would win, how many did they actually win?</em></li>
+<li><strong>Recall</strong> (sensitivity) <span class="arithmatex">\(= \dfrac{TP}{TP + FN}\)</span> — <em>of the matches Arsenal actually won, how many did I catch?</em></li>
+<li><strong>F1-score</strong> <span class="arithmatex">\(= \dfrac{2 \cdot \text{prec} \cdot \text{rec}}{\text{prec} + \text{rec}}\)</span> — harmonic mean; balances the two.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Predictions on the 2-feature model at the default threshold of 0.5</span>
+<span class="n">p_hat</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">X2</span> <span class="o">@</span> <span class="n">w2</span> <span class="o">+</span> <span class="n">b2</span><span class="p">)</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_hat</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Confusion matrix:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span>
+                   <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;actual loss/draw&quot;</span><span class="p">,</span> <span class="s2">&quot;actual win&quot;</span><span class="p">],</span>
+                   <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;predicted loss/draw&quot;</span><span class="p">,</span> <span class="s2">&quot;predicted win&quot;</span><span class="p">]))</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;accuracy  = </span><span class="si">{</span><span class="n">accuracy_score</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;precision = </span><span class="si">{</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;recall    = </span><span class="si">{</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;F1        = </span><span class="si">{</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Confusion matrix:
+                  predicted loss/draw  predicted win
+actual loss/draw                   24              1
+actual win                         38             17
+
+accuracy  = 0.512
+precision = 0.944
+recall    = 0.309
+F1        = 0.466
+</code></pre></div>
+<p><strong>When accuracy lies.</strong> Imagine a season where Arsenal win 95% of their
+matches (a lovely fantasy). A model that <em>always</em> predicts "win" would have
+95% accuracy without learning anything — it would have <strong>zero recall on
+losses</strong> and would never warn you about an upset. This is the classic
+<strong>class-imbalance trap</strong>.</p>
+<p>For imbalanced problems, look at precision, recall, F1, and the ROC curve
+<em>together</em>, not accuracy alone.</p>
+<h2 id="11-threshold-tuning-roc-and-auc">11. Threshold tuning, ROC, and AUC<a class="headerlink" href="#11-threshold-tuning-roc-and-auc" title="Permanent link">&para;</a></h2>
+<p>The 0.5 threshold is a <em>default</em>, not a law. Lowering it makes the model
+more eager to predict "win" — recall goes up, precision goes down. Raising
+it does the opposite. The right threshold depends on the cost of false
+positives versus false negatives in your application.</p>
+<p>The <strong>ROC curve</strong> plots <strong>true positive rate</strong> (recall) against <strong>false
+positive rate</strong> as the threshold sweeps from 1 down to 0. The <strong>AUC</strong> (area
+under the ROC curve) summarises the curve as a single number: 1.0 is a
+perfect classifier, 0.5 is random guessing.</p>
+<div class="highlight"><pre><span></span><code><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span> <span class="n">p_hat</span><span class="p">)</span>
+<span class="n">roc_auc</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;navy&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;ROC (AUC = </span><span class="si">{</span><span class="n">roc_auc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;random guess&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;false positive rate&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;true positive rate (recall)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;ROC curve — Arsenal win classifier&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../Classification_files/Classification_31_0.png" /></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># How precision &amp; recall trade off as threshold changes</span>
+<span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mi">19</span><span class="p">)</span>
+<span class="n">prec_list</span><span class="p">,</span> <span class="n">rec_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">ts</span><span class="p">:</span>
+    <span class="n">yt</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_hat</span> <span class="o">&gt;=</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">prec_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span> <span class="n">yt</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">rec_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y2</span><span class="p">,</span> <span class="n">yt</span><span class="p">,</span> <span class="n">zero_division</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">prec_list</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;precision&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;navy&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">rec_list</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;recall&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;crimson&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;threshold&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Precision/recall trade-off as the threshold moves&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p><img alt="png" src="../Classification_files/Classification_32_0.png" /></p>
+<p>A useful rule of thumb: the <strong>F1-score</strong> peaks at a threshold that balances
+precision and recall, so if you have no domain-specific cost preference,
+picking the threshold that maximises F1 on a validation set is a sensible
+default.</p>
+<blockquote>
+<p><strong>Side note — regularised logistic regression.</strong> If your model overfits
+(lots of features, few samples), you can add an <span class="arithmatex">\(L_2\)</span> or <span class="arithmatex">\(L_1\)</span> penalty
+to the cross-entropy loss in exactly the same way we did for Ridge and
+Lasso in the <em>Regularization</em> notebook. The gradient picks up an extra
+<span class="arithmatex">\(+\lambda w\)</span> term and everything else stays the same.</p>
+</blockquote>
+<h2 id="12-beyond-binary-a-softmax-teaser">12. Beyond binary — a softmax teaser<a class="headerlink" href="#12-beyond-binary-a-softmax-teaser" title="Permanent link">&para;</a></h2>
+<p>What if we want to predict three or more classes (win / draw / loss
+properly, instead of collapsing draws into "not a win")? The Bernoulli
+generalises to the <strong>categorical</strong> distribution, and the sigmoid
+generalises to the <strong>softmax</strong>:</p>
+<div class="arithmatex">\[ P(y = k \mid x) = \frac{e^{w_k^\top x + b_k}}{\sum_{j=1}^{K} e^{w_j^\top x + b_j}}. \]</div>
+<p>Each class gets its own weight vector <span class="arithmatex">\(w_k\)</span>. The loss generalises in the
+obvious way to <strong>categorical cross-entropy</strong>:</p>
+<div class="arithmatex">\[ L = -\frac{1}{n}\sum_{i=1}^{n} \sum_{k=1}^{K} \mathbb{1}[y_i = k]\, \log P(y_i = k \mid x_i). \]</div>
+<p>The gradient still has the beautiful form <strong>"predicted minus actual"</strong> —
+where "actual" is now a one-hot vector and "predicted" is the softmax
+probability vector. Everything you learned in the binary case carries
+over.</p>
+<p>In practice you can do multiclass logistic regression with a single line:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="c1"># Simulate a 3-class outcome: 0 = loss, 1 = draw, 2 = win</span>
+<span class="n">z_w</span> <span class="o">=</span> <span class="mf">1.4</span> <span class="o">*</span> <span class="n">xg_diff</span> <span class="o">+</span> <span class="mf">0.06</span> <span class="o">*</span> <span class="p">(</span><span class="n">possession</span> <span class="o">-</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">z_l</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.4</span> <span class="o">*</span> <span class="n">xg_diff</span> <span class="o">-</span> <span class="mf">0.06</span> <span class="o">*</span> <span class="p">(</span><span class="n">possession</span> <span class="o">-</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">exps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">z_l</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_matches</span><span class="p">),</span> <span class="n">z_w</span><span class="p">]))</span>
+<span class="n">probs</span> <span class="o">=</span> <span class="n">exps</span> <span class="o">/</span> <span class="n">exps</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">y3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">probs</span><span class="p">])</span>
+
+<span class="n">clf</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">multi_class</span><span class="o">=</span><span class="s2">&quot;multinomial&quot;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X2</span><span class="p">,</span> <span class="n">y3</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;multinomial coefficients shape:&quot;</span><span class="p">,</span> <span class="n">clf</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>   <span class="c1"># (n_classes, n_features)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;training accuracy:&quot;</span><span class="p">,</span> <span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X2</span><span class="p">,</span> <span class="n">y3</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>multinomial coefficients shape: (3, 2)
+training accuracy: 0.75
+
+
+/Users/aayush/micromamba/envs/stats/lib/python3.10/site-packages/sklearn/linear_model/_logistic.py:1272: FutureWarning: &#39;multi_class&#39; was deprecated in version 1.5 and will be removed in 1.7. From then on, it will always use &#39;multinomial&#39;. Leave it to its default value to avoid this warning.
+  warnings.warn(
+</code></pre></div>
+<h2 id="13-key-takeaways">13. Key takeaways<a class="headerlink" href="#13-key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Binary outcomes need a probability model</strong>, not a straight line.
+  Linear regression on 0/1 data produces nonsense outside <span class="arithmatex">\([0, 1]\)</span> and
+  violates its own assumptions.</li>
+<li>The right model is the <strong>Bernoulli</strong>, with its parameter <span class="arithmatex">\(p\)</span> allowed to
+  depend on features through the <strong>sigmoid</strong> of a linear score:
+  <span class="arithmatex">\(P(y=1\mid x) = \sigma(w^\top x + b)\)</span>.</li>
+<li>The <strong>loss isn't arbitrary</strong> — binary cross-entropy is <em>exactly</em> the
+  negative log-likelihood of the Bernoulli model.</li>
+<li>The gradient of cross-entropy collapses to the elegant
+  <strong><span class="arithmatex">\(X^\top(\hat{p} - y) / n\)</span></strong> — "predicted minus actual", weighted by
+  inputs. Same algorithmic shape as the gradient of squared error.</li>
+<li>A <strong>from-scratch GD implementation</strong> can be checked against
+  <code>statsmodels.Logit</code> — they should agree on the coefficients (up to
+  convergence tolerance).</li>
+<li>The decision boundary of logistic regression is <strong>linear</strong>; that's why
+  it's called a linear classifier, even though the sigmoid is curved.</li>
+<li><strong>Accuracy alone is misleading</strong> on imbalanced data. Always look at
+  precision, recall, F1, and the ROC/AUC together.</li>
+<li>The <strong>threshold</strong> of 0.5 is a default, not a law — sweep it and pick the
+  operating point your application actually needs.</li>
+<li><strong>Multiclass classification</strong> is the same idea with the softmax replacing
+  the sigmoid and categorical cross-entropy replacing binary cross-entropy.</li>
+</ul>
+<h2 id="14-practice-exercises">14. Practice exercises<a class="headerlink" href="#14-practice-exercises" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Hand derivation.</strong> Starting from <span class="arithmatex">\(L = -\frac{1}{n}\sum [y\log\sigma(z) +
+   (1-y)\log(1-\sigma(z))]\)</span>, show by chain rule that <span class="arithmatex">\(\partial L / \partial w_j
+   = \frac{1}{n}\sum (\sigma(z_i) - y_i)\, x_{ij}\)</span>. Use the identity
+   <span class="arithmatex">\(\sigma'(z) = \sigma(z)(1 - \sigma(z))\)</span>.</li>
+<li><strong>Threshold tuning.</strong> Using the predicted probabilities <code>p_hat</code> from the
+   2-feature model, find the threshold that maximises F1-score on this
+   dataset. Plot F1 as a function of threshold.</li>
+<li><strong>Different learning rate.</strong> Re-run <code>fit_logistic_gd</code> with <code>lr=0.001</code>,
+   <code>lr=0.05</code>, and <code>lr=2.0</code>. Which converges fastest? Which diverges?</li>
+<li><strong>Add a feature.</strong> Simulate a third feature ("days of rest before the
+   match") that has <em>no</em> relationship to the outcome. Refit the model and
+   inspect the learned weight — what would you expect, and what do you see?</li>
+<li><strong>Imbalanced classes.</strong> Simulate a season where the win rate is 90%.
+   Fit the model and report accuracy, precision, recall, and F1. Then try
+   the trivial classifier "always predict win" and compare. What does this
+   tell you about accuracy as a metric?</li>
+<li><strong>Connect to GLM.</strong> Refit the single-feature model using
+   <code>sm.GLM(y, X, family=sm.families.Binomial())</code> instead of <code>sm.Logit</code>.
+   Confirm the coefficients are identical and explain why.</li>
+</ol>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../GLM/" class="btn btn-neutral float-left" title="Generalized Linear Models"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../LinearMixedModels/" class="btn btn-neutral float-right" title="Linear Mixed Models">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 - Aayush Raj Regmi</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../GLM/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../LinearMixedModels/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../javascripts/mathjax.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
