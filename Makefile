@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 INPUT_DIR  := notebooks
-NOTEBOOK  ?= notebooks/StatisticsFoundations.ipynb
+NOTEBOOK  ?= notebooks/Regularization.ipynb
 OUTPUT    ?= docs/lectures/
 
 NOTEBOOKS := \
@@ -11,6 +11,12 @@ NOTEBOOKS := \
 	notebooks/MLConcepts.ipynb \
 	notebooks/LinearRegression.ipynb \
 	notebooks/ParameterEstimation.ipynb \
+	notebooks/Regularization.ipynb \
+	notebooks/ANOVA.ipynb \
+	notebooks/ANCOVA.ipynb \
+	notebooks/GLM.ipynb \
+	notebooks/Classification.ipynb \
+	notebooks/LinearMixedModels.ipynb \
 	notebooks/TimeSeries.ipynb \
 	notebooks/TimeSeriesModels.ipynb
 

@@ -3,14 +3,29 @@ site_description: Applied Statistical Analysis Course
 
 nav:
   - Welcome: index.md
-  - Installation Guide: lectures/InstallationGuide.md
-  - Introduction: lectures/Introduction.md
-  - Statistical Foundations: lectures/StatisticsFoundations.md
-  - ML / AI / DS Concepts: lectures/MLConcepts.md
-  - Linear Regression: lectures/LinearRegression.md
-  - Parameter Estimation & Regularization: lectures/ParameterEstimation.md
-  - Time Series: lectures/TimeSeries.md
-  - Time Series Models: lectures/TimeSeriesModels.md
+  - Getting Started:
+    - Installation Guide: lectures/InstallationGuide.md
+  - Introduction:
+    - Introduction: lectures/Introduction.md
+    - Statistical Foundations: lectures/StatisticsFoundations.md
+    - ML / AI / DS Concepts: lectures/MLConcepts.md
+  - Applied Statistical Analysis:
+    - Regression:
+      - Linear Regression: lectures/LinearRegression.md
+      - Parameter Estimation: lectures/ParameterEstimation.md
+      - Bias, Variance & Regularization: lectures/Regularization.md
+    - Anova:
+      - ANOVA, ANCOVA & MANOVA: lectures/ANOVA.md
+      - ANCOVA — The Tip Money Mystery: lectures/ANCOVA.md
+    - GLM:
+      - Generalized Linear Models: lectures/GLM.md
+    - Classification:
+      - Logistic Regression: lectures/Classification.md
+    - Mixed Models:
+      - Linear Mixed Models: lectures/LinearMixedModels.md
+  - Time Series Analysis:
+    - Time Series: lectures/TimeSeries.md
+    - Time Series Models: lectures/TimeSeriesModels.md
 theme:
   name: readthedocs
   features:
